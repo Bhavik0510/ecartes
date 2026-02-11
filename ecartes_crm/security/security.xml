@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	 <record id="group_tender_pipeline_user" model="res.groups">
+        <field name="name">Manage Tender Pipeline</field>
+        <field name="comment">To manage the tenders</field>
+    </record>
+
+    <record id="tender_pipeline_comp_rule" model="ir.rule">
+        <field name="name">Tender Pipeline multi-company</field>
+        <field name="model_id" ref="model_tender_pipeline"/>
+        <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="emd_reject_reason_view_form" model="ir.ui.view">
+            <field name="name">emd.reject.reason.view.form</field>
+            <field name="model">emd.reject</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="reject_reason"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button type="object" name="go_submit" string="Submit" class="btn btn-info"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_emd_reject_reason" model="ir.actions.act_window">
+            <field name="name">Reject Reason</field>
+            <field name="res_model">emd.reject</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="hr.leave.type" id="business_trip_leave">
+        <field name="name">Bussiness Trip</field>
+        <field name="time_type">leave</field>
+        <field name="requires_allocation">no</field>
+        <field name="is_business_trip" eval="1"/>
+    </record>
+</odoo>

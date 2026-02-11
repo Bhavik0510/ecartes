@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+	<record id="amc_form_view" model="ir.ui.view">
+        <field name="name">amc.form.view</field>
+        <field name="model">amc.amc</field>
+        <field name="inherit_id" ref="ecartes_amc.amc_form_view"/>
+        <field name="arch" type="xml">
+        	<xpath expr="//button[@name='create_amc_claim']" position="replace">
+        		<button name="create_amc_claim" type="object" string="Create Ticket" class="oe_highlight"/>
+        	</xpath>
+
+        	<xpath expr="//button[@name='get_amc']" position="replace">
+        		<button type="object" class="oe_stat_button" icon="fa-bars" name="get_amc">
+                    <field string="Tickets" name="claim_count" widget="statinfo"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='amc_claim_ids']" position="replace">
+            	<field name="amc_claim_ids" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

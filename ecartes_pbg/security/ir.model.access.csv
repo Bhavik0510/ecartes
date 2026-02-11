@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pbg_details,access.pbg.details,model_pbg_details,,1,1,1,1
+ecartes_pbg.access_issue_pbg,access_issue_pbg,ecartes_pbg.model_issue_pbg,,1,1,1,1
+access_reject_reason,access.reject.reason,model_reject_reason,,1,1,1,1
+access_return_pbg,access.return.pbg,model_return_pbg,,1,1,1,1
+

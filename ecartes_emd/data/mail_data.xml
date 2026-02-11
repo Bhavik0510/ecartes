@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="mail_act_emd_approval" model="mail.activity.type">
+            <field name="name">Emd Approval</field>
+            <field name="icon">fa-sun-o</field>
+            <field name="res_model">ecartes.emd</field>
+        </record>
+        <record id="mail_act_emd_second_approval" model="mail.activity.type">
+            <field name="name">Emd Second Approve</field>
+            <field name="icon">fa-sun-o</field>
+            <field name="res_model">ecartes.emd</field>
+        </record>
+    </data>
+</odoo>
+

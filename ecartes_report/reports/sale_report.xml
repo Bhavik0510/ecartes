@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- <record id="budgetary_quotation_government_report_action" model="ir.actions.report">
+            <field name="name">Budgetary Quotation (Government)</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.budgetary_quotation_government_report_template</field>
+            <field name="report_file">ecartes_report.budgetary_quotation_government_report_template</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record>
+        <record id="budgetary_quotation_printer_report_action" model="ir.actions.report">
+            <field name="name">Budgetary Quotation Printer</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.budgetary_quotation_printer_report_template</field>
+            <field name="report_file">ecartes_report.budgetary_quotation_printer_report_template</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record> -->
+    </data>
+</odoo>

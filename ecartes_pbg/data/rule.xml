@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="ecartes_pbg_manager_rule" model="ir.rule">
+            <field name="name">Ecartes PBG Manager</field>
+            <field name="model_id" ref="model_pbg_details"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field eval="[(4,ref('ecartes_pbg.pbg_group_access_to_manager'))]" name="groups"/>
+        </record> 
+    
+        <record id="ecartes_pbg_users_rule" model="ir.rule">
+            <field name="name">Ecartes PBG User</field>
+            <field name="model_id" ref="model_pbg_details"/>
+            <field name="domain_force">[('create_uid.id', '=', user.id)]</field>
+            <field eval="[(4,ref('ecartes_pbg.pbg_group_access_to_user'))]" name="groups"/>
+        </record> 
+
+        <record id="ecartes_pbg_request_multi_rule" model="ir.rule">
+            <field name="name">PGB Request multi-company</field>
+            <field name="model_id" ref="model_pbg_details"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+    </odoo>

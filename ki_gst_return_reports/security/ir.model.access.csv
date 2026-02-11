@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gstr_return,access.gstr.return,model_gstr_return,account.group_account_manager,1,1,1,1
+access_hsn_data,access.hsn.data,model_hsn_data,account.group_account_manager,1,1,1,1
+access_export_invoice,access.export.invoice,model_export_invoice,account.group_account_manager,1,1,1,1
+access_exempt_data,access.exempt.data,model_exempt_data,account.group_account_manager,1,1,1,1
+access_docs_data,access.docs.data,model_docs_data,account.group_account_manager,1,1,1,1
+access_cdnur_invoice,access.cdnur.invoice,model_cdnur_invoice,account.group_account_manager,1,1,1,1
+access_cdnr_invoice,access.cdnr.invoice,model_cdnr_invoice,account.group_account_manager,1,1,1,1
+access_b2cs_invoice,access.b2cs.invoice,model_b2cs_invoice,account.group_account_manager,1,1,1,1
+access_b2cl_invoice,access.b2cl.invoice,model_b2cl_invoice,account.group_account_manager,1,1,1,1
+access_b2b_invoice,access.b2b.invoice,model_b2b_invoice,account.group_account_manager,1,1,1,1
+access_tax_adjustment,access.tax.adjustment,model_tax_adjustment,account.group_account_manager,1,1,1,1
+access_advance_tax,access.advance.tax,model_advance_tax,account.group_account_manager,1,1,1,1
+access_v_excel_output,access.v.excel.output,model_v_excel_output,account.group_account_manager,1,1,1,1
+access_v_json_output,access.v.json.output,model_v_json_output,account.group_account_manager,1,1,1,1
+access_monthly_gst_statement_excel,access_monthly_gst_statement_excel,model_monthly_gst_statement_excel,account.group_account_manager,1,1,1,1

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_type_of_company_tree" model="ir.ui.view">
+        <field name="name">Type of Company Tree</field>
+        <field name="model">vx.type.of.company</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="is_existing_customer"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_type_of_company_form" model="ir.ui.view">
+        <field name="name">Type of Company Form</field>
+        <field name="model">vx.type.of.company</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1 class="d-flex">
+                            <field name="name" placeholder="Type of Company Name"/>
+                        </h1>
+                    </div>
+                    <group col="4">
+                        <field name="is_existing_customer"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_type_of_company" model="ir.actions.act_window">
+        <field name="name">Type of Company</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">vx.type.of.company</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            No Type of Company found. Let's create one.
+          </p>
+        </field>
+    </record>
+    <menuitem id="menu_type_of_company" name="Type of Company" action="action_type_of_company" parent="contacts.res_partner_menu_config" sequence="100"/>
+</odoo>

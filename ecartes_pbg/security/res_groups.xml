@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="pbg_grp_category" model="ir.module.category">
+            <field name="name">PBG</field>
+        </record>
+        <record id="pbg_group_access_to_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="ecartes_pbg.pbg_grp_category"/>
+        </record>
+        <record id="group_ecartes_pbg_account" model="res.groups">
+            <field name="name">Accounts</field>
+            <field name="category_id" ref="ecartes_pbg.pbg_grp_category"/>
+        </record>
+        <record id="pbg_group_access_to_manager" model="res.groups">
+            <field name="name">Senior Management</field>
+            <field name="category_id" ref="ecartes_pbg.pbg_grp_category"/>
+        </record>
+    </data>
+
+</odoo>

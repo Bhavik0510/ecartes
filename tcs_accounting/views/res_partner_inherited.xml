@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="res_partner_inherit_new" model="ir.ui.view">
+            <field name="name">res.partner</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='accounting']"  position="inside">
+                        <group string="TCS Information">
+                            <group>
+                                <field name="tcs_applicable" widget="boolean_toggle"/>
+<!--                                <field name="tcs_percentage"/>-->
+                                <field name="tax_id"/>
+                            </group>
+                            <group string="TDS Information">
+
+                                    <field name="tds_applicable" widget="boolean_toggle"/>
+                                    <field name="tds_sec"/>
+<!--                                    <field name="tds_percentage"/>-->
+                                    <field name="tax_tds"/>
+
+                            </group>
+                        </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

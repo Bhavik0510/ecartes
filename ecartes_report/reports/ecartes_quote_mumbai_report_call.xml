@@ -1,0 +1,15 @@
+<odoo>
+    <!--    <p>Report call</p>-->
+    <data>
+        <record id="ecartes_quote_mumbai_report" model="ir.actions.report">
+            <field name="name">Quatation Mumbai</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.ecartes_quote_mumbai_report_template</field>
+            <field name="report_file">ecartes_report.ecartes_quote_mumbai_report_template</field>
+            <field name="print_report_name">'Quatation Mumbai Report'</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

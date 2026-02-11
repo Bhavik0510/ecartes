@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="account_move_form_inherit_amc" model="ir.ui.view">
+            <field name="name">account.move.form.inherit.amc</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="ecartes_account.account_inherit_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='deal']" position="after">
+                    <field name="is_amc_invoice" readonly="1" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='deal']" position="before">
+                    <field name="amc_id" invisible="not is_amc_invoice"/>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

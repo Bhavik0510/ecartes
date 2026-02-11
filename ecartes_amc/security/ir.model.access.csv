@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_amc_amc,access.amc.amc,model_amc_amc,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_line,access.amc.line,model_amc_line,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_history,access.amc.history,model_amc_history,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_claim,access.amc.claim,model_amc_claim,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_term,access.amc.term,model_amc_term,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_renew,access.amc.renew,model_amc_renew,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_visitor,access.amc.visitor,model_amc_visitor,ecartes_amc.allow_claim_access,1,1,1,1
+
+
+
+
+
+

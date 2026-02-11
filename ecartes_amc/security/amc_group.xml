@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.module.category" id="ecartes_amc_categ">
+            <field name="name">AMC</field>
+        </record>
+        <record id="allow_claim_access" model="res.groups">
+            <field name="name">AMC</field>
+            <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>
+        </record>
+        <record id="allow_claim_forcefully" model="res.groups">
+            <field name="name">Allow claim after expiry</field>
+            <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>
+        </record>
+
+        <record id="allow_configurration" model="res.groups">
+            <field name="name">Allow AMC Configuration</field>
+            <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>
+        </record>
+    </data>
+</odoo>

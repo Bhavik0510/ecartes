@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+        <record id="department_accounts" model="hr.department">
+            <field name="name">Account</field>
+        </record>
+
+        <record id="department_e_governance" model="hr.department">
+            <field name="name">E-governance</field>
+        </record>
+
+        <record id="department_projects" model="hr.department">
+            <field name="name">Projects</field>
+        </record>
+        <record id="department_factory" model="hr.department">
+            <field name="name">Factory</field>
+        </record>
+
+        <record id="department_staff" model="hr.department">
+            <field name="name">Staff</field>
+        </record>
+
+        <record id="department_sales_marketing" model="hr.department">
+            <field name="name">Sales &amp; Marketing</field>
+        </record>
+
+        <record id="department_salvonic_tech_sales" model="hr.department">
+            <field name="name">Salvonic Tech Sales</field>
+        </record>
+
+        <record id="department_software_development" model="hr.department">
+            <field name="name">Software Development</field>
+        </record>
+
+        <record id="department_technical_support" model="hr.department">
+            <field name="name">Technical Support</field>
+        </record>
+
+        <record id="department_techno_commercial" model="hr.department">
+            <field name="name">Techno Commercial</field>
+        </record>
+
+        <record id="department_tenders" model="hr.department">
+            <field name="name">Tenders</field>
+        </record>
+
+        <record id="department_test_tecblic_odoo" model="hr.department">
+            <field name="name">Test Tecblic Odoo</field>
+        </record>
+    </data>
+</odoo>

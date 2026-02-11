@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+einvoice_configuration,einvoice_configuration,model_einvoicing_configuration,group_einvoice_manager,1,1,1,1
+einvoice_cancel,einvoice_cancel,model_einvoice_cancel,group_einvoice_manager,1,1,1,1
+eway_bill_cancel,eway_bill_cancel,model_eway_bill_cancel,group_einvoice_manager,1,1,1,1

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_leaves_inherit_ecartes" model="ir.ui.view">
+        <field name="name">view.leaves.inherit.ecartes</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_approve']" position="attributes">
+                <attribute name="groups">ecartes_leaves.group_ecartes_leaves_account</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_validate']" position="attributes">
+                <attribute name="groups">ecartes_leaves.group_ecartes_leaves_management</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_refuse']" position="attributes">
+                <attribute name="groups">ecartes_leaves.group_ecartes_leaves_management,ecartes_leaves.group_ecartes_leaves_account</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_reset_confirm']" position="attributes">
+                <attribute name="groups">ecartes_leaves.group_ecartes_leaves_management,ecartes_leaves.group_ecartes_leaves_account</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ecartes_calendar_report_view" model="ir.ui.view">
+        <field name="name">ecartes.calendar.report.view</field>
+        <field name="model">hr.leave.report.calendar</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_report_calendar_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="holiday_status_id" filters="1" invisible="1"/>
+            </xpath>
+            <calendar position="attributes">
+                <attribute name="color">holiday_status_id</attribute>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="hr_leave_tree_inherit" model="ir.ui.view">
+        <field name="name">Hr</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_tree"/>
+        <field name="arch" type="xml">
+            <button name="action_validate" position="replace">
+                <button string="Validate" name="action_validate" type="object"
+                        icon="fa-check"
+                        groups="ecartes_leaves.group_ecartes_leaves_management"
+                        invisible="state in ('validate','refuse','confirm') "/>
+            </button>
+            <button name="action_approve" position="replace">
+                <button string="Approve" name="action_approve" type="object"
+                        icon="fa-thumbs-up"
+                        groups="ecartes_leaves.group_ecartes_leaves_account"
+                        invisible="state in ('validate1','refuse','validate') "/>
+            </button>
+            <button name="action_refuse" position="replace">
+                <button string="Refuse" name="action_refuse" type="object"
+                        icon="fa-times"
+                        groups="ecartes_leaves.group_ecartes_leaves_management"/>
+            </button>
+        </field>
+    </record>
+
+    <record id="hr_holidays.hr_leave_action_action_approve_department" model="ir.actions.act_window">
+        <field name="context">{
+            'search_default_approve': 1 ,
+            'search_default_my_team': 1 ,
+            'search_default_active_employee':1,
+            'search_default_active_time_off': 1,
+            }
+        </field>
+    </record>
+
+    <record id="hr_leave_tree_inherit_filter" model="ir.ui.view">
+        <field name="name">Hr</field>
+        <field name="model">hr.leave.allocation</field>
+        <field name="inherit_id" ref="hr_holidays.view_hr_leave_allocation_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_team']" position="attributes">
+                <attribute name="groups">ecartes_leaves.group_ecartes_leaves_management</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_leave_action_time_off" model="ir.actions.act_window">
+        <field name="name">All Time Off</field>
+        <field name="res_model">hr.leave</field>
+        <field name="binding_view_types">tree</field>
+        <field name="view_id" ref="hr_holidays.hr_leave_view_tree"/>
+        <field name="context">{
+            'search_default_approve': 1,
+            'search_default_my_team': 0,
+            'search_default_active_employee': 1,
+            'search_default_active_time_off': 1,
+            'hide_employee_name': 1}
+        </field>
+    </record>
+
+    <record id="hr_leave_action_approve" model="ir.actions.act_window">
+        <field name="name">All Time Off</field>
+        <field name="res_model">hr.leave</field>
+        <field name="binding_view_types">tree</field>
+        <field name="view_id" ref="hr_holidays.hr_leave_view_tree"/>
+        <field name="context">{
+            'search_default_approve': 1,
+            'search_default_my_team': 1,
+            'search_default_active_employee': 1,
+            'search_default_active_time_off': 0,
+            'hide_employee_name': 1}
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_hr_holidays_approvals"
+        name="Approval"
+        parent="hr_holidays.menu_hr_holidays_root"
+        sequence="4"/>
+
+    <menuitem id="times_off_sr_manager"
+              name="Times off SR Approval"
+              parent="ecartes_leaves.menu_hr_holidays_approvals"
+              action="hr_leave_action_time_off"
+              groups="ecartes_leaves.group_ecartes_leaves_management,ecartes_leaves.group_ecartes_leaves_hr"/>
+    <menuitem id="times_off_manager"
+              name="Times off Approval"
+              parent="ecartes_leaves.menu_hr_holidays_approvals"
+              action="hr_leave_action_approve"
+              groups="ecartes_leaves.group_ecartes_leaves_account"/>
+    <menuitem id="ecartes_leaves.menu_open_department_leave_approve"
+              name="Time off"
+              parent="ecartes_leaves.menu_hr_holidays_approvals"
+              groups="base.group_system"/>
+</odoo>

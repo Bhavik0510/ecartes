@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="amc_visitor_form_view" model="ir.ui.view">
+        <field name="name">amc.visitor.form.view</field>
+        <field name="model">amc.visitor</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="engineer_id"/>
+            </form>
+        </field>
+    </record>
+</odoo>

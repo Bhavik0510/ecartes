@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="warranty_renew_form_view" model="ir.ui.view">
+            <field name="name">warranty.renew.form.view</field>
+            <field name="model">product.warranty.renew</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="warranty_id" readonly="1"/>
+                                <field name="product_id" readonly="1"/>
+                                <field name="lot_id" readonly="1"/>
+                                <field name="product_qty" readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="warranty_term_id" required="1"/>
+                                <field name="warranty_start_date" required="1"/>
+                                <field name="warranty_end_date" required="1"/>
+                                <field name="renewal_amt" required="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="btn_save" string="Save" type="object" class="oe_highlight"/>
+                        <button string='Cancel' class='oe_right' special='cancel'/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

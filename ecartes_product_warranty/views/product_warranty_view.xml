@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="product_warranty_form_view" model="ir.ui.view">
+            <field name="name">product.warranty.form.view</field>
+            <field name="model">product.warranty</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="start_warranty" type="object" string="Start Warranty" class="oe_highlight" invisible="state != 'invoiced'"/>
+                        <button name="confirm_warranty" type="object" string="Confirm" class="oe_highlight" invisible="state != 'draft'"/>
+                        <button name="create_warranty_claim" type="object" string="Create Ticket" class="oe_highlight" invisible="state != 'under_warranty'"/>
+                        <button name="create_warranty_invoice" type="object" string="Create Invoice"
+                                class="oe_highlight" invisible="state != '2beinvoice'"/>
+                        <button name="btn_cancel" type="object" string="Cancel" invisible="state not in ['2beinvoice','under_warranty']" />
+                        <button name="create_amcs" type="object" string="Create AMC"
+                                class="oe_highlight" invisible="state != 'expired'"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,under_warranty,2beinvoice,invoiced,expired,renewed" clickable="1"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Expired" bg_color="bg-danger"
+                                invisible="state not in ['expired']"/>
+                        <div class="oe_button_box" name="button_box">
+                            <field name="invoice_id" invisible="1"/>
+
+                            <!-- <button name="info_hostel" type="object" class ="oe_stat_button" icon="fa-home icon" string="Hostel Info"/> -->
+
+                            <button type="object" class="oe_stat_button" icon="fa-bars"
+                                    name="get_amc">
+                                <field name='amc_count' string="AMC"  widget="statinfo"/>
+                            </button>
+
+                            <button type="object" class="oe_stat_button" icon="fa-bars"
+                                    name="get_warranty">
+                                <field string="Tickets" name="claim_count" widget="statinfo"/>
+                            </button>
+
+                            <button name="action_created_invoice" type="object" class="oe_stat_button"
+                                    icon="fa-pencil-square-o" invisible="not invoice_id"
+                                    groups="account.group_account_invoice">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">1</span>
+                                    <span class="o_stat_text">Invoices</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <label class="o_form_label" for="name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Customer" name="customer">
+                                <field name="partner_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <div class="o_form_label o_td_label">
+                                    <span invisible="1">Address</span>
+                                </div>
+                                <div class="o_address_format" name="div_address">
+                                    <field name="street" placeholder="Street..." class="o_address_street"/>
+                                    <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                    <field name="city" placeholder="City" class="o_address_city"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State"
+                                           options="{'no_open': True, 'no_quick_create': True}"
+                                           context="{'country_id': country_id, 'default_country_id': country_id, 'zip': zip}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country"
+                                           options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                </div>
+                                <field name="phone"/>
+                                <field name="mobile"/>
+                                <field name="email"/>
+                            </group>
+                            <group string="Warranty Details" name="warranty_details">
+                                <field name="warranty_type" widget="radio"/>
+                                <field name="warranty_amt"
+                                       required="warranty_type == 'paid'" invisible="warranty_type == 'free' "/>
+                                <field name="warranty_term_id" options='{"no_open": True, "no_create": True}' required="1"/>
+                                <field name="warranty_start_date" required="1"/>
+                                <field name="is_set_install_date" invisible="0"/>
+                                <field name="installation_date" readonly="is_set_install_date"/>
+                                <field name="warranty_end_date" readonly="1" force_save="1"/>
+                                <field name="company_id" groups="base.group_multi_company"
+                                       options="{'no_create': True}"/>
+                                <field name="user_id" readonly="1"/>
+                                <field name="renewal_user_id" invisible="state != 'renewed'" readonly="1"/>
+                                <field name="renew_date" readonly="1" invisible="state != 'renewed'"/>
+                                <field name="create_date" readonly="1"/>
+                                <field name="invoice_state" invisible="1"/>
+                                <field name="is_renewed" invisible="1"/>
+                                <field name="sale_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Product">
+                                <field name="product_id"/>
+                                <field name="lot_ids" widget="many2many_tags" 
+                                       context="{'default_product_id': product_id, 'default_company_id': company_id}"
+                                       groups="stock.group_production_lot"
+                                       required="tracking in ['serial', 'lot']"
+                                       invisible="tracking not in ['serial', 'lot']"
+                                       readonly = "state == 'done' or tracking not in ['serial', 'lot']"/>
+                                <field name="tracking" invisible="1" readonly="1"/>
+                                <label for="product_qty"/>
+                                <div class="o_row">
+                                    <field name="product_qty" readonly="tracking == 'serial'"/>
+                                </div>
+                                <field name="allow_renewal" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Warranty History">
+                                <field name="warranty_history_ids" readonly="1" options='{"no_open": True}'>
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="warranty_start_date"/>
+                                        <field name="warranty_end_date"/>
+                                        <field name="amt"/>
+                                        <field name="is_paid"/>
+                                        <field name="is_free"/>
+                                        <field name="is_renewed"/>
+                                        <field name="invoice_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Claim History">
+                                <field name="warranty_claim_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                        <chatter/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="product_warranty_tree_view" model="ir.ui.view">
+            <field name="name">product.warranty.tree.view</field>
+            <field name="model">product.warranty</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="create_date"/>
+                    <field name="user_id" optional="hide"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="lot_ids"/>
+                    <field name="warranty_type"/>
+                    <field name="warranty_term_id"/>
+                    <field name="warranty_start_date"/>
+                    <field name="warranty_end_date"/>
+                    <field name="warranty_amt" optional="hide"/>
+                    <field name="renewal_user_id" optional="hide"/>
+                    <field name="is_renewed"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.actions.server" id="action_create_amc">
+            <field name="name">Create AMC</field>
+            <!-- <field name="model_id" ref="account.model_account_move"/> -->
+            <field name="model_id" ref="ecartes_product_warranty.model_product_warranty"/>
+
+            <field name="binding_model_id" ref="ecartes_product_warranty.model_product_warranty"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.create_amc()
+            </field>
+         </record>
+
+  
+       
+  
+
+        <record id="product_warranty_action" model="ir.actions.act_window">
+            <field name="name">Product Warranty</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.warranty</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record id="warranty_product_action" model="ir.actions.act_window">
+            <field name="name">Warranty Product</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_under_warranty','=',True)]</field>
+        </record>
+
+        <record id="product_warranty_invoices_action" model="ir.actions.act_window">
+            <field name="name">Product Warranty Invoice</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('is_warranty_invoice','=',True)]</field>
+        </record>
+
+        <menuitem id="product_warranty_root" name="Product Warranty" groups="ecartes_product_warranty.show_warranty"/>
+        <menuitem id="product_warranty_categ" name="Product Warranty" parent="product_warranty_root" sequence="1"/>
+        <menuitem id="product_warranty_menu" name="Product Warranty" parent="product_warranty_categ"
+                  action="product_warranty_action"/>
+        <menuitem id="warranty_product_menu" name="Warranty Product" parent="product_warranty_root"
+                  action="warranty_product_action" sequence="2"/>
+        <menuitem id="warranty_product_invoice_menu" name="Warranty Invoices" parent="product_warranty_root"
+                  action="product_warranty_invoices_action" sequence="3"/>
+        <menuitem id="product_warranty_config" name="Configuration" parent="product_warranty_root" sequence="5" groups="ecartes_product_warranty.allow_warranty_configurration"/>
+
+    </data>
+</odoo>

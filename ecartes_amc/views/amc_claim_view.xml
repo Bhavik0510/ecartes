@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="amc_claim_form_view" model="ir.ui.view">
+            <field name="name">amc.claim.form.view</field>
+            <field name="model">amc.claim</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="confirm_claim" type="object" string="Confirm" invisible="state != 'new'" class="oe_highlight"/>
+                        <button name="under_maintenance" type="object" string="Under Maintenance" invisible="state != 'confirm'" class="oe_highlight"/>
+                        <button name="ready_to_deliver" type="object" string="Ready To Deliver" invisible="state != 'under_maintenance'" class="oe_highlight"/>
+                        <button name="done" type="object" string="Done" invisible="state != 'ready_to_deliver'" class="oe_highlight"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+
+                    <sheet>
+                        <div class="oe_title">
+                            <label class="o_form_label" for="claim_description"/>
+                            <h1>
+                                <field name="claim_description"/>
+                            </h1>
+                        </div>
+                        <group string="Claim Details">
+                            <group>
+                                <field name="priority" widget="priority" class="mr-3"/>
+                                <field name="claim_date"/>
+                                <field name="user_id"/>
+                            </group>
+                            <group>
+                                <field name="company_id"/>
+                                <field name="amc_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Customer Details">
+                                <field name="partner_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Products">
+                                <field name="amc_line_ids">
+                                    <list editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="lot_id" required =" tracking in ['serial', 'lot']" 
+                                        readonly = "tracking not in ['serial', 'lot'] "/>
+                                        <field name="product_qty"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="tracking" invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="amc_claim_tree_view" model="ir.ui.view">
+            <field name="name">amc.claim.tree.view</field>
+            <field name="model">amc.claim</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="claim_description"/>
+                    <field name="amc_id"/>
+                    <field name="claim_date"/>
+                    <field name="partner_id"/>
+                    <field name="user_id"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="amc_claim_action" model="ir.actions.act_window">
+            <field name="name">Claims</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">amc.claim</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- <menuitem id="amc_claim_categ" parent="ecartes_amc.amc_root" name="AMC Claims" sequence="2"/>
+        <menuitem id="amc_claim_menu" name="Claims" parent="amc_claim_categ" action="amc_claim_action"/> -->
+    </data>
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_task_inherit_form" model="ir.ui.view">
+        <field name="name">Project Task Inherit Form</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_ids']" position="after">
+                <field name="participients_ids" widget="many2many_tags"/>
+                <field name="observers"/>
+            </xpath>
+            <xpath expr="//field[@name='recurring_task']" position="after">
+                <field name="observers"/>
+                <field name="time_tracking"/>
+                <field name="repeat_task"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="before">
+                <label for="name" string="Things To do"/>
+            </xpath>
+        </field>
+    </record>    
+</odoo>

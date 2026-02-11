@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="mail_act_business_trip_approval" model="mail.activity.type">
+            <field name="name">Business trip Approval</field>
+            <field name="icon">fa-sun-o</field>
+            <field name="res_model">business.trip</field>
+        </record>
+
+        <record id="mail_act_business_trip_second_approval" model="mail.activity.type">
+            <field name="name">Business trip Second Approve</field>
+            <field name="icon">fa-sun-o</field>
+            <field name="res_model">business.trip</field>
+        </record>
+
+        <record id="mail_act_business_trip_user_manager_approval" model="mail.activity.type">
+            <field name="name">Business trip Manager Approval</field>
+            <field name="icon">fa-sun-o</field>
+            <field name="res_model">business.trip</field>
+        </record>
+    </data>
+</odoo>

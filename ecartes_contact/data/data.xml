@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="toc_prospective_customer" model="vx.type.of.company">
+        <field name="name">Prospective Customer</field>
+    </record>
+    <record id="toc_prospective_tender" model="vx.type.of.company">
+        <field name="name">Prospective Tender</field>
+    </record>
+    <record id="toc_existing_client" model="vx.type.of.company">
+        <field name="name">Existing Client</field>
+        <field name="is_existing_customer">True</field>
+    </record>
+    <record id="toc_dealer" model="vx.type.of.company">
+        <field name="name">Dealer</field>
+    </record>
+    <record id="toc_supplier" model="vx.type.of.company">
+        <field name="name">Supplier</field>
+    </record>
+    <record id="toc_lost_company" model="vx.type.of.company">
+        <field name="name">Lost Company</field>
+    </record>
+</odoo>

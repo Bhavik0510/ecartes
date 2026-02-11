@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ecartes_pbg_report" model="ir.actions.report">
+            <field name="name">PBG Report</field>
+            <field name="model">pbg.details</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_pbg.pbg_report_template</field>
+            <field name="report_file">ecartes_pbg.pbg_report_template</field>
+            <field name="binding_model_id" ref="model_pbg_details"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

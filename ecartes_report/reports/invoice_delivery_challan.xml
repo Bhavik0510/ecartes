@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="invoice_delivery_challan_report_action" model="ir.actions.report">
+            <field name="name">Delivery Challan Report</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.invoice_delivery_challan_report</field>
+            <field name="report_file">ecartes_report.invoice_delivery_challan_report</field>
+            <field name="print_report_name">'Delivery Challan- %s' % (object.name)</field>
+            <field name="binding_model_id" ref="stock.model_stock_picking" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="ecartes_report.paperformat_ecartes"/>
+        </record>
+
+        <template id="invoice_delivery_challan_report">
+            <t t-set="report_name" t-value="'Delivery-Challan'"/>
+            <t t-foreach="docs" t-as="t">
+                <t t-set="company_id_val" t-value="t.company_id"/>
+                <t t-call="web.html_container">
+                    <t t-call="ecartes_report.delhi_custom_external_layout_header">
+                        <div class="page">
+                            <div style="padding:50px;border:none;">  </div>
+                            <div style="border:1px solid;font-weight:bold;text-align:center;padding:20px;font-size:24px;">
+                                Delivery Slip/Challan
+                            </div>
+                            <div style="width:100%;float:left;border:1px solid black;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <div class="pl-1" style="width:50%;float:left;border-right:1px solid black;">
+                                        <div style="font-weight:bold;">
+                                            <span t-if="t.company_id"><t t-esc="t.company_id.name"/></span>
+                                        </div>
+                                        <div>
+                                            <span t-if="t.company_id.street"><t t-esc="t.company_id.street"/></span>,
+                                            <span t-if="t.company_id.street2"><t t-esc="t.company_id.street2"/></span>
+                                        </div>
+                                        <div>
+                                            <span t-if="t.company_id.city"><t t-esc="t.company_id.city"/></span>, <span t-if="t.company_id.state_id"><t t-esc="t.company_id.state_id.name"/></span>- <span t-if="t.company_id.zip"><t t-esc="t.company_id.zip"/></span>
+                                        </div>
+                                        <div t-if="t.company_id.phone" style="width:100%;float:left;display:flex;">
+                                            <div>Ph. <span t-if="t.company_id.phone"><t t-esc="t.company_id.phone"/></span></div>
+                                        </div>
+                                        <div t-if="t.company_id.fax" style="width:100%;float:left;display:flex;">
+                                            <div>Fax: <span t-if="t.company_id.fax"><t t-esc="t.company_id.fax"/></span></div>
+                                        </div>
+                                        <div t-if="t.company_id.website" style="width:100%;float:left;display:flex;">
+                                            <div>Website: <span t-if="t.company_id.website"><t t-esc="t.company_id.website"/></span></div>
+                                        </div>
+                                        <div t-if="t.company_id.vat" style="width:100%;float:left;display:flex;">
+                                            <div>GST No. <span t-if="t.company_id.vat"><t t-esc="t.company_id.vat"/></span></div>
+                                        </div>
+                                        <div t-if="t.company_id.email" style="width:100%;float:left;display:flex;">
+                                            <div>Email:- <span t-if="t.company_id.email"><t t-esc="t.company_id.email"/></span></div>
+                                        </div>
+                                    </div>
+                                    <div style="width:50%;float:right;">
+                                        <div class="pl-1" style="float:left;border-left:1px solid black;">
+                                            <div class="text-start"><b>Consignee:</b></div>
+                                            <div style="font-weight:bold;">
+                                                <span t-if="t.partner_id.name"><t t-esc="t.partner_id.name"/></span>
+                                            </div>
+                                            <div>
+                                                <span t-if="t.partner_id.street"><t t-esc="t.partner_id.street"/></span>,
+                                                <span t-if="t.partner_id.street2"><t t-esc="t.partner_id.street2"/></span>
+                                            </div>
+                                            <div>
+                                                <span t-if="t.partner_id.city"><t t-esc="t.partner_id.city"/></span>, <span t-if="t.partner_id.state_id"><t t-esc="t.partner_id.state_id.name"/></span>, <span t-if="t.partner_id.zip"><t t-esc="t.partner_id.zip"/></span>
+                                            </div>
+                                            <div>
+                                                <t t-if="t.partner_id.country_id">
+                                                    <t t-esc="t.partner_id.country_id.name"/>
+                                                </t>
+                                            </div>
+                                            <div t-if="t.partner_id.vat" style="width:100%;float:left;display:flex;">
+                                                <div><b>GSTIN:</b> <span t-if="t.partner_id.vat"><t t-esc="t.partner_id.vat"/></span></div>
+                                            </div>
+                                            <div t-if="t.sale_id.responsible_person" style="width:100%;float:left;display:flex;">
+                                                <div><b>Contact Person:</b> <span t-if="t.sale_id.responsible_person"><t t-esc="t.sale_id.responsible_person"/></span></div>
+                                            </div>
+                                            <div t-if="t.partner_id.phone" style="width:100%;float:left;display:flex;">
+                                                <div><b>Phone:</b> <span t-if="t.partner_id.phone"><t t-esc="t.partner_id.phone"/></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="width:100%;float:left;border:1px solid black;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <div class="pl-1" style="width:50%;float:left;border-right:1px solid black;">
+                                        <div t-if="t.name" style="width:100%;float:left;display:flex;">
+                                            <div><b>Delivery Challan No. </b> <span t-if="t.name"><t t-esc="t.name"/></span></div>
+                                        </div>
+                                    </div>
+                                    <div style="width:50%;float:right;">
+                                        <div class="pl-1" style="float:left;">
+                                            <div t-if="t.create_date" style="width:100%;float:left;display:flex;">
+                                                <div><b>Date:</b> <span t-if="t.create_date"><t t-esc="t.create_date"/></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="width:100%;float:left;border:1px solid black;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <div class="pl-1" style="width:50%;float:left;border-right:1px solid black;">
+                                        <div t-if="t.origin" style="width:100%;float:left;display:flex;">
+                                            <div><b>Order No. </b> <span t-if="t.origin"><t t-esc="t.origin"/></span></div>
+                                        </div>
+                                    </div>
+                                    <div style="width:50%;float:right;">
+                                        <div class="pl-1" style="float:left;">
+                                            <div t-if="t.date_done" style="width:100%;float:left;display:flex;">
+                                                <div><b>Shipping Date:</b> <span t-if="t.date_done"><t t-esc="t.date_done"/></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="width:100%;float:left;border:1px solid black;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <table class="table" style="margin-top:15px;font-size:15px;">
+                                        <style>th,td{ border: 1px solid black !important; }</style>
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center" style="width:50%">Product Name</th>
+                                                <th class="text-center" style="width:40%">Lot/Serial Number</th>
+                                                <th class="text-center" style="width:10%">Quantity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="t.move_line_ids_without_package" t-as="d">
+                                                <tr class="border-black">
+                                                    <td class="text-center">
+                                                        <span t-field="d.product_id.name"/>
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <t t-esc="d.lot_id.name"/>
+                                                    </td>
+                                                    <td class="text-center">
+                                                         <span><t t-esc='d.quantity'/> <t t-esc="d.product_uom_id.name"/></span>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div style="width:100%;float:left;border:1px solid black;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <div class="pl-1 pb-5" style="width:50%;float:left;border-right:1px solid black;">
+                                        <div t-if="t.sale_id.user_id" style="width:100%;float:left;display:flex;">
+                                            <div><b>Prepared By: </b> <span t-if="t.sale_id.user_id"><t t-esc="t.sale_id.user_id.name"/></span></div>
+                                        </div>
+                                        <div style="width:100%;float:left;display:flex;">
+                                            <div><b>Remarks: </b> <span><t t-esc="t.note"/></span></div>
+                                        </div>
+                                    </div>
+                                    <div style="width:50%;float:right;">
+                                        <div class="pl-2 pb-5" style="float:left;">
+                                            <div style="width:100%;float:left;display:flex;">
+                                                <div style="font-size:20px"><b>Authorized Signatory</b></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

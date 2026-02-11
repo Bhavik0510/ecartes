@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="emd_report_templates">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="container">
+                                <h2>
+                                    <b>
+                                        <center>Emd Report</center>
+                                    </b>
+                                </h2>
+                                <br></br>
+                                <br></br>
+                                <div class="row">
+                                    <div class="col-6" style="text-align:left;">
+                                        <p>
+                                            <b>Name</b>
+                                            :
+                                            <span t-field="o.title"/>
+                                        </p>
+                                        <p>
+                                            <b>Beneficiary :</b>
+                                            <span t-field="o.beneficiary_id"/>
+                                        </p>
+                                        <p>
+                                            <b>In Favour Of :</b>
+                                            <span t-field="o.in_favour_of"/>
+                                        </p>
+                                        <p>
+                                            <b>Opportunity Name :</b>
+                                            <span t-field="o.deal_name_id"/>
+                                        </p>
+                                        <p>
+                                            <b>Amount :</b>
+                                            <span t-field="o.amount"/>
+                                        </p>
+                                        <p>
+                                            <b>Payment Mode is :</b>
+                                            <span t-field="o.payment_mode"/>
+                                        </p>
+                                        <p>
+                                            <b>Create By :</b>
+                                            <span t-field="o.create_uid"/>
+                                        </p>
+                                        <t t-if="o.issued_id">
+                                            <p>
+                                                <b>Issued :</b>
+                                                <span t-field="o.issued_id"/>
+                                            </p>
+                                            <p>
+                                                <b>Manager :</b>
+                                                <span t-field="o.manager_id"/>
+                                            </p>
+                                        </t>
+                                    </div>
+                                    <div class="col-6" style="text-align:right;">
+                                        <p>
+                                            <b>Valid Till :</b>
+                                            <span t-field="o.valid_till"/>
+                                        </p>
+                                        <p>
+                                            <b>Due Date :</b>
+                                            <span t-field="o.due_date"/>
+                                        </p>
+                                        <p>
+                                            <b>Bank Details :</b>
+                                            <span t-field="o.bank_details"/>
+                                        </p>
+                                        <p>
+                                            <b>Bank Details Attachments :</b>
+                                            <span t-field="o.bank_details_attachments"/>
+                                        </p>
+                                        <p>
+                                            <b>Payable At :</b>
+                                            <span t-field="o.payable_at"/>
+                                        </p>
+                                        <p>
+                                            <b>Ref No :</b>
+                                            <span t-field="o.ref_no"/>
+                                        </p>
+                                        <p>
+                                            <b>Issue Date :</b>
+                                            <span t-field="o.issue_date"/>
+                                        </p>
+                                        <p>
+                                            <b>Issued Emd Amount :</b>
+                                            <span t-field="o.emd_amount"/>
+                                        </p>
+                                        <t t-if="o.reject_reason">
+                                            <p>
+                                                <b>Reject Reason :</b>
+                                                <span t-field="o.reject_reason"/>
+                                            </p>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

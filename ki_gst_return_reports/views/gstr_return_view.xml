@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="account_move_gst_return_inherit" model="ir.ui.view">
+		<field name="name">account.move.gst.return.form.inherit</field>
+		<field name="model">account.move</field>
+		<field name="inherit_id" ref="account.view_move_form" />
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='partner_id']" position="after">
+				<field name="e_commerce_gst" />
+				<field name="reversed_charged" widget="radio" options="{'horizontal': true}" />
+			</xpath>
+		</field>
+	</record>
+
+    <record id="gstr_return_form_views" model="ir.ui.view">
+        <field name="name">gstr.return.form</field>
+        <field name="model">gstr.return</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Product Licence Form">
+                <header>
+                    <button name="compute_gstr" type="object" string="Compute"
+                            invisible="state not in ('draft')" class="oe_highlight"/>
+                    <button name="get_data" type="object" string="Export Excel"
+                            invisible="state not in ('done')" class="oe_highlight"/>
+                    <button name="get_gst_json" type="object" string="Export JSON"
+                            invisible="state not in ('done')" class="oe_highlight"/>
+                    <button name="action_submit" type="object" string="Submit"
+                            invisible="state not in ('progress')" class="oe_highlight"/>
+                    <button name="compute_gstr" type="object" string="Re Compute"
+                            invisible="state not in ('progress')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('progress')"/>
+                    <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,progress,done"/>
+                </header>
+                <group>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" string="GST"/>
+                        </h1>
+                    </div>
+                </group>
+
+                <group>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="start_date"/>
+                    </group>
+                    <group>
+                        <field name="gstin"/>
+                        <field name="end_date"/>
+                    </group>
+                </group>
+
+                <notebook>
+                    <page string="B2B">
+                        <field name="b2b_invoice_ids" mode="list" readonly="1">
+                            <list string="B2B Invoice">
+                                <field name="gstin_number"/>
+                                <field name="invoice_id"/>
+                                <field name="invoice_date"/>
+                                <field name="invoice_value"/>
+                                <field name="state_name"/>
+                                <field name="reverse_charge"/>
+                                <field name="invoice_type"/>
+                                <field name="e_commerce_gstin"/>
+                                <field name="rate"/>
+                                <field name="taxable_value"/>
+                                <field name="cess_amount"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="B2CL">
+                        <field name="b2cl_invoice_ids" mode="list" readonly="1">
+                            <list string="B2CL Invoice">
+                                <field name="invoice_id"/>
+                                <field name="invoice_date"/>
+                                <field name="invoice_value"/>
+                                <field name="state_name"/>
+                                <field name="rate"/>
+                                <field name="taxable_value"/>
+                                <field name="cess_amount"/>
+                                <field name="e_commerce_gstin"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="B2CS">
+                        <field name="b2cs_invoice_ids" mode="list" readonly="1">
+                            <list string="B2CS Invoice">
+                                <field name="type"/>
+                                <field name="state_name"/>
+                                <field name="rate"/>
+                                <field name="taxable_value"/>
+                                <field name="cess_amount"/>
+                                <field name="e_commerce_gstin"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="CDNR">
+                        <field name="cdnr_invoice_ids" mode="list" readonly="1">
+                            <list string="Cr/Dr Note Registered">
+                                <field name="gstin_number"/>
+                                <field name="invoice_number"/>
+                                <field name="invoice_date"/>
+                                <field name="voucher_id"/>
+                                <field name="voucher_date"/>
+                                <field name="document_type"/>
+                                <field name="reason"/>
+                                <field name="state_name"/>
+                                <field name="voucher_value"/>
+                                <field name="rate"/>
+                                <field name="taxable_value"/>
+                                <field name="cess_amount"/>
+                                <field name="pre_gst"/>
+                            </list>
+                        </field>
+                    </page>
+
+
+                    <page string="CDNUR">
+                        <field name="cdnur_invoice_ids" mode="list" readonly="1">
+                            <list string="Cr/Dr Note Unregistered">
+                                <field name="ur_type"/>
+                                <field name="voucher_id"/>
+                                <field name="voucher_date"/>
+                                <field name="document_type"/>
+                                <field name="invoice_number"/>
+                                <field name="invoice_date"/>
+                                <field name="reason"/>
+                                <field name="state_name"/>
+                                <field name="voucher_value"/>
+                                <field name="rate"/>
+                                <field name="taxable_value"/>
+                                <field name="cess_amount"/>
+                                <field name="pre_gst"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="Export">
+                        <field name="export_invoice_ids" mode="list" readonly="1">
+                            <list string="Cr/Dr Note Unregistered">
+                                <field name="export_type"/>
+                                <field name="invoice_id"/>
+                                <field name="invoice_date"/>
+                                <field name="invoice_value"/>
+                                <field name="port_code"/>
+                                <field name="shipping_bill_number"/>
+                                <field name="shipping_bill_date"/>
+                                <field name="rate"/>
+                                <field name="taxable_value"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="AT">
+                        <field name="advance_tax_ids" mode="list" readonly="1">
+                            <list string="Advance Tax">
+                                <field name="state_name"/>
+                                <field name="rate"/>
+                                <field name="gross_advance_receipt"/>
+                                <field name="cess_amount"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="ATADJ">
+                        <field name="tax_adjust_ids" mode="list" readonly="1">
+                            <list string="Advance Adjustment">
+                                <field name="state_name"/>
+                                <field name="rate"/>
+                                <field name="gross_advance_receipt"/>
+                                <field name="cess_amount"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="Exempt">
+                        <field name="exempt_data_ids" mode="list" readonly="1">
+                            <list string="Exempt Data">
+                                <field name="description"/>
+                                <field name="nil_rated_supplies"/>
+                                <field name="exempt_supplies"/>
+                                <field name="non_gst_supplies"/>
+                                <field name="supply_type" invisible="True"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="HSN">
+                        <field name="hsn_data_ids" mode="list" readonly="1">
+                            <list string="Advance Adjustment">
+                                <field name="hsn_code"/>
+                                <field name="description"/>
+                                <field name="uom_id"/>
+                                <field name="total_quantity"/>
+                                <field name="total_value"/>
+                                <field name="taxable_value"/>
+                                <field name="igst"/>
+                                <field name="cgst"/>
+                                <field name="sgst"/>
+                                <field name="cess_amount"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <page string="Docs">
+                        <field name="docs_data_ids" mode="list" readonly="1">
+                            <list string="Advance Adjustment">
+                                <field name="nature_of_document"/>
+                                <field name="no_from"/>
+                                <field name="no_to"/>
+                                <field name="total"/>
+                                <field name="cancelled"/>
+                            </list>
+                        </field>
+                    </page>
+
+                </notebook>
+            </form>
+        </field>
+    </record>
+
+    <record id="gstr_return_list_view" model="ir.ui.view">
+        <field name="name">gstr.return.list</field>
+        <field name="model">gstr.return</field>
+        <field name="arch" type="xml">
+            <list string="GSTR Return">
+                <field name="company_id"/>
+                <field name="gstin"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="gstr_return_list_action" model="ir.actions.act_window">
+        <field name="name">GSTR Return</field>
+        <field name="res_model">gstr.return</field>
+        <!--        <field name="view_type">form</field>-->
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem
+            id="menu_gst_main"
+            name="GST"
+            groups="base.group_user"
+            sequence="3"/>
+
+
+    <menuitem id="gstin_dashboard_view"
+              parent="menu_gst_main"
+              name="GSTIN"
+
+    />
+
+    <menuitem id="gstr1_return_menu_view"
+              action="gstr_return_list_action"
+              name="GSTR1"
+              parent="gstin_dashboard_view"
+
+              sequence="1"/>
+
+
+</odoo>

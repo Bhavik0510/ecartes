@@ -1,0 +1,31 @@
+{
+    'name': "ecartes_amc",
+    'summary':'ecartes_amc',
+    'description': '''
+        ecartes_amc
+    ''',
+    'author': 'Virtual-X Solution',
+    'company': 'Virtual-X Solution',
+    'category': 'Uncategorized',
+    'version': '15.0.0',
+    'depends': ['base','mail','product', 'stock','account','ecartes_account', 'hr'],
+    'data': [
+        'security/amc_group.xml',
+        'security/ir.model.access.csv',
+        'wizard/amc_renew_view.xml',
+        'views/amc_view.xml',
+        'data/ir_sequence.xml',
+        'data/ir_cron.xml',
+        'views/amc_claim_view.xml',
+        'views/product_template_view.xml',
+        'views/amc_terms_view.xml',
+        'views/account_move_view.xml',
+        'views/amc_visitor.xml',
+        # 'data/ir_cron.xml',
+        # 'wizard/warranty_renew_view.xml',
+        # 'views/product_template_view.xml',
+        # 'views/warranty_claim_view.xml',
+        # 'views/warranty_terms_view.xml',
+    ],
+    'license': 'LGPL-3',
+}

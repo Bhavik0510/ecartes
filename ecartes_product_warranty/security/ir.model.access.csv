@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_warranty,product_warranty.product_warranty,model_product_warranty,,1,1,1,1
+access_warranty_claim,access_warranty.claim,model_warranty_claim,,1,1,1,1
+access_warranty_term,access_warranty.term,model_warranty_term,,1,1,1,1
+access_warranty_history,access_warranty.history,model_warranty_history,,1,1,1,1
+access_product_warranty_renew,access_product_warranty_renew,model_product_warranty_renew,,1,1,1,1
+access_product_warranty_status,access_product_warranty_status,model_warranty_status,,1,1,1,1

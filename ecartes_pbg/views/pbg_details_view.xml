@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="pbg_details_view_form" model="ir.ui.view">
+            <field name="name">pbg.details.view.form</field>
+            <field name="model">pbg.details</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                        <button name="send_to_draft" type="object"
+                                string="Set To Draft"
+                                invisible="state != 'canceled' "
+                                class="oe_highlight"/>
+
+                        <button name="set_to_cancel" type="object"
+                                string="Cancel"
+                                invisible="state in ['draft','returned','canceled','rejected']"
+                                class="oe_highlight"/>
+
+                        <button name="send_to_manager" type="object" string="Submit To Manager"
+                                groups="ecartes_pbg.pbg_group_access_to_user,ecartes_pbg.pbg_group_access_to_manager"
+                                class="oe_highlight"
+                                invisible="state != 'draft'"/>
+
+                        <button name="send_to_reject" type="object" string="Reject"
+                                invisible="state not in ['manager','approved']"
+                                class="oe_highlight"
+                                groups='ecartes_pbg.pbg_group_access_to_manager'/>
+
+                        <button name="approve_manager" groups="ecartes_pbg.pbg_group_access_to_manager" type="object"
+                                string="Approve"
+                                invisible="state != 'manager'"
+                                class="oe_highlight"/>
+
+                        <button name="%(ecartes_pbg.employee_pbg_issue_action)d"
+                                groups="ecartes_pbg.group_ecartes_pbg_account"
+                                type="action" string="Issue" invisible="state != 'approved'"
+                                class="oe_highlight"/>
+
+                        <button name="%(ecartes_pbg.action_return_pbg)d"
+                                groups='ecartes_pbg.pbg_group_access_to_manager,ecartes_pbg.group_ecartes_pbg_account'
+                                type="action" string="Return"
+                                invisible="state != 'issued'"
+                                class="oe_highlight"/>
+
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="title" required='1' readonly="state != 'draft'"/>
+                                <field name="beneficiary" readonly="state != 'draft'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="in_favour_of" required='1' readonly="state != 'draft'"/>
+                                <!-- <field name="deal_name_ID" readonly="state != 'draft'"/> -->
+                                <field name="tender_deal_name_ID" readonly="state != 'draft'"/>
+                                <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"
+                                       readonly="state != 'draft'"/>
+                                <field name="currency_id" readonly="state != 'draft'"/>
+                                <field name="payment_mode" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="create_uid" readonly="1"/>
+                                <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
+                                <field name="valid_till" required='1' readonly="state != 'draft'"/>
+                                <field name="due_date" required='1' readonly="state != 'draft'"/>
+                                <field name="beneficiary_address" required='1'
+                                       readonly="state != 'draft'"/>
+                                <field name="order_id" required='1' readonly="state != 'draft'"/>
+                                <field name="bank_details_attachments"
+                                       readonly="state != 'draft'"/>
+                                <field name="payable_at" readonly="state != 'draft'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Issue Information" invisible="state not in  ['issued','returned']">
+                                <field name="ref_no" readonly="1"/>
+                                <field name="issue_date" readonly="1"/>
+                                <field name="pbg_amount" readonly="1"/>
+                                <field name="claim_expiry_date" readonly="1"/>
+                                <field name="per_of_margin" readonly="1"/>
+                                <field name="lien_on_fd" readonly="1"/>
+                                <field name="bg_type" readonly="1"/>
+                            </group>
+                            <group string="Return Information" invisible="state != 'returned'">
+                                <field name="pbg_returned_date" readonly='1'/>
+                                <field name="returned_amount" readonly='1'/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Approved Details">
+                                <group>
+                                    <field name="manager_id" readonly="state != 'draft'" />
+                                    <field name="issued_id" readonly="state != 'draft'" />
+                                </group>
+                            </page>
+                            <page string="Reject Reason" name="reject_reason" invisible="state != 'rejected'">
+                                <field name="reject_reason" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="pbg_details_view_list" model="ir.ui.view">
+            <field name="name">pbg.details.view.form</field>
+            <field name="model">pbg.details</field>
+            <field name="arch" type="xml">
+                <list
+                        decoration-info="state in 'manager'"
+                        decoration-primary="state in 'approved'"
+                        decoration-warning="state in 'issued'"
+                        decoration-success="state in 'returned'"
+                        decoration-danger="state in 'rejected'"
+                        decoration-muted="state in 'canceled'">
+
+                    <field name="bg_type"/>
+                    <field name="ref_no"/>
+                    <field name="beneficiary"/>
+                    <field name="amount"/>
+                    <field name="issue_date"/>
+                    <field name="claim_expiry_date"/>
+                    <field name="per_of_margin"/>
+                    <field name="lien_on_fd"/>
+                    <field name="order_id"/>
+                    <field name="issued_id"/>
+                    <field name="state"/>
+                    <field name="pbg_returned_date"/>
+
+                    <!-- <field name="in_favour_of" optional="hide"/>
+                    <field name="tender_deal_name_ID" optional="show"/>
+                    <field name="payment_mode" optional="show"/>
+                    <field name="valid_till" optional="show"/>
+                    <field name="due_date" optional="show"/>
+                    <field name="beneficiary_address" optional="hide"/>
+                    <field name="bank_details_attachments" optional="hide"/>
+                    <field name="payable_at" optional="hide"/> -->
+                </list>
+            </field>
+        </record>
+
+        <record id="pbg_details_view_kanban" model="ir.ui.view">
+            <field name="name">pbg.details.view.kanban</field>
+            <field name="model">pbg.details</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile" create="0" sample="1">
+                    <field name="title"/>
+                    <field name="beneficiary" />
+                    <field name="in_favour_of" />
+                    <!-- <field name="deal_name_ID" /> -->
+                    <field name="tender_deal_name_ID" />
+                    <field name="amount" />
+                    <field name="payment_mode" />
+                    <field name="valid_till" />
+                    <field name="due_date" />
+                    <field name="beneficiary_address" />
+                    <field name="order_id" />
+                    <field name="bank_details_attachments"/>
+                    <field name="payable_at" />
+                    <field name="issued_id" />
+                    <field name="pbg_returned_date" />
+                    <field name="state" />
+
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_global_click container">
+                                <div class="row no-gutters">
+                                    <div>
+                                        <strong>
+                                            <field name="title"/>
+                                        </strong>
+                                        <div>
+                                            <strong>
+                                                Order Number:
+                                            </strong>
+                                            <field name="order_id"/>
+                                        </div>
+                                        <div>
+                                            Beneficiary:
+                                            <field name="beneficiary"/>
+                                        </div>
+                                        <div>
+                                            Valid Till:
+                                            <field name="valid_till"/>
+                                        </div>
+                                        <div>
+                                            Due Date:
+                                            <field name="due_date"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row no-gutters">
+                                    <div >
+                                        <button name="send_to_draft" type="object"
+                                                invisible="state != 'canceled'"
+                                                class="btn btn-link btn-sm pl-1"><i class="fa fa-file" style="padding-right:5px;"/>Set To Draft</button>
+        
+                                        <button name="set_to_cancel" type="object"
+                                                invisible="state in ['draft','returned','canceled','rejected']"
+                                                class="btn btn-link btn-sm pl-1"> <i class="fa fa-times" style="padding-right:5px;"/>Cancel</button>
+                
+                                        <button name="send_to_manager" type="object" 
+                                                groups="ecartes_pbg.pbg_group_access_to_user,ecartes_pbg.pbg_group_access_to_manager"
+                                                class="btn btn-link btn-sm pl-1"
+                                                invisible="state != 'draft'" ><i class="fa fa-user" style="padding-right:5px;"/>Submit To Manager</button>
+                
+                                        <button name="send_to_reject" type="object" 
+                                                invisible="state not in ['manager','approved']"
+                                                class="btn btn-link btn-sm pl-1"
+                                                groups='ecartes_pbg.pbg_group_access_to_manager'><i class="fa fa-times" style="padding-right:5px;"/>Reject</button>
+                
+                                        <button name="approve_manager" groups="ecartes_pbg.pbg_group_access_to_manager" type="object"
+                                                invisible="state != 'manager'"
+                                                class="btn btn-link btn-sm pl-1"><i class="fa fa-thumbs-up" style="padding-right:5px;"/>Approve</button>
+                                                
+
+                                        <button name="%(ecartes_pbg.employee_pbg_issue_action)d"
+                                                groups="ecartes_pbg.group_ecartes_pbg_account"
+                                                type="action"  invisible="state != 'approved'"
+                                                class="btn btn-link btn-sm pl-1"><i class="fa fa-file" style="padding-right:5px;"/>Issue</button>
+
+                                        <button name="%(ecartes_pbg.action_return_pbg)d"
+                                                groups='ecartes_pbg.pbg_group_access_to_manager,ecartes_pbg.group_ecartes_pbg_account'
+                                                type="action" 
+                                                invisible="state != 'issued'"
+                                                class="btn btn-link btn-sm pl-1">Return</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+         </record>
+
+        <record id="pbg_details_view_search" model="ir.ui.view">
+            <field name="name">pbg.details.view.search</field>
+            <field name="model">pbg.details</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="beneficiary"/>
+                    <filter string="State" name="filter_state" domain="[('state', 'in', ('draft','supervisor','manager','approved','reject'))]"/>
+                    <group>
+                        <filter string="State" name="group_by_state" context="{'group_by':'state'}"/>
+                        <filter string="Beneficiary" name="group_by_beneficiary" context="{'group_by':'beneficiary'}"/>
+                        <filter string="Payment Mode" name="group_by_payment_mode" context="{'group_by':'payment_mode'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_pbg_details" model="ir.actions.act_window">
+            <field name="name">PBG</field>
+            <field name="res_model">pbg.details</field>
+            <field name="view_mode">list,kanban,form</field>
+        </record>
+
+        <menuitem
+                id="menu_pbg_details"
+                name="PBG"
+                action="action_pbg_details"
+                groups="ecartes_pbg.pbg_group_access_to_user,ecartes_pbg.group_ecartes_pbg_account,ecartes_pbg.pbg_group_access_to_manager"/>
+    </data>
+</odoo>

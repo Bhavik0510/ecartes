@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="ecartes_product_warranty_categ">
+        <field name="name">Product Warranty</field>
+    </record>
+    <record id="allow_claim_forcefully" model="res.groups">
+        <field name="name">Allow claim after expiry</field>
+        <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>
+    </record>
+    <record id="allow_warranty_configurration" model="res.groups">
+        <field name="name">Allow Warranty Configuration</field>
+        <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>
+    </record>
+
+    <record id="show_warranty" model="res.groups">
+        <field name="name">Show Warranty</field>
+        <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>
+    </record>
+</odoo>

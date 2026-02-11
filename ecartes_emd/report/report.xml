@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ecartes_emd_report" model="ir.actions.report">
+            <field name="name">EMD Report</field>
+            <field name="model">ecartes.emd</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_emd.emd_report_templates</field>
+            <field name="report_file">ecartes_emd.emd_report_templates</field>
+            <field name="binding_model_id" ref="ecartes_emd.model_ecartes_emd"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- <record model="ir.actions.act_window" id="crm_lead_action_tender_pipeline">
+        <field name="name">Tender Pipeline</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">kanban,list,graph,pivot,form,calendar,activity</field>
+        <field name="domain">[('type','=','tender')]</field>
+        <field name="context">{
+                'default_type': 'tender',
+                'my_tender': 1,
+                'search_default_assigned_to_me': 1
+        }</field>
+        <field name="search_view_id" ref="crm.view_crm_case_opportunities_filter"/>
+    </record> -->
+
+    <record id="crm_team_view_tree" model="ir.ui.view">
+        <field name="name">crm.team.tree.inherit.crm</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_tender_team"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sales_team_form_view_in_crm" model="ir.ui.view">
+        <field name="name">crm.team.form.inherit</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="is_tender_team"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

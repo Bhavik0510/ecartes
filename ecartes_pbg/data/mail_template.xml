@@ -1,0 +1,64 @@
+<odoo>
+<data noupdate="0">
+    <record id="approve_pbg_supervisor_mail_template" model="mail.template">
+        <field name="name">Supervisor Approve : Send by email</field>
+        <field name="model_id" ref="ecartes_pbg.model_pbg_details"/>
+        <field name="subject">Request For PBG!</field>
+        <field name="email_from">{{object.create_uid.partner_id.email}}</field>
+        <field name="email_from">{{object.create_uid.partner_id.email}}</field>
+        <field name="body_html" type="html">
+            <h3>Hello</h3>
+            <br></br>    
+            <p>Sir/Ma'am, 
+                 I request you to please approve PBG request.</p>
+            <p>PBG details Added Below </p>
+            <p>Do not hesitate to contact us if you have any questions.</p>
+            <p>Thank You!!!</p>
+           <br/>
+           <br/>
+            <t t-set="url" t-value="object.approval_url"/>
+            <a t-att-href="url" style="height: 45px;width: 105px;background-color: #fd5b2a;padding: 10px;color: #fff;font-weight: 700;">
+                Approve &amp; Preview
+                 </a>
+        </field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+
+
+    <record id="pbg_done_accountant_mail_template" model="mail.template">
+        <field name="name">Accountant Approve : Send by email</field>
+        <field name="model_id" ref="ecartes_pbg.model_pbg_details"/>
+        <field name="subject">Hello Dear</field>
+        <field name="email_from">{{object.create_uid.partner_id.email}</field>
+        <field name="body_html" type="html">
+            <p class="font-danger">
+                Hello
+                 <br/><br/>
+            </p>
+            <p>This is to inform you that your PBG is {{object.title}} request Approved</p>
+            <br/>
+            <p>Thank You!!!</p>
+        </field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+
+    <record id="pbg_final_approved_mail_template" model="mail.template">
+        <field name="name">Approved Done : Send by email</field>
+        <field name="model_id" ref="ecartes_pbg.model_pbg_details"/>
+        <field name="subject">PBG request approved</field>
+        <field name="email_to">{{object.create_uid.partner_id.email}}</field>
+        <field name="body_html" type="html">
+            <p class="font-danger">
+                Hello
+                 <br/><br/>
+            </p>
+            <p>This is to inform you that PBG request Approved</p>
+            <br/>
+            <br/>
+            <p>Thank You!!!</p>
+        </field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+</data>
+
+</odoo>

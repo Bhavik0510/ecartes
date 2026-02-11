@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="ecartes_quote_amc_pdf_report" model="ir.actions.report">
+            <field name="name">Quotation AMC</field>
+            <field name="model">amc.amc</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.ecartes_sale_amc_template</field>
+            <field name="report_file">ecartes_report.ecartes_sale_amc_template</field>
+            <field name="print_report_name">'Quotation AMC Report- %s' %(object.name)</field>
+            <field name="binding_model_id" ref="ecartes_amc.model_amc_amc" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="ecartes_report.paperformat_ecartes_sale"/>
+        </record>
+
+        <template id="ecartes_sale_amc_template">
+            <t t-set="report_name" t-value="'Quotation-AMC'"/>
+            <t t-foreach="docs" t-as="t">
+                <t t-set="company_id_val" t-value="t.company_id"/>
+                <t t-call="web.html_container">
+                    <t t-call="ecartes_report.delhi_custom_external_layout_header">
+                        <div class="page">
+                            <div style="width:100%;float:left;font-weight:bold;text-align:center;font-size:24px;text-decoration: underline;margin-top:20px;">
+                                Quotation
+                            </div>
+    
+                            <div style="width:100%;float:left;border:1px solid black; margin-bottom: 15px; margin-top: 15px;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <div class="pl-1" style="width:50%;float:left;border-right:1px solid black;">
+                                        <div t-if="'Salvonic' in t.company_id.name" class="text-start" style="font-weight:800;color:#6d3473;text-decoration: underline;">CUSTOMER DETAILS</div>
+                                        <div t-if="'Ecartes' in t.company_id.name" class="text-start" style="font-weight:800;color:#6d3473;text-decoration: underline;">CUSTOMER DETAILS</div>
+                                        <div style="font-weight:bold;">
+                                            <span t-if="t.partner_id.name"><t t-esc="t.partner_id.name"/></span>
+                                        </div>
+                                        <div>
+                                            <span t-if="t.partner_id.street"><t t-esc="t.partner_id.street"/></span>,
+                                            <span t-if="t.partner_id.street2"><t t-esc="t.partner_id.street2"/></span>
+                                        </div>
+                                        <div>
+                                            <span t-if="t.partner_id.city"><t t-esc="t.partner_id.city"/></span>, <span t-if="t.partner_id.state_id"><t t-esc="t.partner_id.state_id.name"/></span>, <span t-if="t.partner_id.zip"><t t-esc="t.partner_id.zip"/></span>
+                                        </div>
+                                        <div>
+                                            <t t-if="t.partner_id.country_id">
+                                                <t t-esc="t.partner_id.country_id.name"/>
+                                            </t>
+                                        </div>
+                                        <div t-if="t.partner_id.gstin" style="width:100%;float:left;display:flex;">
+                                            <div><b>GSTIN:</b> <span t-if="t.partner_id.vat"><t t-esc="t.partner_id.vat"/></span></div>
+                                        </div>
+                                        <div t-if="t.responsible_person" style="width:100%;float:left;display:flex;">
+                                            <div><b>Contact Person:</b> <span t-if="t.responsible_person"><t t-esc="t.responsible_person"/></span></div>
+                                        </div>
+                                        <div t-if="t.phone" style="width:100%;float:left;display:flex;">
+                                            <div><b>Phone:</b> <span t-if="t.phone"><t t-esc="t.phone"/></span></div>
+                                        </div>
+                                    </div>
+                                    <div style="width:50%;float:right;border-left:1px solid black;">
+                                        <div class="p-2" style="font-size:15px;text-align:left;">
+                                            <div t-if="t.name" class="text-right">
+                                                <b>Ref: ECT/<span t-if="t.name"><t t-esc="t.name"/></span></b>
+                                            </div>
+                                            <div t-if="t.create_date" class="text-right">
+                                                <b>Date:</b> <span t-if="t.create_date"><t t-esc="t.create_date"/></span>
+                                            </div>
+                                            <div t-if="t.user_id" class="text-right">
+                                                Prepared by: <span t-if="t.user_id.name"><t t-esc="t.user_id.name"/></span>
+                                            </div>
+                                            <br/>
+                                            <div t-if="t.amc_type" class="text-right">
+                                                AMC Type: <span t-if="t.amc_type == 'camc'">CAMC (Comprehensive)</span><span t-elif="t.amc_type == 'namc'">NAMC (Non-Comprehensive)</span>
+                                            </div>
+                                            <br/>
+                                            <div t-if="t.amc_start_date" class="text-right">
+                                                <b>Start Date:</b> <span t-if="t.amc_start_date"><t t-esc="t.amc_start_date"/></span>
+                                            </div>
+                                            <div t-if="t.amc_end_date" class="text-right">
+                                                <b>End Date:</b> <span t-if="t.amc_end_date"><t t-esc="t.amc_end_date"/></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table" style="font-size:15px;" >
+                                <style>th,td{ border: 1px solid black !important; }</style>
+
+                                <thead t-if="'Ecartes' in t.company_id.name" style="background-color:#6d3473; color:white">
+                                    <tr>
+                                        <th class="text-center" style="width:8%">S.No</th>
+                                        <th  class="text-center" style="width:30%">Product Name
+                                            <!-- <br/> -->
+                                            <!-- <span style= "font-size:12px;font-style: italic;">Product Description</span> -->
+                                        </th>
+                                        <th class="text-center" style="width:10%">Product Code</th>
+                                        <th class="text-center" style="width:15%">HSN Code</th>
+                                        <th  class="text-center" style="width:10%">Quantity</th>
+                                        <th  class="text-right" style="width:13%">Unit Price</th>
+                                        <!-- <th class="text-right" style="width:14%">Sub-Total</th> -->
+                                    </tr>
+                                </thead>
+                                <thead t-if="'Salvonic' in t.company_id.name" style="background-color:#25a7dd; color:white">
+                                    <tr>
+                                        <th class="text-center" style="width:8%">S.No</th>
+                                        <th  class="text-center" style="width:30%">Product Name
+                                            <!-- <br/> -->
+                                            <!-- <span style= "font-size:12px;font-style: italic;">Product Description</span> -->
+                                        </th>
+                                        <th class="text-center" style="width:10%">Product Code</th>
+                                        <th class="text-center" style="width:15%">HSN Code</th>
+                                        <th  class="text-center" style="width:10%">Quantity</th>
+                                        <th  class="text-right" style="width:13%">Unit Price</th>
+                                        <!-- <th class="text-right" style="width:14%">Sub-Total</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody class="sale_tbody" style="font-size:15px;">
+                                    <t t-set="sr_no" t-value="0"/>
+                                    <!-- <t t-set="current_subtotal" t-value="0"/> -->
+                                    <t t-foreach="t.line_ids" t-as="line">
+                                        <tr class="bg-200 font-weight-bold" style="border-bottom:1px solid #dddddd;">
+                                            <t t-set="sr_no" t-value="sr_no+1"/>
+                                            <td class="text-center" style="border:1px solid black">
+                                                <span t-esc="sr_no"/>
+                                            </td>
+                                            <td class="text-center"><span t-field="line.product_id.name"/>
+                                                <!-- <br></br>
+                                                <span style= "font-size:13px;font-style: italic;" t-field="line.name"/> -->
+
+                                            </td>
+                                            <td class="text-center"><span t-field="line.product_id.default_code"/></td>
+                                            <td class="text-center">
+                                                <t t-esc='line.product_id.l10n_in_hsn_code'/>
+                                            </td>
+                                            <td  class="text-center">
+                                                <span t-field="line.product_qty"/>
+                                            </td>
+                                            <td  class="text-right">
+                                                <span>₹
+                                                    <span t-field="line.price_unit"/></span>
+                                            </td>
+                                                <!-- <td class="text-right">
+                                                    <span t-field="line.price_subtotal"/>
+                                                </td> -->
+                                        </tr>
+                                    </t>
+                                    <tr><td colspan="6"> </td></tr>
+                                    <tr class="border-black o_total" style="background-color:#393D47;color:white;">
+                                        <td colspan="5">
+                                            <strong>Grand Total</strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="t.total_amc_amount"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>      
+
+     
+                            <div style="width:100%;float:left;text-align:left;margin-top: 0px;page-break-inside: avoid;font-size:15px;">
+                                <div>
+                                    <b>Terms and Condition : </b>
+                                </div>
+                                <div >1.<b >Validity : </b><t t-esc="t.amc_end_date"/></div>
+                                <div >2.<b >Payment Terms : </b><t t-esc="dict(t._fields['invoice_term']._description_selection(request.env)).get(t.invoice_term)"/></div>
+                                <div style="font-size:15px;">3. Spare parts are not
+                                    covered under the AMC. If any spare parts are required, it shall be
+                                    replaced on chargeable basis.</div>
+                                    <div style="font-size:15px;">4.If required, Product(s)
+                                    has(have) to be carried by the customer to the nearest service
+                                    centre for repairing.</div>
+                                    <div style="font-size:15px;">5. Software dongle/Software License
+                                    key/Consumables subject to wear and tear are not covered under AMC</div>
+                                    <div style="font-size:15px;">6. AMC support will be provided during normal working days as
+                                    mentioned below (Public holidays are also excluded):</div>
+                                    <div style="padding-left:20px;">
+                                        <div style="font-size:15px;font-weight:bold;">Monday through Saturday: 10.00 hrs to
+                                            17.00 hrs.
+                                        </div>
+                                        <div style="font-size:15px;font-weight:bold;">(Except 2nd and 4th Saturday of every
+                                            month)
+                                        </div>
+                                    </div>
+                                    <div style="padding-left:20px;">
+                                        <!-- <div t-if="t.note"><t t-esc="t.note"/></div> -->
+                                    </div>                       
+                            </div>
+                            
+                        </div>
+                        
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

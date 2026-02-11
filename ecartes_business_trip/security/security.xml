@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="business_trip_category" model="ir.module.category">
+        <field name="name">Business Trip</field>
+        <field name="sequence">17</field>
+    </record>
+
+    <record id="business_trip_acccount_department" model="res.groups">
+        <field name="name">Accounts</field>
+        <field name="category_id" ref="business_trip_category"/>
+    </record>
+
+    <record id="business_trip_manager" model="res.groups">
+        <field name="name">Employee Manager</field>
+        <field name="category_id" ref="business_trip_category"/>
+    </record>
+
+     <record id="business_trip_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="business_trip_category"/>
+    </record>
+</odoo>

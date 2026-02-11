@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="crm_lead_inherit_form_view_new" model="ir.ui.view">
+        <field name="name">crm.lead.inherit.form.view.new</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//label[@for='name']" position="replace">
+                <label for="name" string="Deal" attrs="{'invisible': [('type', '=', 'lead')]}"/>
+                <label for="name" string="Lead" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+            </xpath> -->
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="domain">[('is_tender_stage', '=', False), '|', ('team_id', '=', team_id), ('team_id', '=', False)]</attribute>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <field name="state" widget="statusbar" invisible="type == 'opportunity' " statusbar_visible="lead_generated,lost"/>
+            </xpath>
+        
+            <xpath expr="//label[@for='street']" position="before">
+                <field name='company_type' required="1"/>
+                <field name="industry_id"/>
+            </xpath>
+            
+            <xpath expr="//group[@name='lead_info']/div[2]/field[@name='email_from']" position="after">
+                <field name='email_type' invisible="1"/>
+            </xpath>
+            <xpath expr="//group[@name='lead_info']/div[3]/field[@name='phone']" position="after">
+                <field name='phone_type'/>
+            </xpath>
+            <xpath expr="//field[@name='company_currency']" position="attributes">
+                <attribute name='invisible'>0</attribute>
+                <attribute name='readonly'>0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name='deal_type'/>             
+            </xpath>
+            <xpath expr="//group[@name='lead_info']/div[2]/field[@name='email_from']" position="attributes">
+                <attribute name="required">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='lead_info']/div[3]/field[@name='phone']" position="attributes">
+                <attribute name="required">1</attribute>
+            </xpath>
+            <field name="partner_name" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="user_id" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="team_id" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <xpath expr="//group[@name='lead_partner']/div/field[@name='state_id']" position="attributes">
+                <attribute name="options">{&quot;no_open&quot;: True, 'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+            <xpath expr="//group[@name='lead_partner']/div/field[@name='country_id']" position="attributes">
+                <attribute name="options">{&quot;no_open&quot;: True, &quot;no_create&quot;: True, 'no_create_edit': True}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='lead']/group/group[1]/div/field[@name='state_id']" position="attributes">
+                <attribute name="options">{&quot;no_open&quot;: True, 'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+            <!-- <field name="street2" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="city" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="zip" position="attributes">
+                <attribute name="required">1</attribute>
+            </field> -->
+        </field>
+    </record>
+
+    <record id="crm_lead_inherit_kanban_view_new" model="ir.ui.view">
+        <field name="name">crm.lead.inherit.kanban.view.new</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.quick_create_opportunity_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="context">
+                            {
+                            'res_partner_search_mode': type == 'opportunity' and 'customer' or False,
+                            'default_name': contact_name or partner_name,
+                            'default_is_company': type == 'opportunity' and contact_name == False,
+                            'default_company_name': type == 'opportunity' and partner_name,
+                            'default_phone': phone,
+                            'default_email': email_from,
+                            'default_user_id': user_id,
+                            'default_team_id': team_id,
+                            'show_vat': True,
+                            'default_street': street,
+                            'default_street2': street2,
+                            'default_city': city,
+                            'default_zip': zip,
+                            'default_state_id': state_id,
+                            'default_country_id': country_id,
+                            'default_company_type' : company_type,
+                            'default_industry_id' : industry_id,
+                            'default_description' : description
+                            }</attribute>
+                <attribute name="options">{&quot;no_open&quot;: True, 'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='email_from']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='phone']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='phone']" position="after">
+                <label for="description"/>
+                <div class="o_row">
+                    <field name="description"/>
+                </div>
+                    
+                <field name="company_type" invisible="1"/>
+                <field name="industry_id" invisible="1"/>
+
+            </xpath>
+        </field>
+    </record>
+</odoo> 

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+vx_sale.access_change_date,access_change_date,vx_sale.model_change_date,base.group_system,1,1,1,1

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_warranty_report_action" model="ir.actions.report">
+            <field name="name">Product Warranty Report</field>
+            <field name="model">product.warranty</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_product_warranty.product_warranty_template_report</field>
+            <field name="report_file">ecartes_product_warranty.product_warranty_template_report</field>
+            <field name="binding_model_id" ref="ecartes_product_warranty.model_product_warranty" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="product_warranty_template_report">
+            <t t-foreach="docs" t-as="t">
+                <t t-call="web.html_container">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="border:1px solid black;padding:5px;">
+                            <div style="text-align:center;font-weight:bold;font-size:24px;background-color:#833d93;color:white;">
+                                
+                                <center>Warranty Card</center>
+                                  
+                            </div>
+
+                          
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-6" style="text-align:left ;margin-top:20px;">
+                                       
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div style="font-size:18px;font-weight:bold;">Customer name :</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div style="font-size:18px;border:1px solid black;padding:5px; "><span t-if="t.partner_id.name"><t t-esc="t.partner_id.name"/></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6" style="text-align:left;margin-top:20px;">
+                                    
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div style="font-size:18px;font-weight:bold;">Warranty No :</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div style="font-size:18px;border:1px solid black;padding:5px; "><span t-if="t.name"><t t-esc="t.name"/></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-6" style="text-align:left ;margin-top:20px;">
+                                            
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div style="font-size:18px;font-weight:bold;">Product :</div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div style="font-size:18px;border:1px solid black;padding:5px; "><span t-if="t.product_id.name"><t t-esc="t.product_id.name"/></span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6" style="text-align:left;margin-top:20px;">
+                                    
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div style="font-size:18px;font-weight:bold;">Serial No :</div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div style="font-size:18px;border:1px solid black; padding:5px;"><span t-if="t.lot_id.name"><t t-esc="t.lot_id.name"/></span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-6" style="text-align:left ;margin-top:20px;">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div style="font-size:18px;font-weight:bold;">Warranty Start Date :</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div style="font-size:18px;border:1px solid black;padding:5px;"><span t-if="t.warranty_start_date"><t t-esc="t.warranty_start_date"/></span></div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="col-6" style="text-align:left;margin-top:20px;">
+                                        
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div style="font-size:18px;font-weight:bold;">Warranty End Date :</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div style="font-size:18px;border:1px solid black;padding:5px; "><span t-if="t.warranty_start_date"><t t-esc="t.warranty_end_date"/></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    <div style="font-size:18px;text-align:left ;margin-top:50px;font-weight:bold;">Seal &amp; Date :</div>
+
+                                    <div class="col-3" style="font-size:18px;border:1px solid black;height: 150px;"> </div>
+
+
+                                        
+                     
+                                
+                                
+                         
+                        
+                        
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

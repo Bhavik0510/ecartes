@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="group_ecartes_expense_manager" model="res.groups">
+            <field name="name">Expense Manager</field>
+            <field name="category_id" ref="base.module_category_human_resources_expenses"/>
+        </record>
+
+        <record id="group_ecartes_expense_sr_manager" model="res.groups">
+            <field name="name">Senior Management</field>
+            <field name="category_id" ref="base.module_category_human_resources_expenses"/>
+        </record>
+
+        <record id="group_ecartes_expense_account_department" model="res.groups">
+            <field name="name">Accounts</field>
+            <field name="category_id" ref="base.module_category_human_resources_expenses"/>
+        </record>
+
+        <record id="hr_expense.group_hr_expense_team_approver" model="res.groups">
+            <field name="name">Employee Manager</field>
+        </record>
+
+    </data>
+</odoo>

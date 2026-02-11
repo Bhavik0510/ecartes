@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="ecarte_work_from_home_form_view" model="ir.ui.view">
+        <field name="name">ecarte.work.from.home.form.view</field>
+        <field name="model">ecarte.work.from.home</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- <button name="aprrove_by_manager" class="oe_highlight" type="object" string="Approve by manager"  groups="ecarte_work_from_home.wfh_grp_manger" invisible="state in ('draft','approved') "/>
+                    <button name="approve" class="oe_highlight" type="object" string="Approve" groups="ecarte_work_from_home.group_wfh_accounts" invisible="state in ('draft','approved')" /> -->
+                    <button name="aprrove_by_manager" class="oe_highlight" type="object" string="Approve by manager"  groups="ecarte_work_from_home.group_wfh_accounts" invisible="state in ('approved','approve_by_manager') "/>
+                    <button name="approve" class="oe_highlight" type="object" string="Approve" groups="ecarte_work_from_home.wfh_grp_manger" invisible="state in ('draft','approved') " />
+                    <button name="reset_to_draft" class="oe_highlight" type="object" string="Reset To Draft" groups="ecarte_work_from_home.wfh_grp_manger" invisible="state in ['draft']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title" name="title">
+                        <h1>
+                            <field name="name" nolabel="1" readonly="0"/>
+                            <field name="visible_manager_approve_btn" invisible="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+
+                            <label for="date_from" string="Dates"/>
+                            <div>
+                                <div class="o_row o_row_readonly">
+                                    <strong class="oe_inline">From</strong>
+                                    <field name="date_from" class="oe_inline" nolabel="1" required="1" readonly="state not in ['draft'] "/>
+
+                                    <strong class="oe_inline">To</strong>
+                                    <field name="date_to" class="oe_inline" required="1" readonly="state not in ['draft']"/>
+                                </div>
+                            </div>
+
+                            <label for="duration" string="Duration"/>
+                            <div>
+                                <div class="o_row">
+                                    <div class="o_row">
+                                        <field name="duration"/>
+                                        <strong>Days</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <field name="description" widget="text" required="1" readonly="state not in ['draft'] "/>
+                        </group>
+                        <group name="col_right">
+                            <field name="employee_id" invisible="1"/>
+                            <field name="manager_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="ecarte_work_from_home_tree_view" model="ir.ui.view">
+        <field name="name">ecarte.work.from.home.tree.view</field>
+        <field name="model">ecarte.work.from.home</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="duration"/>
+                <field name="description"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="ecarte_work_from_home_action1" model="ir.actions.act_window">
+        <field name="name">Ecartes Work From Home</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">ecarte.work.from.home</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="domain">['|','|',('manager_id.user_id', '=', uid),('employee_id.user_id','=',uid),('admin_user_id','=',uid)]</field> -->
+
+    </record>
+
+    <menuitem id="work_from_home" name="WFH"/>
+    <menuitem id="ecarte_work_from_home" name="WFH" parent="work_from_home" action="ecarte_work_from_home_action1"
+              sequence="1"/>
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+    <record id="ecarte_work_from_home_tmp" model="mail.template">
+            <field name="name">work from home request email</field>
+            <field name="model_id" ref="model_ecarte_work_from_home"/>
+            <field name="email_from">{{object.employee_id.work_email}}</field>
+            <!-- <field name="email_to">{{object.manager_id.name}}</field> -->
+            <field name="subject">Request for work from home!</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px; font-size: 13px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Hello
+                        <br/>
+                        <br/>
+
+                        Sir/Ma'am,
+
+                        I want to do work from home from <t t-out="object.date_from"/>, to <t t-out="object.date_to"/>, and my reason is
+                        <t t-out="object.description"/>, so i request you to please approve my work-from-home request.
+                        <t t-set="url" t-value="object.approval_url"/>
+                          <p>
+                            <a t-att-href="url" style="height: 45px;width: 105px;background-color: #fd5b2a;padding: 10px;color: #fff;font-weight: 700;">
+                            Approved
+                             </a>
+                        </p>
+                    Thank you,
+                    <br/>
+                    <t t-out="object.employee_id.name"/>,
+                    </p>
+                </div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+    <record id="ecarte_work_from_home_tmp_approved_by_manager" model="mail.template">
+            <field name="name">Approved Request for work from home</field>
+            <field name="model_id" ref="model_ecarte_work_from_home"/>
+            <field name="subject">Approved Request for work from home !</field>
+            <field name="email_from">{{object.employee_id.work_email}}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px; font-size: 13px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        <t t-if="object.manager_id">
+                        <!-- % if object.manager_id: -->
+                            Hello ,<br/>
+                            Work from home Request from <t t-out="object.date_from"/> to <t t-out="object.date_to"/> of employee <t t-out="object.employee_id.name"/> has been approved by <t t-out="object.manager_id.name"/>
+                            <t t-set="url" t-value="object.approval_url"/>
+                                <p>
+                                    <a t-att-href="url" style="height: 45px;width: 105px;background-color: #fd5b2a;padding: 10px;color: #fff;font-weight: 700;">
+                                        Approved
+                                    </a>
+                                </p>
+                                Thank you
+                                <br/>
+                                <t t-out="object.manager_id.name"/>
+                        </t>  
+                        <t t-else="">  
+                        <!-- % else: -->
+                            I want to do work from home from <t t-out="object.date_from"/> to <t t-out="object.date_to"/> and my reason is
+                            <t t-out="object.description"/> , so i request you to please approved my work from home request.
+                            <p>
+                                <a t-att-href="url" style="height: 45px;width: 105px;background-color: #fd5b2a;padding: 10px;color: #fff;font-weight: 700;">
+                                    Approved
+                                </a>
+                            </p>
+                            Thank you
+                            <t t-out="object.user_id.name"/>,
+                        <!-- % endif -->
+                        </t>
+                    </p>
+                </div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+ecartes_contact_documents.access_contact_document,access_contact_document,ecartes_contact_documents.model_contact_document,base.group_user,1,1,1,1
+ecartes_contact_documents.access_contact_document_master,access_contact_document_master,ecartes_contact_documents.model_contact_document_master,base.group_user,1,1,1,1
+ecartes_contact_documents.access_renewed_documents,access_renewed_documents,ecartes_contact_documents.model_renewed_documents,base.group_user,1,1,1,1

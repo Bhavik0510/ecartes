@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="account_inherit_form" model="ir.ui.view">
+        <field name="name">Account Inherit Form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+            <xpath expr="//group[@id='header_left_group']" position="inside">
+                <field name="shipping_mode"/>
+                <field name="order_id"/>
+            </xpath>
+            <xpath expr="//group[@id='header_right_group']" position="inside">
+                <field name="deal"/>
+                <field name="responsible_person"/>
+            </xpath>
+            <xpath expr="//field[@name='shipping_mode']" position="before">
+                <field name="create_uid" readonly="0"/>
+            </xpath>
+            <xpath expr="//field[@name='journal_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='invoice_payment_term_id']" position="attributes">
+                <attribute name="placeholder">Payment Terms</attribute>
+            </xpath>
+        </field>
+    </record>    
+</odoo>

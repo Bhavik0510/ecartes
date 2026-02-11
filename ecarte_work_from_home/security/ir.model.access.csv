@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ecarte_work_from_home,ecarte_work_from_home.ecarte_work_from_home,model_ecarte_work_from_home,,1,1,1,1

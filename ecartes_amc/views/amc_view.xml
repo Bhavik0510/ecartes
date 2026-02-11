@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="amc_form_view" model="ir.ui.view">
+            <field name="name">amc.form.view</field>
+            <field name="model">amc.amc</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="start_amc" type="object" string="Start AMC" class="oe_highlight" invisible="state != 'invoiced' "/>
+                        <button name="confirm_amc" type="object" string="Confirm" class="oe_highlight" invisible="state != 'draft' "/>
+                        <button name="create_amc_invoice" type="object" string="Create Invoice" class="oe_highlight" invisible="state != '2beinvoice' "/>
+                        <button name="renew_amc" type="object" string="Renew" class="oe_highlight" invisible="state != 'expired'"/>
+
+                        <button name="create_amc_claim" type="object" string="Create Claim" class="oe_highlight"/>
+
+                        <button name="create_amc_claim_renew_state" type="object" string="Create Claim" class="oe_highlight" invisible="state != 'renewed'"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,2beinvoice,invoiced,under_amc,expired,renewed"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Expired" bg_color="bg-danger"
+                                invisible="state not in ['expired']"/>
+                        <div class="oe_button_box" name="button_box">
+
+                            <field name="invoice_id" invisible="1"/>
+                            <field name="invoice_ids" invisible="1"/>
+                            <button type="object" class="oe_stat_button" icon="fa-bars"
+                                    name="get_amc">
+                                <field string="Claims" name="claim_count" widget="statinfo"/>
+                            </button>
+
+                            <button name="action_created_invoice" type="object" class="oe_stat_button"
+                                    icon="fa-pencil-square-o" invisible="not invoice_ids"
+                                    groups="account.group_account_invoice">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="invoice_count"/>
+                                    </span>
+                                    <span class="o_stat_text">Invoices</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="oe_title">
+                            <label class="o_form_label" for="name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Customer" name="customer">
+                                <field name="partner_id" required="amc_cost in ['free','paid']" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <div class="o_form_label o_td_label">
+                                    <span invisible="1">Address</span>
+                                </div>
+                                <div class="o_address_format" name="div_address">
+                                    <field name="street" placeholder="Street..." class="o_address_street"/>
+                                    <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                    <field name="city" placeholder="City" class="o_address_city"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State"
+                                           options="{'no_open': True, 'no_quick_create': True}"
+                                           context="{'country_id': country_id, 'default_country_id': country_id, 'zip': zip}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country"
+                                           options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                </div>
+                                <field name="phone"/>
+                                <field name="mobile"/>
+                                <field name="email"/>
+                                <field name="responsible_person"/>
+                            </group>
+                            <group string="AMC Details" name="amc_details">
+                                <field name="amc_cost" widget="radio"/>
+                                <field name="amc_type" widget="radio"/>
+                                <field name="invoice_term" widget="radio"/>
+                                <field name="amc_amt"
+                                       required = "amc_cost == 'paid' "
+                                       invisible = "amc_cost == 'free' "
+                                       force_save="1"/>
+                                <field name="amc_term_id" options='{"no_open": True, "no_create": True}' required="1"/>
+                                <field name="amc_start_date" required="1"/>
+                                <field name="amc_end_date" readonly="1" force_save="1"/>
+                                <field name="company_id" groups="base.group_multi_company"
+                                       options="{'no_create': True}"/>
+                                <field name="user_id" readonly="1"/>
+                                <field name="renewal_user_id" invisible="state != 'renewed'" readonly="1"/>
+                                <field name="renew_date" readonly="1" invisible="state != 'renewed'"/>
+                                <field name="create_date" readonly="1"/>
+                                <field name="invoice_state" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Products">
+                                <field name="line_ids">
+                                    <list editable="bottom">
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="product_id" required="1"/>
+                                        <field name="lot_id"
+                                               required="tracking in ['serial', 'lot'] " 
+                                               readonly="tracking not in ['serial', 'lot'] "/>
+                                        <field name="product_qty" readonly =" tracking == 'serial'"/>
+                                        <field name="price_unit"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="tracking" invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="AMC History">
+                                <field name="amc_history_ids" readonly="1" options='{"no_open": True}'>
+                                    <list editable="bottom">
+                                        <field name="date"/>
+                                        <field name="amc_start_date"/>
+                                        <field name="amc_end_date"/>
+                                        <field name="amt"/>
+                                        <field name="is_paid"/>
+                                        <field name="is_free"/>
+                                        <field name="is_renewed"/>
+                                        <field name="invoice_id" invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Claim History">
+                                <field name="amc_claim_ids" readonly="1">
+                                    <list editable="bottom">
+                                        <field name="claim_description"/>
+                                        <field name="claim_date"/>
+                                        <field name="partner_id"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Visitor Plan">
+                                <field name="amc_visitor_plan_ids">
+                                    <list editable="bottom">
+                                        <field name="engineer_id"/>
+                                        <field name="visit_date"/>
+                                        <field name="document_ids" widget="many2many_binary"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <group name="total_amc_amount" style="float: right;width: auto;">
+                            <span style="font-size: 15px;"><b>Amount:</b>&amp;nbsp;&amp;nbsp;
+                            </span>
+                            <span style="font-size: 18px;">
+                                <b>
+                                    <field name="total_amc_amount" widget="monetary" nolabel="1" readonly="1"
+                                           force_save="1"/>
+                                </b>
+                            </span>
+                        </group>
+                        <div class="oe_clear"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="amc_tree_view" model="ir.ui.view">
+            <field name="name">amc.tree.view</field>
+            <field name="model">amc.amc</field>
+            <field name="arch" type="xml">
+                <list string="">
+                    <field name="name"/>
+                    <field name="create_date"/>
+                    <field name="user_id" optional="hide"/>
+                    <field name="partner_id"/>
+                    <field name="amc_cost"/>
+                    <field name="amc_type"/>
+                    <field name="amc_term_id"/>
+                    <field name="amc_start_date"/>
+                    <field name="amc_end_date"/>
+                    <field name="amc_amt" optional="hide"/>
+                    <!-- <field name="renewal_user_id" optional="hide"/> -->
+                    <!-- <field name="is_renewed"/> -->
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+
+        <record id="amc_action" model="ir.actions.act_window">
+            <field name="name">AMC</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">amc.amc</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record id="amc_product_action" model="ir.actions.act_window">
+            <field name="name">AMC Product</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_under_amc','=',True)]</field>
+        </record>
+
+
+        <record id="amc_invoices_action" model="ir.actions.act_window">
+            <field name="name">AMC Invoice</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('is_amc_invoice','=',True)]</field>
+        </record>
+
+        <menuitem id="amc_root" name="AMC"/>
+        <menuitem id="amc_categ" name="AMC" parent="amc_root" sequence="1"/>
+        <menuitem id="amc_config" name="Configuration" parent="amc_root" sequence="4"
+                  groups="ecartes_amc.allow_configurration"/>
+        <menuitem id="amc_menu" name="AMC" parent="amc_categ" action="amc_action"/>
+        <menuitem id="amc_product_menu" name="AMC Product" parent="amc_root" action="amc_product_action" sequence="2"/>
+        <menuitem id="amc_invoice_menu" name="AMC Invoices" parent="amc_root"
+                  action="amc_invoices_action" sequence="3"/>
+    </data>
+</odoo>

@@ -1,0 +1,43 @@
+<odoo>
+    <record id="view_warranty_status_form" model="ir.ui.view">
+        <field name="name">warranty.status.form</field>
+        <field name="model">warranty.status</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Update Warranty Status">
+                <group>
+                    <field name="state"/>
+                </group>
+                <footer>
+                    <button string="Apply" type="object" name="action_apply_state" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_warranty_status" model="ir.actions.act_window">
+        <field name="name">Bulk Update Warranty Status</field>
+        <field name="res_model">warranty.status</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_update_warranty_status" model="ir.actions.server">
+        <field name="name">Bulk Update Warranty Status</field>
+        <field name="model_id" ref="model_product_warranty"/>
+        <field name="state">code</field>
+        <field name="binding_model_id" ref="model_product_warranty"/> <!-- This is the key part -->
+        <field name="binding_view_types">list</field>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_window',
+                'name': 'Bulk Update Warranty Status',
+                'res_model': 'warranty.status',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'active_ids': env.context.get('active_ids', [])},
+            }
+        </field>
+    </record>
+</odoo>

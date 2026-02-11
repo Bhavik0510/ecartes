@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record id="seq_emp_wfh" model="ir.sequence">
+            <field name="name">Ecarte Work From Home</field>
+            <field name="code">ecarte.work.from.home</field>
+            <field name="prefix">WFH/</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="crm_lead_stage_search" model="ir.ui.view">
+        <field name="name">Stage - Search</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_lead_stage_search"/>
+        <field name="arch" type="xml">
+        	<xpath expr="//field[@name='team_id']" position="after">
+        		 <filter name="is_tender_stage" string="Tender Stage" domain="[('is_tender_stage', '=', True)]"/>
+        	</xpath>
+        </field>
+    </record>
+
+    <record id="crm_stage_tree" model="ir.ui.view">
+        <field name="name">crm.stage.tree</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_tree"/>
+        <field name="arch" type="xml">
+        	<xpath expr="//field[@name='team_id']" position="after">
+        		<field name="is_tender_stage"/>
+        	</xpath>
+        </field>
+    </record>
+
+    <record id="crm_stage_form" model="ir.ui.view">
+        <field name="name">crm.stage.form</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_form"/>
+        <field name="arch" type="xml">
+        	<!-- <xpath expr="//field[@name='team_id']" position="after"> -->
+            <xpath expr="//group" position="inside">
+                <group>
+                    <field name="is_tender_stage"/>
+                    <field name="is_qualified_stage" invisible="not is_tender_stage"/>
+                    <field name="is_financial_stage" invisible="not is_tender_stage"/>
+                </group>
+        	</xpath>
+        </field>
+    </record>
+</odoo>

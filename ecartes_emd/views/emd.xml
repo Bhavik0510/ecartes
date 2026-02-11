@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="ecartes_emd_form_view" model="ir.ui.view">
+        <field name="name">emd.form.view</field>
+        <field name="model">ecartes.emd</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="send_to_draft" type="object"
+                            string="Set To Draft"
+                            invisible="state not in ['canceled']"
+                            class="oe_highlight"/>
+                    <button name="set_to_cancel" type="object"
+                            string="Cancel"
+                            invisible="state not in ['draft','returned','canceled']"
+                            class="oe_highlight"/>
+                    <button name="send_to_manager" type="object" string="Submit To Manager"
+                            groups="ecartes_emd.group_ecartes_emd_user,ecartes_emd.group_ecartes_emd_manager"
+                            class="oe_highlight"
+                            invisible="state not in ['draft']"/>
+                    <button name="send_to_reject" type="object" string="Reject"
+                            invisible="state not in ['approved_manager','done']"
+                            class="oe_highlight"
+                            groups='ecartes_emd.group_ecartes_emd_manager'/>
+                    <button name="approve_manager" groups="ecartes_emd.group_ecartes_emd_manager" type="object"
+                            string="Approve" invisible="state != 'approved_manager'"
+                            class="oe_highlight"/>
+
+
+                    <button name="%(ecartes_emd.action_return_emd1)d"
+                            groups='ecartes_emd.group_ecartes_emd_manager,ecartes_emd.group_ecartes_emd_account'
+                            type="action" string="Return"
+                            invisible="state not in ['issued']"
+                            class="oe_highlight"/>
+
+                    <button name="%(ecartes_emd.employee_emd_issue_action)d"
+                            groups="ecartes_emd.group_ecartes_emd_account"
+                            type="action" string="Issue" invisible="state != 'done'"
+                            class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <!-- <field name="title" required='1' readonly="state !=  'draft'"/> -->
+                            <!-- <field name="beneficiary_id" readonly="state != 'draft'" options="{'no_create': True, 'no_create_edit': True}"/> -->
+                            <field name="beneficiary_name" readonly="state != 'draft'"/>
+                            <field name="in_favour_of" required='1' readonly="state != 'draft'"/>
+                            <field name="deal_name_id" required='0' readonly="state != 'draft'"/>
+                            <field name="amount" required='1' readonly="state != 'draft'"/>
+                            <field name="payment_mode" required='1' readonly="state != 'draft'"/>
+                            <field name="approval_url" invisible='1' readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="create_uid" readonly='1'/>
+                            <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
+                            <field name="valid_till" required='1' readonly="state != 'draft'"/>
+                            <field name="due_date" required='1' readonly="state != 'draft'"/>
+                            <field name="bank_details" required='1' readonly="state != 'draft'"/>
+                            <field name="bank_details_attachments" readonly="state != 'draft'"/>
+                            <field name="payable_at" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="customer_email" readonly="state != 'draft'"/>
+                            <field name="tender_ref_no" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="contact_number" readonly="state != 'draft'"/>
+                            <field name="tender_id" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Issue Information" invisible="state not in ['issued','returned']">
+                            <field name="ref_no" readonly="1" invisible="state not in ['issued','returned']"/>
+                            <field name="issue_date" readonly="1" invisible="state not in ['issued','returned']"/>
+                            <field name="emd_amount" readonly="1" invisible="state not in ['issued','returned']"/>
+                            <field name="dd_no" readonly="1" invisible="state not in ['issued','returned']"/>
+                            <field name="neft_rtgs_ref_no" readonly="1" invisible="state not in ['issued','returned']"/>
+                            <field name="paid_by_bank" readonly="1" invisible="state not in ['issued','returned']"/>
+                        </group>
+                        <group string="Return Information" invisible="state != 'returned'">
+                            <field name="emd_returned_date" readonly='1' invisible="state in ['draft','approved_manager','issued','done','rejected']"/>
+                            <field name="returned_amount" readonly='1' invisible="state in ['draft','approved_manager','issued','done','rejected']"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Approved Details">
+                            <group>
+                                <field name="manager_id" readonly="state != 'draft'"/>
+                                <field name="issued_id" readonly="state != 'draft'"/>
+                            </group>
+                        </page>
+                        <page string="Reject Reason" name="reject_reason" invisible="state != 'rejected'">
+                            <field name="reject_reason" readonly="1" invisible="state != 'rejected'"/>
+                        </page>
+                    </notebook>
+                    <chatter/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="ecartes_emd_tree_view" model="ir.ui.view">
+        <field name="name">ecartes.emd.view.tree</field>
+        <field name="model">ecartes.emd</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state in ['approved_manager']"
+                  decoration-primary="state in ['done']"
+                  decoration-warning="state in ['issued']"
+                  decoration-success="state in ['returned']"
+                  decoration-danger="state in ['rejected']"
+                  decoration-muted="state in ['canceled']">
+                <!-- <field name="title" optional="show"/> -->
+                <!-- <field name="beneficiary_id" optional="show"/> -->
+                <field name="beneficiary_name"/>
+                <field name="in_favour_of" optional="hide"/>
+                <field name="deal_name_id" optional="show"/>
+                <field name="amount" optional="show"/>
+                <field name="payment_mode" optional="show"/>
+                <field name="valid_till" optional="show"/>
+                <field name="due_date" optional="show"/>
+                <field name="bank_details" optional="hide"/>
+                <field name="bank_details_attachments" optional="hide"/>
+                <field name="payable_at" optional="hide"/>
+                <field name="emd_returned_date" optional="show"/>
+                <field name="issued_id" optional="show"/>
+                <field name="state" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="ecartes_emd_view_kanban" model="ir.ui.view">
+        <field name="name">ecartes.emd.view.kanban</field>
+        <field name="model">ecartes.emd</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" create="0" sample="1">
+                <!-- <field name="title"/> -->
+                <!-- <field name="beneficiary_id"/> -->
+                <field name="beneficiary_name"/>
+                <field name="in_favour_of"/>
+                <field name="deal_name_id"/>
+                <field name="amount"/>
+                <field name="payment_mode"/>
+                <field name="valid_till"/>
+                <field name="due_date"/>
+                <field name="bank_details"/>
+                <field name="bank_details_attachments"/>
+                <field name="payable_at"/>
+                <field name="emd_returned_date"/>
+                <field name="issued_id"/>
+                <field name="state"/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click container">
+                            <div class="row no-gutters">
+                                <div>
+                                    <!-- <strong>
+                                        <field name="title"/>
+                                    </strong> -->
+                                    <div>
+                                        Beneficiary:
+                                        <!-- <field name="beneficiary_id"/> -->
+                                        <field name="beneficiary_name"/>
+                                    </div>
+                                    <div>
+                                        Valid Till:
+                                        <field name="valid_till"/>
+                                    </div>
+                                    <div>
+                                        Due Date:
+                                        <field name="due_date"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row no-gutters">
+                                <div >
+
+                                    <button name="send_to_draft" type="object"
+                                            invisible="state not in ['canceled']"
+                                            class="btn btn-link btn-sm pl-1"><i class="fa fa-file" style="padding-right:5px;"/>Set To Draft</button>
+                                    <button name="set_to_cancel" type="object"
+                                            invisible="state in ['draft','returned','canceled']"
+                                            class="btn btn-link btn-sm pl-1"> <i class="fa fa-times" style="padding-right:5px;"/>Cancel</button>
+                                    <button name="send_to_manager" type="object" 
+                                            groups="ecartes_emd.group_ecartes_emd_user,ecartes_emd.group_ecartes_emd_manager"
+                                            class="btn btn-link btn-sm pl-1"
+                                            invisible="state not in ['draft']"><i class="fa fa-user" style="padding-right:5px;"/>Submit To Manager</button>
+                                    <button name="send_to_reject" type="object" 
+                                            invisible="state not in ['approved_manager','done']"
+                                            class="btn btn-link btn-sm pl-1"
+                                            groups='ecartes_emd.group_ecartes_emd_manager'><i class="fa fa-times" style="padding-right:5px;"/>Reject</button>
+                                    <button name="approve_manager" groups="ecartes_emd.group_ecartes_emd_manager" type="object"
+                                            invisible="state != 'approved_manager'"
+                                            class="btn btn-link btn-sm pl-1"><i class="fa fa-thumbs-up" style="padding-right:5px;"/>Approve</button>
+
+
+                                    <button name="%(ecartes_emd.action_return_emd1)d"
+                                            groups='ecartes_emd.group_ecartes_emd_manager,ecartes_emd.group_ecartes_emd_account'
+                                            type="action" 
+                                            invisible="state not in ['issued']"
+                                            class="btn btn-link btn-sm pl-1">Return</button>
+
+                                    <button name="%(ecartes_emd.employee_emd_issue_action)d"
+                                            groups="ecartes_emd.group_ecartes_emd_account"
+                                            type="action"  invisible="state != 'done'"
+                                            class="btn btn-link btn-sm pl-1"><i class="fa fa-file" style="padding-right:5px;"/>Issue</button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="ecartes_emd_search_view" model="ir.ui.view">
+        <field name="name">ecartes.emd.tree.view</field>
+        <field name="model">ecartes.emd</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="deal_name_id"/>
+                <!-- <field name="beneficiary_id"/> -->
+                <field name="beneficiary_name"/>
+                <filter string="State" name="filter_state"
+                        domain="[('state', 'in', ('draft','approved_manager','done','issued','returned','rejected','canceled'))]"/>
+                <group>
+                    <filter string="State" name="group_by_state" context="{'group_by':'state'}"/>
+                    <filter string="Beneficiary" name="group_by_beneficiary_name"
+                            context="{'group_by':'beneficiary_name'}"/>
+                    <filter string="Payment Mode" name="group_by_payment_mode" context="{'group_by':'payment_mode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="ecartes_emd_action" model="ir.actions.act_window">
+        <field name="name">EMD</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">ecartes.emd</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+
+    <menuitem id="menu_ecartes_emd_details_user"
+              name="EMD"
+              action="ecartes_emd.ecartes_emd_action"
+              groups="ecartes_emd.group_ecartes_emd_user,ecartes_emd.group_ecartes_emd_account,ecartes_emd.group_ecartes_emd_manager"/>
+
+</odoo>

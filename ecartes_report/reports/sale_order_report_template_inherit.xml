@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="gst_report_saleorder_document_inherit_ecartes" inherit_id="l10n_in_sale.gst_report_saleorder_document_inherit">
+    <xpath expr="//t[@t-if='line.product_id.l10n_in_hsn_code']" position="replace"/>
+</template>
+
+<template id="sale.report_saleorder_document">
+    <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
+    <t t-set="company_id_val" t-value="doc.company_id"/>
+    <t t-call="ecartes_report.delhi_custom_external_layout_header">
+        <div class="page">
+            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
+            <t t-set="forced_vat" t-value="doc.fiscal_position_id.foreign_vat"/> <!-- So that it appears in the footer of the report instead of the company VAT if it's set -->
+            <div class="row">
+                <div class="col-6 text-start mb4">
+                    <div name="customer_address" style="text-align: left;">
+                        <div t-if="'Salvonic' in doc.company_id.name" class="text-start" style="color:#25a7dd;font-size:24px;font-weight:800;text-decoration: underline;"><u>CUSTOMER DETAILS</u></div>
+                        <div t-if="'Ecartes' in doc.company_id.name" class="text-start" style="color:#6d3473;font-size:24px;font-weight:800;text-decoration: underline;"><u>CUSTOMER DETAILS</u></div>
+                        <div><t t-esc="doc.responsible_person"/></div>
+                        <div t-if="doc.partner_id"><b><t t-esc="doc.partner_id.name"/></b></div>
+                        <div>
+                            <t t-if="doc.partner_id.street">
+                                <t t-esc="doc.partner_id.street"/>,
+                            </t>
+                            <t t-if="doc.partner_id.street2"> 
+                                <t t-esc="doc.partner_id.street2"/>,
+                            </t>
+                        </div>
+                        <div>
+                            <t t-if="doc.partner_id.city">
+                                <t t-esc="doc.partner_id.city"/>,
+                            </t>
+                            <t t-if="doc.partner_id.state_id"> 
+                                <t t-esc="doc.partner_id.state_id.name"/>,
+                            </t>
+                            <t t-if="doc.partner_id.zip"> 
+                                <t t-esc="doc.partner_id.zip"/>
+                            </t>
+                        </div>
+                        <div>
+                            <t t-if="doc.partner_id.country_id">
+                                <t t-esc="doc.partner_id.country_id.name"/>
+                            </t>
+                        </div>
+                        <div><b>GSTIN:</b> <t t-esc="doc.partner_id.vat or doc.partner_id.parent_id.vat"/></div>
+                        <div>Phone: <t t-esc="doc.partner_id.phone"/></div>
+                    </div>
+                </div>
+                <div class="col-6" style="display:flex;align-items:center; justify-content:right;">
+                    <div name="company_address" style="text-align: right;">
+                        <div t-if="'Ecartes' in doc.company_id.name">
+                            <div style="color:#6d3473;font-size:24px;font-weight:800;text-decoration: underline;"><u><t t-esc="doc.company_id.name"/></u></div>
+                            <div>
+                                <t t-if="doc.company_id.street">
+                                    <t t-esc="doc.company_id.street"/>,
+                                </t>
+                                <t t-if="doc.company_id.street2"> 
+                                    <t t-esc="doc.company_id.street2"/>,
+                                </t>
+                            </div>
+                            <div>
+                                <t t-if="doc.company_id.city">
+                                    <t t-esc="doc.company_id.city"/>,
+                                </t>
+                                <t t-if="doc.company_id.state_id"> 
+                                    <t t-esc="doc.company_id.state_id.name"/>-
+                                </t>
+                                <t t-if="doc.company_id.zip"> 
+                                    <t t-esc="doc.company_id.zip"/>,
+                                </t>
+                                <t t-if="doc.company_id.country_id">
+                                    <t t-esc="doc.company_id.country_id.name"/>
+                                </t>
+                            </div>
+                            <div><b>Phone:</b> <t t-esc="doc.company_id.phone"/>; <t t-esc="doc.company_id.mobile"/></div>
+                            <div><b>Fax:</b> <t t-esc="doc.company_id.fax"/></div>
+                            <div><b>Website:</b> <t t-esc="doc.company_id.website"/></div>
+                            <div><b>CIN:</b> <t t-esc="doc.company_id.cin"/></div>
+                            <div><b>GSTIN:</b> <t t-esc="doc.company_id.vat"/></div>
+                        </div>
+                        <div t-if="'Salvonic' in doc.company_id.name">
+                            <div><b>Date:</b> <t t-esc="doc.date_order"/></div>
+                            <div><b>Ref:ECT/ <t t-esc="doc.name"/></b></div>
+                            <div>Prepared By: <t t-esc="doc.user_id.name"/></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div t-if="'Ecartes' in doc.company_id.name" class="row">
+                <div class="col-6 text-start">
+                    <div><b>Date:</b> <t t-esc="doc.date_order"/></div>
+                    <div>Prepared By: <t t-esc="doc.user_id.name"/></div>
+                </div>
+                <div class="col-6" style="display:flex;align-items:center; justify-content:right;">
+                    <div name="company_address" style="text-align: right;">
+                        <div><b>Ref:ECT/ <t t-esc="doc.name"/></b></div>
+                    </div>
+                </div>
+            </div>
+            <div style="width:100%;float:left;font-weight:bold;text-align:center;font-size:24px;text-decoration: underline;margin-top:40px;">
+                <span t-if="doc.state not in ['draft','sent']">Sales Order</span>
+                <span t-if="doc.state in ['draft','sent']">Sales Quotation</span>
+            </div>
+
+            <div style="width:100%;float:left;border:1px solid black; margin-bottom: 5px; margin-top: 15px;page-break-inside: avoid;font-size:15px;display:none !important;">
+                <div style="width:100%;float:left;display:flex;">
+                
+                    <div style="width:50%;float:left;display:none !important;">
+                        <div style="font-weight:bold;text-align:center;border:1px solid black;border-top:0;border-left:0;border-right:0;padding: 5px ;background-color:#6d3473;color:white;">
+                            Consignee Details
+                        </div>
+                            <div style="padding:10px;">
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="font-weight:bold;"><span t-if="doc.partner_shipping_id.name"><t t-esc="doc.partner_shipping_id.name"/></span></div>
+                            <div><span t-if="doc.partner_shipping_id.street"><t t-esc="doc.partner_shipping_id.street"/></span>,<span t-if="doc.partner_shipping_id.street2"><t t-esc="doc.partner_shipping_id.street2"/></span></div>
+                            <div><span t-if="doc.partner_shipping_id.city"><t t-esc="doc.partner_shipping_id.city"/></span>, <span t-if="doc.partner_shipping_id.street"><t t-esc="doc.partner_shipping_id.state_id.name"/></span>-
+                                <span t-if="doc.partner_shipping_id.zip"><t t-esc="doc.partner_shipping_id.zip"/></span></div>
+
+                            </div>
+                            <div t-if="doc.partner_shipping_id.gstin" style="width:100%;float:left;display:flex;">
+                                <div  style="width:15%;float:left;font-weight:bold;">
+                                    GSTIN :
+                                </div>
+                                <div style="width:50%;float:left;">
+                                    <span t-if="doc.partner_shipping_id.gstin"><t t-esc="doc.partner_shipping_id.gstin"/></span>
+                                </div>
+                            </div>
+                            <div t-if="doc.partner_shipping_id" style="width:100%;float:left;display:flex;">
+                                <div style="width: 33%;float:left;font-weight:bold;">
+                                    Contact Person :
+                                </div>
+                                <div style="width:50%;float:left;">
+                                    <span t-if="doc.partner_shipping_id.name"><t t-esc="doc.partner_shipping_id.name"/></span>
+                                </div>
+                            </div>
+                            <div t-if="doc.partner_shipping_id.phone" style="width:100%;float:left;display:flex;">
+                                <div style="width: 15%;float:left;font-weight:bold;">
+                                    Phone :
+                                </div>
+                                <div style="width:50%;float:left;">
+                                    <span t-if="doc.partner_shipping_id.phone"><t t-esc="doc.partner_shipping_id.phone"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="width:50%;float:right;border-left:1px solid black;display:none !important;">
+
+                        <div style="font-weight:bold;text-align:center;background-color:#6d3473;color:white;border-bottom:0px;border-top:0;padding:5px">
+                            Customer Details
+                        </div>
+                        <div class="p-2" style="font-size:15px;text-align:left;">
+                            <div style="font-weight:bold;text-align:right;"><span t-if="doc.partner_id.name"><t t-esc="doc.partner_id.name"/></span></div>
+                            <div style="text-align:right;"><span t-if="doc.partner_id.street"><t t-esc="doc.partner_id.street"/></span>,<span t-if="doc.partner_id.street2"><t t-esc="doc.partner_id.street2"/></span></div>
+                            <div style="text-align:right;"><span t-if="doc.partner_id.city"><t t-esc="doc.partner_id.city"/></span>, <span t-if="doc.partner_id.street"><t t-esc="doc.partner_id.state_id.name"/></span>-
+                                <span t-if="doc.partner_id.zip"><t t-esc="doc.partner_id.zip"/></span></div>
+                            <div style="width:100%;float:left;display:flex;">
+                                <div style="width:65%;float:left;font-weight:bold;text-align:right;" t-if="doc.partner_id.gstin">
+                                    GSTIN :
+                                </div>
+                                <div style="width:35%;float:left;text-align:right;">
+                                    <span t-if="doc.partner_id.gstin"><t t-esc="doc.partner_id.gstin"/></span>
+                                </div>
+                            </div>
+                            <div style="width:100%;float:left;display:flex;">
+                                <div style="width: 65%;float:left;font-weight:bold;text-align:right;" t-if="doc.user_id.name">
+                                    Contact Person :
+                                </div>
+                                <div style="width:35%;float:left;text-align:right;">
+                                    <span t-if="doc.user_id.name"><t t-esc="doc.user_id.name"/></span>
+                                </div>
+                            </div>
+                            <div style="width:100%;float:left;display:flex;">
+                                <div style="width: 65%;float:left;font-weight:bold;text-align:right;"  t-if="doc.partner_id.phone">
+                                    Phone :
+                                </div>
+                                <div style="width:35%;float:left;text-align:right;">
+                                    <span t-if="doc.partner_id.phone"><t t-esc="doc.partner_id.phone"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="width:100%;float:left;display:flex;margin-bottom:1px;color:#6d3473;font-weight:800;display:none !important;">
+                <div t-if="doc.name" style="width:100%;float:right;text-align:left;font-size:20px;">
+                    <h5 style="font-weight:800;" >
+                        <span t-if="doc.state not in ['draft','sent']">Sales Order#</span>
+                        <span t-if="doc.state in ['draft','sent']">Quotation#</span>
+                        <span t-field="doc.name" class="fw-bold"/>
+                    </h5>
+                </div>
+            </div>
+
+            <div style="width:100%;float:left;border:1px solid black;margin-bottom:10px;padding:2px;font-size:15px;display:none !important;">
+                <div class="row mt50 mb32 " id="informations">
+                    <div t-if="doc.date_order and doc.state in ['draft','sent']" class="col-auto col-3 mw-100 mb-2" style="text-align:left ;">
+                        <strong >Quotation Date:</strong>
+                        <p class="m-0" t-field="doc.date_order" t-options='{"widget": "date"}'/>
+                    </div>
+                    <div t-if="doc.date_order and doc.state in ['sale']" class="col-auto col-3 mw-100 mb-2" style="text-align:left ;">
+                        <strong >Order Date:</strong>
+                        <p class="m-0" t-field="doc.date_order" t-options='{"widget": "date"}'/>
+                    </div>
+                    <div t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="col-auto col-3 mw-100 mb-2" name="expiration_date" style="text-align:center ;">
+                        <strong >Expiration:</strong>
+                        <p class="m-0" t-field="doc.validity_date"/>
+                    </div>
+                    <div class="col-auto col-3 mw-100 mb-2" t-if="doc.name" style="text-align:center ;" >
+                        <strong>Ref:</strong>
+                        <p class="m-0"><t t-esc="doc.name"/></p>
+                    </div>
+                    <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2" style="text-align:right ;">
+                        <strong >Prepared by:</strong>
+                        <p class="m-0" t-field="doc.user_id"/>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table" style="font-size:15px;" >
+                <style>th,td{ border: 1px solid black !important; }</style>
+
+                <thead t-if="'Ecartes' in doc.company_id.name" style="background-color:#6d3473; color:white">
+                    <tr>
+                        <th class="text-center" style="width:8%">S.No</th>
+                        <th  class="text-center" style="width:30%">Product Name<br/><span style= "font-size:12px;font-style: italic;">Product Description</span></th>
+                        <th class="text-center" style="width:10%">Product Code</th>
+                        <th class="text-center" style="width:12%">HSN Code</th>
+                        <th  class="text-center" style="width:10%">Quantity</th>
+                        <th  class="text-right" style="width:15%">Unit Price</th>
+                        <th class="text-right" style="width:15%">Sub-Total</th>
+                    </tr>
+                </thead>
+                <thead t-if="'Salvonic' in doc.company_id.name" style="background-color:#25a7dd; color:white">
+                    <tr>
+                        <th class="text-center" style="width:5%">S.No</th>
+                        <th  class="text-center" style="width:30%">Product Name<br/><span style= "font-size:12px;font-style: italic;">Product Description</span></th>
+                        <th class="text-center" style="width:10%">Product Code</th>
+                        <th class="text-center" style="width:12%">HSN Code</th>
+                        <th  class="text-center" style="width:10%">Quantity</th>
+                        <th  class="text-right" style="width:15%">Unit Price</th>
+                        <th class="text-right" style="width:15%">Sub-Total</th>
+                    </tr>
+                </thead>
+                <tbody class="sale_tbody" style="font-size:15px;">
+                    <t t-set="sr_no" t-value="0"/>
+                    <t t-set="current_subtotal" t-value="0"/>
+                        <t t-foreach="doc.order_line" t-as="line">
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                        <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''" class="border-black" style="border-bottom:1px solid #dddddd;">
+                            <t t-if="not line.display_type">
+                                <t t-set="sr_no" t-value="sr_no+1"/>
+                                    <td class="text-center" style="border:1px solid black">
+                                        <span t-esc="sr_no"/>
+                                    </td>
+                                <td class="text-center"><span t-field="line.product_id.name"/>
+                                    <br></br>
+                                    <span style= "font-size:13px;font-style: italic;" t-field="line.name"/>
+
+                                </td>
+                                <td class="text-center"><span t-field="line.product_id.default_code"/></td>
+                                <td class="text-center">
+                                    <t t-esc='line.product_id.l10n_in_hsn_code'/>
+                                </td>
+                                <td  class="text-center">
+                                    <span t-field="line.product_uom_qty"/>
+                                    
+                                </td>
+                                <td  class="text-right">
+                                    <span><span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></span>
+                                </td>
+                                <!-- <td>
+                                    <t t-foreach="line.tax_id" t-as="c">
+                                        <t t-esc="c.name"/>
+
+                                    </t>
+                                    <t t-esc="line.tax_id.name"/>
+                                </td> -->
+                                <td class="text-right">
+                                    <span t-field="line.price_subtotal"/>
+                                </td>
+                            </t>
+                        </tr>
+                    </t>
+                    <tr><td colspan="7"> </td></tr>
+                    <!-- <tr>
+                        <td width="75%">Total Without Tax</td>
+                        <td width="25%%"> <span t-esc="doc.amount_untaxed"
+                                    t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'/></td>
+                    </tr>
+                    <tr class="border-black" style="background-color:#393D47;color:white;">
+                        <t t-set="tax_totals"
+                        t-value="doc.tax_totals"/>
+                        <td>
+                            <strong>Tax Total</strong><t t-esc="tax_totals"/>
+                        </td>
+                        <td colspan="1" style="text-align:right;">
+                            <span t-field="doc.amount_tax"/>
+                        </td>
+                    </tr> -->
+                </tbody>
+            </table>
+
+            <div style="width:100%; page-break-inside: avoid;" class="clearfix" name="so_total_summary">
+                <div id="total" class="row justify-content-end" name="total">
+                    <div class="col-5" style="font-size:15px;margin-top:10px;">
+                        <table class="table table-sm">
+                            <t t-set="tax_totals" t-value="doc.tax_totals"/>
+                            <t t-if="tax_totals['subtotals']">
+                                <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
+                                    <tr class="border-black o_subtotal" style="background-color:#393D47;color:#fff;">
+                                        <td style="color: #ffffff;">
+                                            <strong>Total Without Tax</strong>
+                                        </td>
+
+                                        <td class="text-right" style="color: #ffffff; text-align:right;">
+                                            <span t-att-class="oe_subtotal_footer_separator" t-esc="subtotal['base_amount_currency']" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
+                                    <t t-foreach="doc.order_line.mapped('tax_id')" t-as="tax">
+                                        <t t-if="tax.amount_type == 'group'">
+                                            <tr t-foreach="tax.children_tax_ids" t-as="tax_line">
+                                                <td>
+                                                    <span t-esc="tax_line.description"/>
+
+                                                </td>
+                                                <td style="text-align:right;">
+                                                    <t t-if="tax_line.tax_group_id.name == 'SGST'">
+                                                        ₹<span t-esc="'{:,.2f}'.format((sum((doc.order_line.filtered(lambda line: tax_line in line.mapped('tax_id').mapped('children_tax_ids'))).mapped('price_subtotal')) * tax_line.amount / 100))"/>
+                                                    </t>
+                                                    <t t-if="tax_line.tax_group_id.name == 'CGST'">
+                                                        ₹ <span t-esc="'{:,.2f}'.format((sum((doc.order_line.filtered(lambda line: tax_line in line.mapped('tax_id').mapped('children_tax_ids'))).mapped('price_subtotal')) * tax_line.amount / 100))"/>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="tax.description"/>
+                                                </td>
+                                                <td style="text-align:right;">
+                                                    <t t-if="tax.tax_group_id.name == 'SGST'">
+                                                        ₹ <span t-esc="'{:,.2f}'.format((sum((doc.order_line.filtered(lambda line: tax in line.mapped('tax_id').mapped('children_tax_ids'))).mapped('price_subtotal')) * tax.amount / 100))"/>
+                                                    </t>
+                                                    <t t-if="tax.tax_group_id.name == 'CGST'">
+                                                        ₹<span t-esc="'{:,.2f}'.format((sum((doc.order_line.filtered(lambda line: tax in line.mapped('tax_id').mapped('children_tax_ids'))).mapped('price_subtotal')) * tax.amount / 100))"/>
+                                                    </t>
+                                                    <t t-if="tax.tax_group_id.name == 'IGST'">
+                                                        ₹ <span t-esc="'{:,.2f}'.format((sum((doc.order_line.filtered(lambda line: tax in line.mapped('tax_id'))).mapped('price_subtotal')) * tax.amount / 100))"/>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <tr class="border-black" style="background-color:#393D47;color:#fff;">
+                                        <td style="color: #ffffff;">
+                                            <strong>Tax Total</strong>
+                                        </td>
+                                        <td colspan="1" style="text-align:right; color: #ffffff;">
+                                            <span t-field="doc.amount_tax"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-black o_total" style="background-color:#393D47;color:#fff;">
+                                        <td style="color: #ffffff;">
+                                            <strong>Grand Total</strong>
+                                        </td>
+                                        <td class="text-right" style="color: #ffffff; text-align:right;">
+                                            <strong t-esc="tax_totals['total_amount_currency']" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr class="border-black o_subtotal" style="background-color:#393D47;color:white;">
+                                    <td style="color: #ffffff;">
+                                        <strong>Total Without Tax</strong>
+                                    </td>
+
+                                    <td class="text-right" style="color: #ffffff; text-align:right;">
+                                        <span t-att-class="oe_subtotal_footer_separator"
+                                                t-field="doc.amount_untaxed" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr class="border-black" style="background-color:#393D47;color:white;">
+                                    <td>
+                                        <strong>Tax Total</strong>
+                                    </td>
+                                    <td colspan="1" style="text-align:right; ">
+                                        <span t-field="doc.amount_tax" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr class="border-black o_total" style="background-color:#393D47;color:white;">
+                                    <td style="color: #ffffff;">
+                                        <strong>Grand Total</strong>
+                                    </td>
+                                    <td class="text-right" style="color: #ffffff; text-align:right;">
+                                        <span t-field="doc.amount_total" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div style="width:100%;float:left;text-align:left;margin-top: 0px;page-break-inside: avoid;font-size:15px;">
+                <div>
+                    <div t-if="doc.validity_date"><b >Validity : </b><t t-esc="doc.validity_date"/></div>
+                    <div t-if="doc.payment_term_id.name"><b >Payment Terms : </b><t t-esc="doc.payment_term_id.name"/></div>
+                    <div t-if="doc.note"><t t-esc="doc.note"/></div>                            
+                    <div>
+                        <p id="fiscal_position_remark"
+                        t-if="doc.fiscal_position_id and not is_html_empty(doc.fiscal_position_id.sudo().note)">
+                        <strong>Fiscal Position Remark:</strong>
+                        <span t-field="doc.fiscal_position_id.sudo().note"/>
+                    </p>
+                    </div>
+                </div>
+                <div>
+                        <b>Terms and Condition : </b>
+                </div>
+                <div style="width:100%;float:left;text-align:left;margin-top: 15px;font-size:15px;">
+                    <div>Consumables subject to wear-and-tear are not covered by the warranty</div>
+                    <div>No claims regarding consequential loss of any kind or nature whatsoever will be accepted by Ecartes Technology Pvt. Ltd.</div>
+                    <div>Warranty automatically gets void in case of wrong use of the machinery or use of fake or pirated consumables</div>
+                </div> 
+            </div>       
+
+            <div style="width:100%;float:left;margin-top:150px;page-break-inside:avoid;">
+                <div t-if="doc.signature" name="signature" style="width:30%;float:left;">
+                    <!-- <div>
+                        <strong>Signature:</strong>
+                    </div>
+                    <div style="border:1px solid black;margin-top:5px;">
+                        <img t-att-src="image_data_uri(doc.signature)" style="max-height: 3cm; max-width: 6cm;"/>
+                    </div>
+                    <div style="text-align:center;">
+                        <p t-field="doc.signed_by"/>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
+</odoo>

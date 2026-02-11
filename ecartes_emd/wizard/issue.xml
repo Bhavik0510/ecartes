@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model='ir.ui.view' id='issue_emd_form_view'>
+            <field name="name">issue.emd.form</field>
+            <field name="model">issue.emd</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="ref_no"/>
+                                <field name="issue_date"/>
+                                <field name="dd_no"/>
+                            </group>
+                            <group>
+                                <field name="emd_amount"/>
+                                <field name="neft_rtgs_ref_no"/>
+                                <field name="paid_by_bank"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="Issue_method" string="Issue" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="oe_highlight" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="employee_emd_issue_action" model="ir.actions.act_window">
+            <field name="name">Issue Employee</field>
+            <field name="res_model">issue.emd</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

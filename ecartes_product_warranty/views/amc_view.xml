@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record id="amc_form_inherit_view" model="ir.ui.view">
+            <field name="name">amc_form_inherit_view</field>
+            <field name="model">amc.amc</field>
+            <field name="inherit_id" ref="ecartes_amc.amc_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='create_date']" position="after">
+                    <field name="product_warrenty_id" readonly="1" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <field name="product_warrenty_ids" invisible="1"/>
+                    <button type="object" name="action_show_warranty" class="oe_stat_button" icon="fa-certificate">
+                        <field name="warranty_count" widget="statinfo" string="Warranty"/>
+                    </button>
+                </xpath>
+        
+            </field>
+        </record>
+    </data>
+</odoo>

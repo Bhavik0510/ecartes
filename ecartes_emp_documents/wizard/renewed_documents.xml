@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model='ir.ui.view' id='renewed_employee_document_form_view'>
+            <field name="name">renewed.documents.form</field>
+            <field name="model">renewed.documents</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" readonly="1"/>
+                                <field name="document_name" readonly="1"/>
+                                <field name="new_attachment_ids" widget="many2many_binary" class="oe_inline"/>
+                                <!--                            <field name="employee_ref" invisible="1"/>-->
+                            </group>
+                            <group>
+                                <field name="issue_date"/>
+                                <field name="expiry_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <field name="description"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <footer>
+                        <button name="renewed_method" string="Renewed" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="oe_highlight" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="renewed_employee_document_action" model="ir.actions.act_window">
+            <field name="name">Renewed Employee Document</field>
+            <field name="res_model">renewed.documents</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

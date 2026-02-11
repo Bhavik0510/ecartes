@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="custom_external_layout_header_po">
+        <div t-attf-class="header " t-att-style="report_header_style" >
+            <div class="o_boxed_header" style="border-bottom:none !important;">
+                <div class="row mb-1">
+                    <div class="col-7 text-left mb4">
+                            <img t-att-src="image_data_uri(company_id_val.logo)" style="max-width: 200px; max-height:200px;" class="img-responsive" alt="Logo"/>
+                    </div>
+                    <div class="col-5" style="display:flex;align-items:center; justify-content:right;">
+                        <div style="font-size:20px;font-weight:800;"><t t-esc="company_id_val.name"/></div>
+                        <table>
+                            <tr>
+                                <td style="width:30%;"><b>Address:</b></td>
+                                <td>
+                                    <t t-if="company_id_val.street">
+                                        <t t-esc="company_id_val.street"/>,
+                                    </t>
+                                    <t t-if="company_id_val.street2"> 
+                                        <t t-esc="company_id_val.street2"/>,
+                                    </t>
+                                    <t t-if="company_id_val.city">
+                                        <t t-esc="company_id_val.city"/>,
+                                    </t>
+                                    <t t-if="company_id_val.state_id"> 
+                                        <t t-esc="company_id_val.state_id.name"/>-
+                                    </t>
+                                    <t t-if="company_id_val.zip"> 
+                                        <t t-esc="company_id_val.zip"/>,
+                                    </t>
+                                    <t t-if="company_id_val.country_id">
+                                        <t t-esc="company_id_val.country_id.name"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:30%;"><b>Phone:</b></td> 
+                                <td>Ph:-  <t t-esc="company_id_val.phone"/><br/>
+                                    Mb:-  <t t-esc="company_id_val.mobile"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:30%;"><b>Fax:</b></td>
+                                <td><t t-esc="company_id_val.fax"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:30%;"><b>Email:</b></td>
+                                <td><t t-esc="company_id_val.email"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:30%;"><b>Website:</b></td>
+                                <td><t t-esc="company_id_val.website"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:30%;"><b>CIN:</b></td>
+                                <td><t t-esc="company_id_val.cin"/></td>
+                            </tr>
+                            <!-- <tr>
+                                <td style="width:30%;"><b>GSTIN No.:</b></td>
+                                <td><t t-esc="company_id_val.vat"/></td>
+                            </tr> -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div t-attf-class="article"
+             t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_boxed_footer" style="border-top:none !important">
+            <div class="text-center">
+            </div>
+        </div>
+    </template>
+
+    <template id="delhi_custom_external_layout_header">
+        <div t-attf-class="header " t-att-style="report_header_style" >
+            <!-- <div class="o_boxed_header" style="border-bottom-color:gray;"> -->
+            <t t-if="'Salvonic' in company_id_val.name">
+                <t t-if="report_name == 'Invoice-Slip'">
+                    <div class="o_boxed_header" style="border-bottom:none !important;">
+                        <div class="row">
+                            <div class="col-12 text-left mb4" style="font-size:16px">
+                                <div><t t-esc="company_id_val.name"/></div>
+                                <div><t t-esc="company_id_val.state_id.name"/></div>
+                                <div><t t-esc="company_id_val.vat"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+                <t t-elif="report_name == 'Delivery-Challan'">
+                    <div class="o_boxed_header" style="border-bottom:none !important;">
+                        <div class="row">
+                            <div class="col-12 text-left mb4">
+                                <!-- <center> -->
+                                    <img t-att-src="image_data_uri(company_id_val.logo)" class="img-responsive" alt="Logo"/>
+                                    <!-- <img src="/ecartes_report/static/img/ecarte1.png" alt="Logo" class="center"/> -->
+                                <!-- </center> -->
+                            </div>
+                        </div>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="o_boxed_header" style="border-bottom:3px solid #ff9f0e;">
+                        <div class="row mb-1">
+                            <div class="col-8 text-left mb4">
+                                <!-- <center> -->
+                                    <img t-att-src="image_data_uri(company_id_val.logo)" class="img-responsive" alt="Logo"/>
+                                    <!-- <img src="/ecartes_report/static/img/ecarte1.png" alt="Logo" class="center"/> -->
+                                <!-- </center> -->
+                            </div>
+                            <div class="col-4" style="display:flex;align-items:center; justify-content:right;">
+                                <div class="text-right"><b>Office Address:</b> 
+                                    <t t-if="company_id_val.street">
+                                        <t t-esc="company_id_val.street"/>,
+                                    </t>
+                                    <t t-if="company_id_val.street2"> 
+                                        <t t-esc="company_id_val.street2"/>,
+                                    </t>
+                                    <t t-if="company_id_val.city">
+                                        <t t-esc="company_id_val.city"/>,
+                                    </t>
+                                    <t t-if="company_id_val.state_id"> 
+                                        <t t-esc="company_id_val.state_id.name"/>-
+                                    </t>
+                                    <t t-if="company_id_val.zip"> 
+                                        <t t-esc="company_id_val.zip"/>,
+                                    </t>
+                                    <t t-if="company_id_val.country_id">
+                                        <t t-esc="company_id_val.country_id.name"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-5 text-left mb4">
+                                <!-- <center> -->
+                                    <div style="font-size:14px"><b>CIN: <t t-esc="company_id_val.cin"/></b></div>
+                                    <div style="font-size:14px"><b>GSTIN: <t t-esc="company_id_val.vat"/></b></div>
+                                <!-- </center> -->
+                            </div>
+                            <div class="col-7 text-right">
+                                <div><b>Email:</b> <t t-esc="company_id_val.email"/></div>
+                                <div><b>Website:</b> <t t-esc="company_id_val.website"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+            <t t-if="'Ecartes' in company_id_val.name">
+                <t t-if="report_name == 'Invoice-Slip'">
+                    <div class="o_boxed_header" style="border-bottom:none !important;">
+                        <div class="row">
+                            <div class="col-12 text-left mb4" style="font-size:16px">
+                                <div><t t-esc="company_id_val.name"/></div>
+                                <div><t t-esc="company_id_val.state_id.name"/></div>
+                                <div><t t-esc="company_id_val.vat"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="o_boxed_header" style="border-bottom:none !important">
+                        <div class="row mb8">
+                            <div class="col-8 text-left mb4">
+                                <t t-if="report_name in ['Proforma-Invoice', 'Quotation-AMC', 'Quotation-CAMC']">
+                                    <div style="color:#6d3473;font-size:24px;font-weight:800;text-decoration: underline;"><u><t t-esc="company_id_val.name"/></u></div>
+                                    <div>
+                                        <t t-if="company_id_val.street">
+                                            <t t-esc="company_id_val.street"/>,
+                                        </t>
+                                        <t t-if="company_id_val.street2"> 
+                                            <t t-esc="company_id_val.street2"/>,
+                                        </t>
+                                        <t t-if="company_id_val.city">
+                                            <t t-esc="company_id_val.city"/>,
+                                        </t>
+                                        <t t-if="company_id_val.state_id"> 
+                                            <t t-esc="company_id_val.state_id.name"/>-
+                                        </t>
+                                        <t t-if="company_id_val.zip"> 
+                                            <t t-esc="company_id_val.zip"/>,
+                                        </t>
+                                        <t t-if="company_id_val.country_id">
+                                            <t t-esc="company_id_val.country_id.name"/>
+                                        </t>
+                                    </div>
+                                    <div>Phone: <t t-esc="company_id_val.phone"/>  Mobile: <t t-esc="company_id_val.mobile"/></div>
+                                    <div t-if="report_name != 'Proforma-Invoice'">Fax: <t t-esc="company_id_val.fax"/></div>
+                                    <div>Email: <t t-esc="company_id_val.email"/></div>
+                                    <div>Website: <t t-esc="company_id_val.website"/></div>
+                                    <div>CIN: <t t-esc="company_id_val.cin"/></div>
+                                    <div>GSTIN No.: <t t-esc="company_id_val.vat"/></div>
+                                </t>
+                            </div>
+                            <div class="col-4" style="display:flex;align-items:center; justify-content:right;">
+                                <center >
+                                    <img src="/ecartes_report/static/img/ecarte1.png" style="max-width: 200px; max-height: 200px;" alt="Logo" class="center"/>
+                                </center>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </div>
+
+        <div t-attf-class="article"
+             t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_boxed_footer" style="border-top:none !important">
+            <div class="text-center">
+                <t t-if="report_name == 'Invoice-Slip'">
+                    <div>
+                        <i>This is NOT a Tax Invoice. For Internal Use Only</i>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div>
+                        <i>This is an electronically generated document and does not require signatures</i>
+                    </div>
+                </t>
+                <!-- <div t-if="report_type == 'pdf'">
+                    Page:
+                    <span class="page"/>
+                    /
+                    <span class="topage"/>
+                </div> -->
+            </div>
+        </div>
+    </template>
+</odoo>

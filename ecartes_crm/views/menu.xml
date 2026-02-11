@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="crm_menu_tender" name="Tender" parent="crm.crm_menu_root" sequence="2" groups="ecartes_crm.group_tender_pipeline_user"/>
+
+    <menuitem id="menu_crm_tender" name="Tender Pipeline" parent="crm_menu_tender" action="action_tender_pipeline"
+        sequence="1"/>
+</odoo>

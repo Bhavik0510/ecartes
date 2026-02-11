@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="gts_report_invoice_document" inherit_id="account.report_invoice_document">
+            <xpath expr="//t/t[2]" position="after">
+                <div style="float:right;">
+                    <img t-att-src="image_data_uri(o.qr_image)" style="width:50pt; height:50pt;"/> 
+                </div>
+<!-- 
+                <table style="border: none;">
+                    <tr>
+                       
+                        <td t-if='o.qr_image' style="border: none;text-align: right;">
+
+                            <img t-att-src="image_data_uri(o.qr_image)" style="width:50pt; height:50pt;"/>
+                        </td>
+                    </tr>
+                </table> -->
+            </xpath>
+
+            <xpath expr="//div[@id='informations']" position="inside">
+                <div name="acknowledge" class="col-auto mw-100 mb-2" t-if="o.ackdt_no">
+                    <strong>Acknowledge Date:</strong>
+                    <p class="m-0" t-field="o.ackdt_no"/>
+                </div>
+                <div name="acknowledge" class="col-auto mw-100 mb-2" t-if="o.ack_no">
+                    <strong>Acknowledge No.:</strong>
+                    <p class="m-0" t-field="o.ack_no"/>
+                </div>
+            </xpath>
+
+            <xpath expr="//div[@id='informations']" position="after">
+                <div id="irn_number" class="row mt32 mb32">
+                    <div class="col-auto mw-100 mb-2" t-if="o.irn_no" name="irn_number">
+                        <strong>IRN Number:-</strong>
+                        <span t-field="o.irn_no"/>
+                    </div>
+                  <!--   <div style="padding-left:180px; font-weight: bold; text-align:right;">
+                    <strong>Supplier</strong>
+                    <span class="company_address" t-field="o.company_id.partner_id"
+                      t-options='{"widget": "contact", "fields": ["address",], "no_marker": true}'/>
+                </div> -->
+                </div>
+            </xpath>
+        </template>
+        
+        <!-- <template id="external_layout_header_inherit_cr" inherit_id="web.external_layout_boxed">
+            <xpath expr="//div[@class='col-6 text-right mb4']" position="replace">
+                <div style="padding-left:180px; font-weight: bold; text-align:right;">
+                    <strong>Supplier</strong>
+                    <span class="company_address" t-field="company.partner_id"
+                      t-options='{"widget": "contact", "fields": ["address",], "no_marker": true}'/>
+                </div>
+            </xpath>
+        </template> -->
+
+    </data>
+</odoo>

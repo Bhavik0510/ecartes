@@ -1,0 +1,9 @@
+<odoo>
+    <data>
+        <template id="document_tax_totals_inherit" inherit_id="account.document_tax_totals">
+            <xpath expr="//tr[hasclass('o_total')]" position="attributes">
+                <attribute name="style">background-color:#393D47;color:white;</attribute>
+            </xpath>
+        </template>
+    </data>
+</odoo>

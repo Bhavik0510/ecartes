@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="ecartes_business_trip_tree" model="ir.ui.view">
+            <field name="name">ecartes.business.trip.tree</field>
+            <field name="model">business.trip</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="request_date_from"/>
+                    <field name="request_date_to"/>
+                    <field name="number_of_days"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="ecartes_business_trip_form" model="ir.ui.view">
+            <field name="name">ecartes.business.trip.form</field>
+            <field name="model">business.trip</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button string="Mark as Draft" name="action_draft" type="object"
+                                invisible="state in ['confirm','draft','validate','validate1', 'refuse']"/>
+                        <button string="Confirm" name="action_confirm" type="object"
+                                invisible="state in ['confirm','validate','validate1','refuse']"
+                                class="oe_highlight"/>
+                        <button string="Approve" name="action_approve" type="object" class="oe_highlight"
+                                groups="ecartes_leaves.group_ecartes_leaves_account"
+                                invisible="state in ['validate','validate1','refuse']"/>
+                        <button string="Validate" name="action_validate" type="object"
+                                groups="ecartes_leaves.group_ecartes_leaves_management"
+                                class="oe_highlight"
+                                invisible="state in ['confirm', 'refuse','validate'] "/>
+                        <button string="Refuse" name="action_refuse" type="object"
+                                invisible="state in ['refuse','draft', 'confirm']"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="expense_button_box">
+                                <button name="view_leave"
+                                        type="object"
+                                        string="View Leave"
+                                        class="oe_stat_button"
+                                        icon="fa-calendar"
+                                    invisible="state in ['draft']">
+
+                                </button>
+                        </div>
+                        <group>
+                            <field name="name" required="True"/>
+                            <field name="employee_id" readonly="True"/>
+                            <field name="request_date_from" required="1"/>
+                            <field name="request_date_to" required="1"/>
+                            <field name="number_of_days"/>
+
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="business_trip_calender" model="ir.ui.view">
+            <field name="name">business.trip.calender</field>
+            <field name="model">business.trip</field>
+            <field name="arch" type="xml">
+                <calendar string="Business Trip" date_start="request_date_from" date_stop="request_date_to"
+                          mode="month" color="employee_id" event_open_popup="True">
+                    <field name="request_date_from"/>
+                    <field name="request_date_to"/>
+                    <field name="number_of_days"/>
+                    <field name="employee_id"/>
+                </calendar>
+            </field>
+        </record>
+
+        <record id="business_trip_calendar_view" model="ir.ui.view">
+            <field name="name">business.trip.calendar.view</field>
+            <field name="model">business.trip</field>
+            <field name="arch" type="xml">
+                <calendar js_class="time_off_calendar_all" string="Business Trip"
+                          form_view_id="%(ecartes_business_trip.business_trip_calender)d"
+                          event_open_popup="true"
+                          date_start="request_date_from"
+                          date_stop="request_date_to" mode="month"
+                          quick_create="false" color="employee_id">
+                    <field name="display_name"/>
+                    <field name="display_name"/>
+                    <field name="employee_id" filters="1"/>
+                </calendar>
+            </field>
+        </record>
+
+
+        <record id="ecartes_business_trip_action" model="ir.actions.act_window">
+            <field name="name">Business Trip</field>
+            <field name="res_model">business.trip</field>
+            <field name="view_mode">list,form,calendar</field>
+        </record>
+        <record id="action_business_trip_overview_" model="ir.actions.act_window">
+            <field name="name">Business Trip Overview</field>
+            <field name="res_model">business.trip</field>
+            <field name="view_mode">calendar</field>
+        </record>
+        <menuitem
+                id="business_trip_menu"
+                name="Business Trip"
+                sequence="15"
+                parent="hr_holidays.menu_hr_holidays_my_leaves"
+                action="ecartes_business_trip_action"/>
+        <menuitem
+                id="business_trip_overview"
+                name="Business Trip Overview"
+                sequence="16"
+                groups="ecartes_business_trip.business_trip_manager,ecartes_business_trip.business_trip_acccount_department"
+                parent="hr_holidays.menu_hr_holidays_my_leaves"
+                action="action_business_trip_overview_"/>
+    </data>
+</odoo>

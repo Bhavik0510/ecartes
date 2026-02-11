@@ -1,0 +1,33 @@
+<odoo>
+<!--    <record id="hr_kanban_view_employees_form_" model="ir.ui.view">-->
+<!--        <field name="name">hr_kanban_view_employees_form_</field>-->
+<!--        <field name="model">hr.employee</field>-->
+<!--        <field name="inherit_id" ref="hr.view_employee_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='department_id']" position="after">-->
+<!--                <field name="business_trip_"/>-->
+<!--                <field name="business_trip_string"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="hr_kanban_view_employees_kanban_view_" model="ir.ui.view">-->
+<!--        <field name="name">hr_kanban_view_employees_kanban_view_</field>-->
+<!--        <field name="model">hr.employee</field>-->
+<!--        <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//templates" position="before">-->
+<!--                <field name="business_trip_string"/>-->
+<!--                <field name="business_trip_"/>-->
+<!--            </xpath>-->
+<!--            <xpath expr="//li[@id='last_login']" position="inside">-->
+<!--                <br></br>-->
+<!--                <span t-if="record.business_trip_">-->
+<!--                    <field name="business_trip_string"/>-->
+
+<!--                </span>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+</odoo>
+

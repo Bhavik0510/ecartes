@@ -1,0 +1,24 @@
+<odoo>
+    <record id="contactdocument_form_view_master" model="ir.ui.view">
+        <field name="name">contact.document.form.master</field>
+        <field name="model">contact.document.master</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+     <record id="contact_document_details_action" model="ir.actions.act_window">
+        <field name="name">contact.document.master</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">contact.document.master</field>
+        <field name="view_mode">form,list</field>
+    </record>
+
+    <menuitem id="contact_doc_master_menu" name="Document Type" parent="contacts.menu_partner_category_form" action="contact_document_details_action" sequence="4"/>
+</odoo>

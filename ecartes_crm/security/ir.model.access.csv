@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tender_pipeline_tu,access_tender_pipeline_tu,ecartes_crm.model_tender_pipeline,ecartes_crm.group_tender_pipeline_user,1,1,1,1
+access_tender_tag_tu,access_tender_tag,ecartes_crm.model_tender_tag,ecartes_crm.group_tender_pipeline_user,1,1,1,1
+ecartes_crm.access_tender_pipeline_lost,access_tender_pipeline_lost,ecartes_crm.model_tender_pipeline_lost,ecartes_crm.group_tender_pipeline_user,1,1,1,1

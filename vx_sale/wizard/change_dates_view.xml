@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model='ir.ui.view' id='change_date_form'>
+            <field name="name">Change.Date.Form</field>
+            <field name="model">change.date</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="order_date"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_update_date" string="Update Date" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="oe_highlight" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_update_date_so_po_invoice" model="ir.actions.act_window">
+            <field name="name">Change Date</field>
+            <field name="res_model">change.date</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

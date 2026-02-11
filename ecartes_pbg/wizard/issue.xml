@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model='ir.ui.view' id='issue_pbg_form_view'>
+            <field name="name">Issue.PBG.Form</field>
+            <field name="model">issue.pbg</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="ref_no"/>
+                                <field name="issue_date"/>
+                                <field name="per_of_margin"/>
+                                <field name="bg_type"/>
+                            </group>
+                            <group>
+                                <field name="pbg_amount"/>
+                                <field name="claim_expiry_date"/>
+                                <field name="lien_on_fd"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="Issue_method" string="Issue" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="oe_highlight" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="employee_pbg_issue_action" model="ir.actions.act_window">
+            <field name="name">Issue Employee PBG</field>
+            <field name="res_model">issue.pbg</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

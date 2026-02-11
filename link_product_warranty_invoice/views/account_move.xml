@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="account_move_form_inherit_serial" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.serial</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_warranty_created" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='product_id']" position="after">
+                <field name="prod_lot_ids" widget="many2many_tags" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']//list" position="inside">
+                <field name="stock_move_line_ids" force_save="1" invisible="1" widget="many2many_tags"/>
+            </xpath>
+
+            <xpath expr="//button[@name='button_draft']" position="after">
+                <button name="add_warranty" type="object" string="Add Warranty" class="oe_highlight"
+                        invisible="is_warranty_created or state not in ['posted'] or is_amc_invoice "/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="warranty_ids" invisible="1"/>
+                <button type="object" name="action_show_warranty" class="oe_stat_button" icon="fa-certificate"
+                        invisible="warranty_count == 0">
+                    <field name="warranty_count" widget="statinfo" string="Warranty"/>
+                </button>
+            </xpath>
+
+
+        </field>
+    </record>
+</odoo>

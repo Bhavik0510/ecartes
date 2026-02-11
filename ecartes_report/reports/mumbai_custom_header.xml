@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="custom_external_layout_header">
+        <div t-attf-class="header " t-att-style="report_header_style">
+            <div class="o_boxed_header" style="border-bottom-color:gray;">
+                <div class="row mb8">
+                    <div class="col-8 text-right mb4">
+                        <div name="company_address" style="text-align: left;">
+                            <div>
+                                <div style="color:#6d3473;font-size:24px;font-weight:800;">Ecartes  Technology  Pvt.  Ltd.</div>
+                                <div>House No - 1293/4, G.No.-E/4, Gala No.E1-E2, Mahavir Complex, Valpada,
+                                    Bhiwandi, Thane - 421302,  Maharashtra
+                                </div>
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="width:33.33%;float:left;">Phone: +91-11-23269393</div>
+                                    <div style="width:33.33%;float:left;">Mobile: +91-9810899011</div>
+                                    <div style="width:33.33%;float:left;">Fax: +91-11-23289086</div>
+                                </div>
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="width:50%;float:left;">Email: info@ecartes.in</div>
+                                    <div style="width:50%;float:left;">Website: www.ecartes.in</div>
+                                </div>
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="width:50%;float:left;">CIN: U74899DL1995PTC070314</div>
+                                    <div style="width:50%;float:left;">GSTIN No.: 07AAACB2737Q1ZE</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4" style="display:flex;align-items:center; justify-content:right;">
+                        <center>
+                            <img src="ecartes_report/static/img/ecarte1.png" alt="Logo" class="center"/>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div t-attf-class="article"
+             t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_boxed_footer ">
+            <div class="text-center">
+                <div>
+                    This is a computer-generated document and needs no signatures
+                </div>
+                <div t-if="report_type == 'pdf'">
+                    Page:
+                    <span class="page"/>
+                    /
+                    <span class="topage"/>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

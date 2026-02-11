@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_tender_pipeline_search" model="ir.ui.view">
+        <field name="name">Tender Pipeline Control</field>
+        <field name="model">tender.pipeline</field>
+        <field name="arch" type="xml">
+            <search string="Search Tender">
+                <field name="name" string="Tender" filter_domain="['|', '|',  ('partner_id', 'ilike', self), ('email_from', 'ilike', self), ('name', 'ilike', self)]"/>
+                <field name="partner_id" operator="child_of" string="Customer" filter_domain="['|', ('partner_id', 'ilike', self), ('email_from', 'ilike', self)]"/>
+                <field name="user_id"/>
+                <field name="team_id"/>
+                <field name="stage_id" domain="[('is_tender_stage', '=', True)]"/>
+                <separator/>
+                <filter string="My Pipeline" name="assigned_to_me" domain="[('user_id', '=', uid)]" help="Tender that are assigned to me"/>
+                <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]" help="No Responsible"/>
+                <separator/>
+                <filter string="Unread Messages" name="message_needaction" domain="[('message_needaction', '=', True)]"/>
+                <filter string="Creation Date" name="creation_date" date="create_date"/>
+                <separator/>
+                <filter string="Won" name="won" domain="['&amp;', ('active', '=', True), ('stage_id.is_won', '=', True)]"/>
+                <filter string="Lost" name="lost" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By" colspan="16">
+                    <filter string="Responsible" name="responsible" context="{'group_by':'user_id'}"/>
+                    <filter string="Team" name="saleschannel" context="{'group_by':'team_id'}"/>
+                    <filter name="stage" string="Stage" context="{'group_by':'stage_id'}"/>
+                    <filter string="Company" name="company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                    <separator orientation="vertical"/>
+                    <filter string="Creation Date" context="{'group_by':'create_date:month'}" name="month"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- <record id="quick_create_tender_pipeline_form" model="ir.ui.view">
+            <field name="name">tender.pipeline.form.quick_create</field>
+            <field name="model">tender.pipeline</field>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="partner_id" widget="res_partner_many2one"
+                            string='Organization / Contact'
+                            context="{
+                            'default_user_id': user_id,
+                            'default_team_id': team_id,
+                            'show_vat': True}"/>
+                        <field name="name" placeholder="e.g. Tender Name" />
+                        <field name="email_from" string="Email" />
+                        <label for="tender_value"/>
+                        <div class="o_row">
+                            <field name="tender_value" class="oe_inline mr-5" widget="monetary" options="{'currency_field': 'company_currency'}"/>
+                            <field name="priority" class="oe_inline" nolabel="1" widget="priority"/>
+                        </div>
+                        <field name="company_currency" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="user_id" invisible="1"/>
+                        <field name="user_company_ids" invisible="1"/>
+                        <field name="team_id" invisible="1"/>
+                    </group>
+                </form>
+            </field>
+        </record> -->
+
+    <record id="view_tender_pipeline_kanban" model="ir.ui.view">
+        <field name="name">Tender Pipeline Kanban</field>
+        <field name="model">tender.pipeline</field>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" class="o_kanban_small_column o_opportunity_kanban" archivable="false" sample="1">
+                <field name="stage_id" options="{&quot;group_by_tooltip&quot;: {&quot;requirements&quot;: &quot;Description&quot;}}"/>
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="tender_value"/>
+                <field name="kanban_state"/>
+                <field name="activity_date_deadline"/>
+                <field name="user_email"/>
+                <field name="user_id"/>
+                <field name="partner_id"/>
+                <field name="activity_summary"/>
+                <field name="active"/>
+                <field name="company_currency"/>
+                <field name="activity_state"/>
+                <field name="activity_ids"/>
+                <progressbar field="activity_state" colors="{&quot;planned&quot;: &quot;success&quot;, &quot;today&quot;: &quot;warning&quot;, &quot;overdue&quot;: &quot;danger&quot;}" sum_field="tender_value" help="This bar allows to filter the tender based on scheduled activities."/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} #{lost_ribbon ? 'oe_kanban_card_ribbon' : ''} oe_kanban_global_click oe_kanban_card d-flex flex-column">
+                            <div class="ribbon ribbon-top-right" invisible="active">
+                                <span class="bg-danger">Lost</span>
+                            </div>
+
+                            <div class="o_dropdown_kanban dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit</a></t>
+                                    <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                    <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content flex-grow-1">
+                                <div class="o_kanban_record_title oe_kanban_details">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                                <div class="o_kanban_record_subtitle">
+                                    <t t-if="record.tender_value.raw_value">
+                                        <field name="tender_value" widget="monetary" options="{'currency_field': 'company_currency'}"/>
+                                    </t>
+                                </div>
+                                <div>
+                                    <span class="o_text_overflow" t-if="record.partner_id.value" t-esc="record.partner_id.value"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_footer">
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="priority" widget="priority" groups="base.group_user"/>
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="user_id" widget="many2one_avatar_user"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="oe_clear"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_tender_pipeline_list" model="ir.ui.view">
+        <field name="name">Tender Pipeline list</field>
+        <field name="model">tender.pipeline</field>
+        <field name="arch" type="xml">
+            <list string="Tender" sample="1" multi_edit="1">
+                <field name="create_date" optional="hide"/>
+                <field name="name" string="Tender" readonly="1"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="email_from"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show" domain="[('share', '=', False)]"/>
+                <field name="team_id" optional="hide"/>
+                <field name="priority" optional="hide" widget="priority"/>
+                <field name="activity_ids" widget="list_activity"/>
+                <field name="activity_user_id" optional="hide" string="Activity by" widget="many2one_avatar_user"/>
+                <field name="my_activity_date_deadline" string="My Deadline" widget="remaining_days" options="{'allow_order': '1'}"/>
+                <field name="activity_calendar_event_id" invisible="1"/>
+                <field name="company_currency" invisible="1"/>
+                <field name="tender_value" sum="Tender Value" optional="show" widget="monetary" options="{'currency_field': 'company_currency'}"/>
+                <field name="stage_id" optional="show" decoration-bf="1"/>
+                <field name="active" invisible="1"/>
+                <field name="message_needaction" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tender_pipeline_form" model="ir.ui.view">
+        <field name="name">Tender Pipeline Form</field>
+        <field name="model">tender.pipeline</field>
+        <field name="arch" type="xml">
+            <form class="o_lead_opportunity_form" js_class="crm_form">
+                <header>
+                    <button name="action_set_won_rainbowman" string="Won" type="object" class="oe_highlight" data-hotkey="w" title="Mark as won" invisible="not active"/>
+                    <button name="toggle_active" string="Restore" type="object" data-hotkey="z" invisible="active"/>
+                    <button name="%(tender_pipeline_lost_action)d" string="Lost" type="action" data-hotkey="l" title="Mark as lost" invisible="not active"/>
+                    <button string="New Quotation" name="action_sale_quotations_new" type="object" class="oe_highlight" data-hotkey="q" title="Create new quotation" />
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}" domain="[('is_tender_stage', '=', True), '|', ('team_id', '=', team_id), ('team_id', '=', False)]" invisible="not active"/>
+                </header>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_schedule_meeting" type="object" class="oe_stat_button" icon="fa-calendar" context="{'partner_id': partner_id}">
+                            <div class="o_stat_info">
+                                <field name="calendar_event_count" class="o_stat_value"/>
+                                <span class="o_stat_text"> Meetings</span>
+                            </div>
+                        </button>
+
+                        <button class="oe_stat_button" type="object" name="action_view_sale_quotation" icon="fa-pencil-square-o">
+                            <field name="quotation_count" widget="statinfo" string="Quotations"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_view_sale_order" icon="fa-usd">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value"><field name="sale_amount_total" widget="monetary" options="{'currency_field': 'company_currency'}"/></span>
+                                <span class="o_stat_text"> Orders</span>
+                                <field name="sale_order_count" invisible="1"/>
+                            </div>
+                        </button>
+                    </div>
+                    <!-- <widget name="web_ribbon" title="Lost" bg_color="bg-danger"/> -->
+                    <!-- <widget name="web_ribbon" title="Won"/> -->
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field class="text-break" name="name" placeholder="e.g. Tender"/></h1>
+                        <h2 class="o_row no-gutters align-items-end">
+                            <div class="col">
+                                <label for="tender_value" class="oe_edit_only"/>
+                                <div class="o_row">
+                                    <field name="company_currency" invisible="1"/>
+                                    <field name="tender_value" class="oe_inline" widget="monetary" options="{'currency_field': 'company_currency'}"/>
+                                </div>
+                            </div>
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="partner_id" widget="res_partner_many2one"/>
+                            <field name="lang_id"/>
+                        </group>
+                        <group>
+                            <field name="priority" widget="priority"/>
+                            <field name="user_id"
+                                    context="{'default_sales_team_id': team_id}" widget="many2one_avatar_user"/>
+                            <field name="team_id" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="user_company_ids" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Tender Details">
+                        <group>
+                            <field name="reference"/>
+                            <field name="tender_date"/>
+                            <field name="tender_id"/>
+                            <field name="tender_mode"/>
+                        </group>
+                        <group>
+                            <field name="publish_date"/>
+                            <field name="submission_date"/>
+                            <field name="opening_date"/>
+                            <field name="last_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="pre_bid_meeting"/>
+                        </group>
+                    </group>
+                    <group cols="4" string="Pre-Bid Meeting Venue &amp; Contact ">
+                        <field name="pre_bid_venue" nolabel="1"/>
+                    </group>
+                    <group string="Tender Values">
+                        <group>
+                            <field name="transaction_fee"/>
+                        </group>
+                        <group>
+                            <field name="tender_fee"/>
+                            <field name="tender_fee_exempt"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="emd"/>
+                            <field name="emd_exempt"/>
+                        </group>
+                        <group>
+                            <field name="maf_required"/>
+                            <field name="is_qualified_stage" invisible="1"/>
+                            <field name="is_financial_stage" invisible="1"/>
+                        </group>
+                    </group>
+                    <group cols="4" string="Important Points">
+                        <field name="important_points" nolabel="1"/>
+                    </group>
+                    <group cols="4" string="Qualified Companies">
+                        <field name="qualified_companies" nolabel="1" required="is_qualified_stage"/>
+                    </group>
+                    <group string="Financial Results" cols="4">
+                        <field name="financial_result" nolabel="1" required="is_financial_stage"/>
+                    </group>
+                    <group string="Financial Results Attachment">
+                        <field name="financial_attachments" nolabel="1">
+                            <list>
+                                <field name="name"/>
+                            </list>
+                        </field>
+                    </group>
+
+                    <group cols="4">
+                        <group>
+                            <field name="winning_amount"/>
+                        </group>
+                    </group>
+                    <group cols="4" string="Reason for Loss" invisible="not lost_reason">
+                        <field name="lost_reason" nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="EMD">
+                            <group>
+                                <group>
+                                    <field name="emd_status"/>
+                                    <field name="emd_returned"/>
+                                </group>
+                                <group>
+                                    <field name="emd_issue"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="PBG">
+                            <group>
+                                <group>
+                                    <field name="pbg_status"/>
+                                    <field name="pbg_returned"/>
+                                </group>
+                                <group>
+                                    <field name="pbg_issue"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_tender_pipeline">
+        <field name="name">Tender Pipeline</field>
+        <field name="res_model">tender.pipeline</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_assigned_to_me': 1}</field>
+    </record>
+</odoo>

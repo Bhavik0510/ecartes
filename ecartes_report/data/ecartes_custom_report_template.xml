@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="ecartes_custom_external_layout_header">
+        <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+            <div class="row" style="margin-bottom: 50px;">
+                <div class="col-8 text-right mb4">
+                    <!-- <div name="company_address" style="text-align: left;">
+                        <div>
+                                <div style="color:#6d3473;font-size:24px;font-weight:800;">Ecartes  Technology  Pvt.  Ltd.</div>
+                                <div>4805/24 Bharat Ram Road, Daryaganj, New Delhi-110002</div>
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="width:33.33%;float:left;">Phone: +91-11-23269393 |</div>
+                                    <div style="width:33.33%;float:left;">Mobile: +91-9810899011 |</div>
+                                    <div style="width:33.33%;float:left;">Fax: +91-11-23289086</div>
+                                </div>
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="width:50%;float:left;">Email: info@ecartes.in</div>
+                                    <div style="width:50%;float:left;">Website: www.ecartes.in</div>
+                                </div>
+                                <div style="width:100%;float:left;display:flex;">
+                                    <div style="width:50%;float:left;">CIN: U74899DL1995PTC070314</div>
+                                    <div style="width:50%;float:left;">GSTIN No.: 07AAACB2737Q1ZE</div>
+                                </div>
+                            </div>
+                    </div> -->
+                </div>
+                <div class="col-4" style="display:flex;align-items:center; justify-content:right;">
+                    <center>
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;"
+                             alt="Logo"/>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+        <div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}"
+             t-attf-style="background-image: url({{ 'data:image/png;base64,%s' % company.layout_background_image.decode('utf-8') if company.layout_background_image and company.layout_background == 'Custom' else '/base/static/img/bg_background_template.jpg' if company.layout_background == 'Geometric' else ''}});"
+             t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <div style="padding-top:20px;">
+                <t t-call="web.address_layout"/>
+            </div>
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_standard_footer o_company_#{company.id}_layout">
+            <!-- <div class="text-center" style="border-top: 1px solid black;"> -->
+            <div class="text-center">
+                <ul class="list-inline mb4">
+                    <div>This is an electronically generated quotation and does not require signatures</div>
+<!--                    <div t-field="company.report_footer"/>-->
+                </ul>
+
+                <!-- <div t-if="report_type == 'pdf'" class="text-muted">
+                    Page:
+                    <span class="page"/>
+                    /
+                    <span class="topage"/>
+                </div> -->
+            </div>
+        </div>
+    </template>
+</odoo>

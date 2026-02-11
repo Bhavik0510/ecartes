@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ecartes_emd,ecartes_emd,model_ecartes_emd,group_ecartes_emd_manager,1,1,1,1
+access_issue_emd,access_issue_emd,ecartes_emd.model_issue_emd,group_ecartes_emd_manager,1,1,1,1
+access_emd_reject,access.emd.reject,model_emd_reject,group_ecartes_emd_manager,1,1,1,1
+access_return_emd,access.return.emd,model_return_emd,group_ecartes_emd_manager,1,1,1,1
+access_ecartes_emd_user,ecartes_emd_user,model_ecartes_emd,group_ecartes_emd_user,1,1,1,0
+access_issue_emd_user,access_issue_emd_user,ecartes_emd.model_issue_emd,group_ecartes_emd_user,1,1,1,0
+access_emd_reject_user,access.emd.reject_user,model_emd_reject,group_ecartes_emd_user,1,1,1,0
+access_return_emd_user,access.return.emd_user,model_return_emd,group_ecartes_emd_user,1,1,1,0

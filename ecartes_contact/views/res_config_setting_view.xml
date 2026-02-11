@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_setting_view_form" model="ir.ui.view">
+        <field name="name">res.config.settin.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='pricing_setting_container']" position="after">
+                <h2>Contact Configuration</h2>
+                    <div class="row mt16 o_settings_container" name="catalog_setting_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <field name="restrict_duplicate_contacts"/>
+                                <div class="o_setting_right_pane">
+                                    <label for="restrict_duplicate_contacts" string="Restrict Duplicate Contact"/>
+                                </div>
+                        </div>
+                    </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="product_template_inherit_warranty_details" model="ir.ui.view">
+        <field name="name">product.template.inherit.warranty.details</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="account.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='invoicing']" position="after">
+                <page string="AMC Details" name="amc_details">
+                    <group>
+                        <group string="AMC Configuration">
+                            <field name="is_under_amc"/>
+                            <field name="allow_renewal"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

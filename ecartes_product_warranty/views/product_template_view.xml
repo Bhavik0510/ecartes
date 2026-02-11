@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="product_template_inherit_warranty_details" model="ir.ui.view">
+        <field name="name">product.template.inherit.warranty.details</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="account.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='invoicing']" position="after">
+                <page string="Warranty Details" name="warranty_details">
+                    <group>
+                        <group string="Warranty Configuration">
+                            <field name="is_under_warranty"/>
+                        </group>
+                        <group>
+<!--                        <group string="Allow Warranty Sale Order Configuration">-->
+<!--                            <field name="allow_sale_order"/>-->
+                            <field name="type_of_claim" invisible ="not is_under_warranty" required="is_under_warranty"/>
+                            <field name="no_of_claim" invisible ="type_of_claim == 'unlimited' "/>
+                            <field name="warranty_term_id" invisible ="not is_under_warranty" required="is_under_warranty"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

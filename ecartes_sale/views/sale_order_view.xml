@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sale_order_inherit_form" model="ir.ui.view">
+        <field name="name">Sale Order inherit Form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_invoice_id']" position="after">   
+                <field name="responsible_person"/>
+                <field name="deal_id" readonly="state in ['sent','sale','done','cancel']"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="delivery_service" invisible="state in ['draft','sent','done','cancel']"/>
+                <field name='shipping_mode'/>
+                <field name="amc_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//notebook/page/field[@name='order_line']/list/field[@name='product_id']" position="after">
+                <field name="can_edit_price" column_invisible="1"/>
+                <field name="can_edit_uom_qty" column_invisible="1"/>
+            </xpath>
+             <xpath expr="//notebook/page/field[@name='order_line']/list/field[@name='price_unit']" position="replace">
+                <field name="price_unit" readonly="can_edit_price"/>
+            </xpath>
+            <xpath expr="//notebook/page/field[@name='order_line']/list/field[@name='product_uom_qty']" position="attributes">
+                <attribute name="readonly">is_downpayment or can_edit_uom_qty </attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

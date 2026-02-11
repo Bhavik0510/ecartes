@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--        <record id="ecarte_approved_button_rules" model="ir.rule">-->
+    <!--            <field name="name">approved button: See own button</field>-->
+    <!--            <field name="model_id" ref="ecarte_work_from_home.model_ecarte_work_from_home"/>-->
+    <!--            <field name="domain_force">['|',('manager_id.user_id', '=', user.id),('employee_id.user_id','=',user.id)]</field>-->
+    <!--            <field name="groups" eval="[(4, ref('ecarte_work_from_home.group_wfh_manager'))]"/>-->
+    <!--        </record>-->
+
+    <record id="ecarte_approved_button_rules_hr" model="ir.rule">
+        <field name="name">approved button: See own button hr</field>
+        <field name="model_id" ref="ecarte_work_from_home.model_ecarte_work_from_home"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4, ref('ecarte_work_from_home.wfh_grp_manger'))]"/>
+    </record>
+
+    <record id="ecarte_approved_button_rules" model="ir.rule">
+        <field name="name">approved button: See own record accounts</field>
+        <field name="model_id" ref="ecarte_work_from_home.model_ecarte_work_from_home"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4, ref('ecarte_work_from_home.group_wfh_accounts'))]"/>
+    </record>
+
+    <record id="wfh_ecarte_rule_hr" model="ir.rule">
+        <field name="name">See all record</field>
+        <field name="model_id" ref="ecarte_work_from_home.model_ecarte_work_from_home"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4, ref('ecartes_leaves.group_ecartes_leaves_hr'))]"/>
+    </record>
+
+
+</odoo>

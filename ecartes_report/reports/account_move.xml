@@ -1,0 +1,39 @@
+<odoo>
+    <!--     <p>Report call</p> -->
+    <data>
+        <!-- <record id="ecartes_quote_mumbai_report_" model="ir.actions.report">
+            <field name="name">Proforma Invoice Mumbai</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.ecartes_invoice_mumbai_report_template</field>
+            <field name="report_file">ecartes_report.ecartes_invoice_mumbai_report_template</field>
+            <field name="print_report_name">'Proforma Invoice (Mumbai)'</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_ecartes"/>
+
+        </record>
+        <record id="ecartes_invoice_usd_report_" model="ir.actions.report">
+            <field name="name">Proforma Invoice USD</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.ecartes_invoice_usd_report_template</field>
+            <field name="report_file">ecartes_report.ecartes_invoice_usd_report_template</field>
+            <field name="print_report_name">'Proforma Invoice (USD)'</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_ecartes"/>
+        </record> -->
+        <record id="ecartes_invoice_delhi_report" model="ir.actions.report">
+            <field name="name">Proforma Invoice</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ecartes_report.ecartes_invoice_delhi_report_template</field>
+            <field name="report_file">ecartes_report.ecartes_invoice_delhi_report_template</field>
+            <field name="print_report_name">'Proforma Invoice- %s' % (object.name)</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_ecartes_sale"/>
+        </record>
+    </data>
+</odoo>
