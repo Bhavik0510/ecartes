@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_item_ledger,access.account.item.ledger,model_account_item_ledger,account.group_account_user,1,1,1,1
+access_arclight_hsn_summary,access.arclight.hsn.summary,model_arclight_account_custom_report_hsn_summary,account.group_account_user,1,1,1,0
+access_arclight_hsn_summary_line,access.arclight.hsn.summary.line,model_arclight_account_custom_report_hsn_summary_line,account.group_account_user,1,0,0,0
+access_arclight_hsn_summary_billing,access.arclight.hsn.summary.billing,model_arclight_account_custom_report_hsn_summary,account.group_account_invoice,1,1,1,0
+access_arclight_hsn_summary_line_billing,access.arclight.hsn.summary.line.billing,model_arclight_account_custom_report_hsn_summary_line,account.group_account_invoice,1,0,0,0
+

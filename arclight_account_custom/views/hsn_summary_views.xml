@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_hsn_summary_line_tree" model="ir.ui.view">
+            <field name="name">arclight_account_custom.report.hsn_summary.line.tree</field>
+            <field name="model">arclight_account_custom.report.hsn_summary.line</field>
+            <field name="arch" type="xml">
+                <list decoration-muted="quantity == 0" create="0" delete="0" edit="0">
+                    <field name="hsn_code"/>
+                    <field name="description"/>
+                    <field name="uom_code"/>
+                    <field name="quantity"/>
+                    <field name="total_value"/>
+                    <field name="rate"/>
+                    <field name="taxable_value"/>
+                    <field name="igst_amount"/>
+                    <field name="cgst_amount"/>
+                    <field name="sgst_amount"/>
+                    <field name="cess_amount"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hsn_summary_form" model="ir.ui.view">
+            <field name="name">HSN Wise Summary</field>
+            <field name="model">arclight_account_custom.report.hsn_summary</field>
+            <field name="arch" type="xml">
+                <form>
+                    <field name="state" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <group invisible="state != 'choose'">
+                        <field name="date_from" required="1"/>
+                        <field name="date_to" required="1"/>
+                    </group>
+                    <group invisible="state != 'get'">
+                        <field name="line_ids" nolabel="1" readonly="1"/>
+                    </group>
+                    <footer invisible="state != 'choose'">
+                        <button name="generate_hsn_summary" string="Generate" type="object" class="oe_highlight"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                    <footer invisible="state != 'get'">
+                        <button special="cancel" string="Close" class="btn-primary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_hsn_summary_report" model="ir.actions.act_window">
+            <field name="name">HSN Wise Summary</field>
+            <field name="res_model">arclight_account_custom.report.hsn_summary</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_hsn_summary_form"/>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="account_report_hsn_summary"
+                  name="HSN Wise Summary"
+                  parent="account.menu_finance_reports"
+                  action="arclight_account_custom.action_hsn_summary_report"
+                  sequence="20"
+                  groups="account.group_account_manager"/>
+    </data>
+</odoo>
+
