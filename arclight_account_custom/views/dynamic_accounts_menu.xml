@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Adjust menu sequences for Dynamic Financial Reports & add Item Ledger entry -->
+    <!-- Item Ledger under Inventory > Reporting (moved from Accounting) -->
     <menuitem id="menu_item_ledger"
               name="Item Ledger"
-              parent="dynamic_accounts_report.dynamic_report_accounting"
+              parent="stock.menu_warehouse_report"
               action="arclight_account_custom.action_item_ledger_wizard"
-              sequence="4"/>
+              sequence="10"/>
 </odoo>
 

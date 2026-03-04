@@ -6,6 +6,7 @@
     'depends': [
         'dynamic_accounts_report',
         'texbyte_gstr',
+        'stock',
     ],
     'data': [
         'security/ir.model.access.csv',

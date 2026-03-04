@@ -47,6 +47,71 @@ class HsnSummaryReport(models.TransientModel):
         except ValueError:
             return 0.0
 
+    def _get_tax_rate_from_line(self, line):
+        """Effective tax rate from invoice line's applied taxes (invoice data)."""
+        if not line.tax_ids:
+            # Fallback to product default tax rate
+            prod = line.product_id
+            if prod and prod.taxes_id:
+                return self._get_num(prod.taxes_id[0].name)
+            return 0.0
+        rate = 0.0
+        for tax in line.tax_ids:
+            if getattr(tax, 'amount_type', None) == 'group' and tax.children_tax_ids:
+                rate += sum(c.amount for c in tax.children_tax_ids)
+            else:
+                rate += tax.amount
+        return rate
+
+    def _classify_gst_tax_amount(self, tax):
+        """
+        Return 'igst', 'cgst', 'sgst', 'cess' or None.
+        Report mapping: cgst → Central Tax Amount column, sgst → State Tax Amount column (GST 18% = CGST 9% + SGST 9%).
+        """
+        if not tax:
+            return None
+        tax_type = getattr(tax, 'l10n_in_tax_type', None)
+        if tax_type in ('igst', 'cgst', 'sgst', 'cess'):
+            return tax_type
+        gname = (tax.tax_group_id.name or '').upper() if tax.tax_group_id else ''
+        if 'IGST' in gname:
+            return 'igst'
+        if 'CGST' in gname or 'CENTRAL' in gname:
+            return 'cgst'
+        if 'SGST' in gname or 'STATE' in gname or 'UTGST' in gname:
+            return 'sgst'
+        if 'CESS' in gname:
+            return 'cess'
+        name = (tax.name or '').upper()
+        if 'IGST' in name or 'INTEGRATED' in name:
+            return 'igst'
+        if 'CGST' in name or 'CENTRAL' in name or 'CENTRAL TAX' in name:
+            return 'cgst'
+        if 'SGST' in name or 'UTGST' in name or 'STATE' in name or 'STATE TAX' in name:
+            return 'sgst'
+        if 'CESS' in name:
+            return 'cess'
+        # Fallback: classify by tax account (CGST/SGST post to different accounts)
+        rep_lines = getattr(tax, 'invoice_repartition_line_ids', None) or getattr(tax, 'repartition_line_ids', None)
+        if rep_lines:
+            tax_rep = rep_lines.filtered(lambda r: getattr(r, 'repartition_type', None) == 'tax')
+            if not tax_rep and hasattr(rep_lines, '__iter__'):
+                tax_rep = rep_lines
+            for rep in (tax_rep or rep_lines)[:1]:
+                acc = rep.account_id if getattr(rep, 'account_id', None) else None
+                if acc:
+                    aname = (acc.name or '').upper()
+                    acode = (getattr(acc, 'code', None) or '').upper()
+                    if 'IGST' in aname or 'IGST' in acode or 'INTEGRATED' in aname:
+                        return 'igst'
+                    if 'CGST' in aname or 'CGST' in acode or 'CENTRAL' in aname:
+                        return 'cgst'
+                    if 'SGST' in aname or 'SGST' in acode or 'UTGST' in aname or 'STATE' in aname:
+                        return 'sgst'
+                    if 'CESS' in aname or 'CESS' in acode:
+                        return 'cess'
+        return None
+
     def generate_hsn_summary(self):
         self.ensure_one()
         self.line_ids.unlink()
@@ -75,7 +140,8 @@ class HsnSummaryReport(models.TransientModel):
                 prod = line.product_id
                 hsn_code = prod.l10n_in_hsn_code or '999999'
                 hsn_desc = getattr(prod, 'l10n_in_hsn_warning', None) or prod.name or 'Others'
-                tax_rate = self._get_num(prod.taxes_id[0].name if prod.taxes_id else "0")
+                # Tax rate from invoice line's applied taxes (not product default)
+                tax_rate = self._get_tax_rate_from_line(line)
                 uom = prod.uom_id
                 line_uom = line.product_uom_id
                 qty = line_uom._compute_quantity(line.quantity, uom) * sign
@@ -89,33 +155,81 @@ class HsnSummaryReport(models.TransientModel):
                     amount *= sign
                     total_amount *= sign
 
+                # Get IGST/CGST/SGST/Cess from invoice line's computed tax breakdown
                 igst = cgst = sgst = cess = 0.0
+                if line.tax_ids:
+                    price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+                    line_taxes = line.tax_ids.compute_all(
+                        price, invoice.currency_id, line.quantity, prod, invoice.partner_id,
+                        is_refund=(invoice.move_type == 'out_refund'),
+                    )
+                    for tax_line in line_taxes.get('taxes', []):
+                        tax_amt = tax_line.get('amount', 0)
+                        if foreign_curr:
+                            tax_amt = foreign_curr._convert(
+                                tax_amt, company_curr, invoice.company_id, curr_rate_date
+                            )
+                        tax_amt *= sign
+                        # Classify by tax record (id) so it works with any language/custom names
+                        tax = self.env['account.tax'].browse(tax_line.get('id'))
+                        gst_type = self._classify_gst_tax_amount(tax) if tax.exists() else None
+                        if gst_type == 'igst':
+                            igst += tax_amt
+                        elif gst_type == 'cgst':
+                            cgst += tax_amt
+                        elif gst_type == 'sgst':
+                            sgst += tax_amt
+                        elif gst_type == 'cess':
+                            cess += tax_amt
                 total_tax_line = total_amount - amount
-                move = invoice
-                if move.amount_untaxed and move.line_ids:
-                    tax_lines = move.line_ids.filtered(lambda l: l.tax_line_id)
+                # Fallback 1: use move tax lines (distribute by line share) when compute_all didn't classify
+                if (igst + cgst + sgst + cess) == 0 and total_tax_line != 0 and invoice.amount_untaxed:
+                    tax_lines = invoice.line_ids.filtered(lambda l: l.tax_line_id)
                     if tax_lines:
-                        move_igst = move_cgst = move_sgst = move_cess = 0.0
+                        line_share = amount / invoice.amount_untaxed
                         for tl in tax_lines:
-                            amt = abs(tl.balance) * sign
-                            name = (tl.tax_line_id.name or '')
-                            if 'IGST' in name.upper():
-                                move_igst += amt
-                            elif 'CGST' in name.upper() or 'CENTRAL' in name.upper():
-                                move_cgst += amt
-                            elif 'SGST' in name.upper() or 'UTGST' in name.upper() or 'STATE' in name.upper():
-                                move_sgst += amt
-                            elif 'cess' in name.lower():
-                                move_cess += amt
-                        line_share = (amount / move.amount_untaxed) if move.amount_untaxed else 0.0
-                        igst = move_igst * line_share
-                        cgst = move_cgst * line_share
-                        sgst = move_sgst * line_share
-                        cess = move_cess * line_share
+                            amt = abs(tl.balance) * sign * line_share
+                            gst_type = self._classify_gst_tax_amount(tl.tax_line_id)
+                            if gst_type == 'igst':
+                                igst += amt
+                            elif gst_type == 'cgst':
+                                cgst += amt
+                            elif gst_type == 'sgst':
+                                sgst += amt
+                            elif gst_type == 'cess':
+                                cess += amt
+                    if (igst + cgst + sgst + cess) == 0 and total_tax_line != 0:
+                        # Fallback 2: intra-state (same state) → split tax 50-50 as CGST + SGST
+                        company_state = invoice.company_id.state_id
+                        partner_state = invoice.partner_id.state_id if invoice.partner_id else None
+                        if company_state and partner_state and company_state == partner_state:
+                            cgst = total_tax_line / 2.0
+                            sgst = total_tax_line / 2.0
+                        else:
+                            igst = total_tax_line
+                    elif (igst + cgst + sgst + cess) == 0:
+                        igst = total_tax_line
+                    else:
+                        pass
+                else:
+                    # No tax lines on move: same-state → CGST+SGST split, else IGST
+                    if total_tax_line != 0:
+                        company_state = invoice.company_id.state_id
+                        partner_state = invoice.partner_id.state_id if invoice.partner_id else None
+                        if company_state and partner_state and company_state == partner_state:
+                            cgst = total_tax_line / 2.0
+                            sgst = total_tax_line / 2.0
+                        else:
+                            igst = total_tax_line
+                if (igst + cgst + sgst + cess) == 0 and total_tax_line != 0:
+                    # Still unallocated tax (e.g. no amount_untaxed): same-state split or IGST
+                    company_state = invoice.company_id.state_id
+                    partner_state = invoice.partner_id.state_id if invoice.partner_id else None
+                    if company_state and partner_state and company_state == partner_state:
+                        cgst = total_tax_line / 2.0
+                        sgst = total_tax_line / 2.0
                     else:
                         igst = total_tax_line
-                else:
-                    igst = total_tax_line
 
                 type_supply = 'Services' if prod.type == 'service' else 'Goods'
                 key = (hsn_code, uom, tax_rate, type_supply)
@@ -280,14 +394,9 @@ class HsnSummaryReport(models.TransientModel):
                 sheet.write(row, col_start + 8, round(r['igst'], 2), num_format_2dec)
             else:
                 sheet.write(row, col_start + 8, 0.00, num_format_2dec)
-            if r['cgst']:
-                sheet.write(row, col_start + 9, round(r['cgst'], 2), num_format_2dec)
-            else:
-                sheet.write(row, col_start + 9, '', line_style)
-            if r['sgst']:
-                sheet.write(row, col_start + 10, round(r['sgst'], 2), num_format_2dec)
-            else:
-                sheet.write(row, col_start + 10, '', line_style)
+            # Column 9 = Central Tax Amount (CGST); Column 10 = State Tax Amount (SGST) — GST 18% = CGST 9% + SGST 9%
+            sheet.write(row, col_start + 9, round(r['cgst'], 2), num_format_2dec)
+            sheet.write(row, col_start + 10, round(r['sgst'], 2), num_format_2dec)
             if r['cess']:
                 sheet.write(row, col_start + 11, round(r['cess'], 2), num_format_2dec)
             else:
