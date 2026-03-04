@@ -6,5 +6,11 @@
               parent="stock.menu_warehouse_report"
               action="arclight_account_custom.action_item_ledger_wizard"
               sequence="10"/>
+    <!-- Pending DC Report: Sales Bills Pending (Goods delivered not billed / Bills made not delivered) -->
+    <menuitem id="menu_pending_dc_report"
+              name="Pending DC Report"
+              parent="stock.menu_warehouse_report"
+              action="arclight_account_custom.action_pending_dc_report_wizard"
+              sequence="11"/>
 </odoo>
 
