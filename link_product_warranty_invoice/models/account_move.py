@@ -98,14 +98,12 @@ class AccountMoveLineInherit(models.Model):
         return lot_dict
 
     def copy_data(self, default=None):
-        self.ensure_one()
-        res = super().copy_data(default=default)
-        if (
-            self.env.context.get("force_copy_stock_moves")
-            and "stock_move_line_ids" not in res
-        ):
-            res[0]["stock_move_line_ids"] = [(6, 0, self.stock_move_line_ids.ids)]
-        return res
+        res_list = super().copy_data(default=default)
+        if self.env.context.get("force_copy_stock_moves"):
+            for line, res in zip(self, res_list):
+                if "stock_move_line_ids" not in res:
+                    res["stock_move_line_ids"] = [(6, 0, line.stock_move_line_ids.ids)]
+        return res_list
 
 
 

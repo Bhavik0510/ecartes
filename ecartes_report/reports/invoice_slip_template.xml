@@ -7,7 +7,7 @@
                 <t t-foreach="docs" t-as="t">
                     <t t-set="company_id_val" t-value="t.company_id"/>
                     <t t-call="ecartes_report.delhi_custom_external_layout_header">
-                        <div class="page">
+                            <div class="page">
                             <div style="font-weight:bold;text-align:center;border-bottom:0;padding: 5px;font-size:24px;text-decoration: underline;padding-top: 50px;">
                                Invoice Slip
                             </div>

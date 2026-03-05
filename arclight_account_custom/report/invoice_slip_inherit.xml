@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Show Tax amount just below the Invoice Slip title on the invoice slip report -->
+        <template id="invoice_slip_add_tax_invoice" inherit_id="ecartes_report.invoice_slip_report_template">
+            <xpath expr="//div[@class='page']/div[1]" position="after">
+                <div style="text-align:center;font-size:14px;margin-top:4px;">
+                    <strong>Tax:</strong>
+                    <span t-field="t.amount_tax" t-options='{"widget": "monetary", "display_currency": t.currency_id}'/>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

@@ -3,7 +3,7 @@
     <data>
         <template id="gts_report_invoice_document" inherit_id="account.report_invoice_document">
             <xpath expr="//t/t[2]" position="after">
-                <div style="float:right;">
+                <div style="float:right;" t-if="o.qr_image">
                     <img t-att-src="image_data_uri(o.qr_image)" style="width:50pt; height:50pt;"/> 
                 </div>
 <!-- 

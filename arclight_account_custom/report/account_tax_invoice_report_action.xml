@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="paperformat_tax_invoice" model="report.paperformat">
+            <field name="name">Tax Invoice Paperformat</field>
+            <field name="default" eval="False"/>
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">8</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Separate Tax Invoice print button on customer invoices -->
+        <record id="action_report_tax_invoice" model="ir.actions.report">
+            <field name="name">Tax Invoice</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <!-- Use custom Tax Invoice layout based on Invoice Slip -->
+            <field name="report_name">arclight_account_custom.custom_tax_invoice_report_template</field>
+            <field name="report_file">arclight_account_custom.custom_tax_invoice_report_template</field>
+            <field name="print_report_name">'Tax Invoice - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="arclight_account_custom.paperformat_tax_invoice"/>
+        </record>
+    </data>
+</odoo>
