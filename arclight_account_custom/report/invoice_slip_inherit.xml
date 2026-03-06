@@ -10,5 +10,30 @@
                 </div>
             </xpath>
         </template>
+
+        <!-- Company's Bank Details: injected from arclight_account_custom (moved from ecartes_report) -->
+        <template id="invoice_slip_add_company_bank_details" inherit_id="ecartes_report.invoice_slip_report_template">
+            <xpath expr="//div[.//table[.//tr[contains(@class,'o_total')]]]" position="after">
+                <t t-if="t.company_id.partner_id.bank_ids">
+                    <div style="width:100%;float:left;margin-top:15px;page-break-inside: avoid;font-size:15px;border:1px solid black;padding:10px;">
+                        <div class="text-start" style="text-decoration: underline;font-weight: bold;">Company's Bank Details</div>
+                        <div t-if="t.company_id.partner_id.name" style="width:100%;float:left;display:flex;margin-top:5px;">
+                            <div><b>A/c Holder's Name:</b> <span t-esc="t.company_id.partner_id.name"/></div>
+                        </div>
+                        <t t-foreach="t.company_id.partner_id.bank_ids" t-as="b">
+                            <div t-if="b.bank_id" style="width:100%;float:left;display:flex;">
+                                <div><b>Bank Name:</b> <span t-if="b.bank_id.name" t-esc="b.bank_id.name"/></div>
+                            </div>
+                            <div t-if="b.acc_number" style="width:100%;float:left;display:flex;">
+                                <div><b>A/c No.:</b> <span t-esc="b.acc_number"/></div>
+                            </div>
+                            <div t-if="b.bank_id" style="width:100%;float:left;display:flex;">
+                                <div><b>Branch &amp; IFS Code:</b> <span t-if="b.bank_id.street" t-esc="b.bank_id.street"/><span t-if="b.bank_id.street2">, <t t-esc="b.bank_id.street2"/></span><span t-if="b.bank_id.city"> <t t-esc="b.bank_id.city"/></span><span t-if="b.bank_id.zip">-<t t-esc="b.bank_id.zip"/></span><span t-if="b.bank_id.bic"> &amp; <t t-esc="b.bank_id.bic"/></span></div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </xpath>
+        </template>
     </data>
 </odoo>
