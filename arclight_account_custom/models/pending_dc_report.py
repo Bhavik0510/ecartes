@@ -72,7 +72,7 @@ class PendingDcReport(models.TransientModel):
 
         domain = [
             ('order_id.state', 'in', ('sale', 'done')),
-            ('order_id.company_id', 'in', self.env.companies.ids),
+            ('order_id.company_id', '=', self.env.company.id),
             ('display_type', '=', False),
             ('product_id', '!=', False),
         ]

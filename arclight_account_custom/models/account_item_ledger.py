@@ -40,84 +40,107 @@ class AccountItemLedger(models.TransientModel):
         return self.env.ref('arclight_account_custom.action_print_item_ledger').report_action(self)
 
     def get_report_lines(self):
-        """Build Stock Item Ledger data for PDF: report_lines, product_name, date_from_str, date_to_str."""
+        """Build Stock Item Ledger data for PDF using stock moves (incl. receipts & manufacturing)."""
         self.ensure_one()
         empty = {
-            'report_lines': [],
-            'product_name': '',
-            'date_from_str': '',
-            'date_to_str': '',
+            "report_lines": [],
+            "product_name": "",
+            "date_from_str": "",
+            "date_to_str": "",
         }
         if not self.product_id:
             return empty
-        move_domain = [
-            ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')),
-            ('state', '=', 'posted'),
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-            ('company_id', 'in', self.env.companies.ids),
+
+        domain = [
+            ("product_id", "=", self.product_id.id),
+            ("state", "=", "done"),
+            ("date", ">=", self.date_from),
+            ("date", "<=", self.date_to),
+            ("company_id", "=", self.env.company.id),
         ]
-        moves = self.env['account.move'].search(move_domain, order='date, id')
-        lines = self.env['account.move.line']
-        for move in moves:
-            if not move.invoice_line_ids:
-                continue
-            matching = move.invoice_line_ids.filtered(
-                lambda l: l.display_type == 'product' and l.product_id == self.product_id
-            )
-            lines |= matching
-        lines = lines.sorted(key=lambda l: (l.date, l.id))
+        move_lines = self.env["stock.move.line"].search(domain, order="date, id")
+
         rows = []
         running_qty = 0.0
         running_value = 0.0
-        for line in lines:
+
+        for line in move_lines:
+            qty_in = line.qty_in or 0.0
+            qty_out = line.qty_out or 0.0
+
+            in_qty = qty_in
+            out_qty = qty_out
+            in_rate = in_value = 0.0
+            out_rate = out_value = 0.0
+
+            picking = line.picking_id
             move = line.move_id
-            qty = abs(line.quantity or 0.0)
-            rate = line.price_unit or 0.0
-            value = line.price_subtotal or 0.0
-            if value and not qty:
-                qty = 1.0
-            in_qty = in_rate = in_value = 0.0
-            out_qty = out_rate = out_value = 0.0
-            if move.move_type == 'in_invoice':
-                in_qty, in_rate, in_value = qty, rate, value
-            elif move.move_type == 'in_refund':
-                out_qty, out_rate, out_value = qty, rate, abs(value)
-            elif move.move_type == 'out_invoice':
-                out_qty, out_rate, out_value = qty, rate, abs(value)
-            elif move.move_type == 'out_refund':
-                in_qty, in_rate, in_value = qty, rate, abs(value)
-            vch_type = 'GST Purchase' if move.move_type == 'in_invoice' else \
-                       'Purchase Return' if move.move_type == 'in_refund' else \
-                       'GST-TAX INVOICE' if move.move_type == 'out_invoice' else 'Sales Return'
-            if in_qty or in_value:
+
+            vch_type = "Stock Move"
+            vch_no = ""
+            partner_name = ""
+
+            if picking:
+                code = picking.picking_type_id.code
+                if code == "incoming":
+                    vch_type = "Receipt"
+                elif code == "outgoing":
+                    vch_type = "Delivery"
+                elif code == "internal":
+                    vch_type = "Internal Transfer"
+                else:
+                    vch_type = picking.picking_type_id.name or "Stock Move"
+                vch_no = picking.name or ""
+                partner_name = picking.partner_id.sudo().name if picking.partner_id else ""
+            elif getattr(move, "production_id", False) or getattr(move, "raw_material_production_id", False):
+                vch_type = "Manufacturing"
+                vch_no = (
+                    getattr(move.raw_material_production_id, "name", False)
+                    or getattr(move.production_id, "name", False)
+                    or move.reference
+                    or ""
+                )
+            else:
+                vch_no = move.reference or ""
+
+            if in_qty:
                 running_qty += in_qty
-                running_value += in_value
-            if out_qty or out_value:
-                avg_rate = (running_value / running_qty) if running_qty else 0.0
-                running_value -= out_qty * avg_rate
+            if out_qty:
                 running_qty -= out_qty
                 if running_qty < 0:
-                    running_qty, running_value = 0.0, 0.0
-            close_rate = (running_value / running_qty) if running_qty else 0.0
-            date_str = line.date.strftime('%d-%b-%y') if line.date else ''
-            partner_name = move.partner_id.sudo().name if move.partner_id else ''
-            rows.append({
-                'date_str': date_str,
-                'particulars': partner_name or '',
-                'vch_type': vch_type,
-                'vch_no': move.name or move.ref or '',
-                'in_qty': in_qty, 'in_rate': in_rate, 'in_value': in_value,
-                'out_qty': out_qty, 'out_rate': out_rate, 'out_value': out_value,
-                'close_qty': running_qty, 'close_rate': close_rate, 'close_value': running_value,
-            })
-        product_name = self.product_id.sudo().display_name if self.product_id else ''
-        date_from_str = self.date_from.strftime('%d-%b-%y') if self.date_from else ''
-        date_to_str = self.date_to.strftime('%d-%b-%y') if self.date_to else ''
+                    running_qty = 0.0
+                    running_value = 0.0
+
+            close_qty = running_qty
+            close_rate = (running_value / close_qty) if close_qty else 0.0
+
+            date_str = line.date.strftime("%d-%b-%y") if line.date else ""
+
+            rows.append(
+                {
+                    "date_str": date_str,
+                    "particulars": partner_name or "",
+                    "vch_type": vch_type,
+                    "vch_no": vch_no,
+                    "in_qty": in_qty,
+                    "in_rate": in_rate,
+                    "in_value": in_value,
+                    "out_qty": out_qty,
+                    "out_rate": out_rate,
+                    "out_value": out_value,
+                    "close_qty": close_qty,
+                    "close_rate": close_rate,
+                    "close_value": running_value,
+                }
+            )
+
+        product_name = self.product_id.sudo().display_name if self.product_id else ""
+        date_from_str = self.date_from.strftime("%d-%b-%y") if self.date_from else ""
+        date_to_str = self.date_to.strftime("%d-%b-%y") if self.date_to else ""
         return {
-            'report_lines': rows,
-            'product_name': product_name,
-            'date_from_str': date_from_str,
-            'date_to_str': date_to_str,
+            "report_lines": rows,
+            "product_name": product_name,
+            "date_from_str": date_from_str,
+            "date_to_str": date_to_str,
         }
 

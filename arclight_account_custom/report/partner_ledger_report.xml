@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_partner_ledger_report" model="report.paperformat">
+        <field name="name">Marvex Partner Ledger PaperFormat</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">8</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="margin_bottom">10</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_partner_ledger_report" model="ir.actions.report">
+        <field name="name">Partner Ledger Report</field>
+        <field name="model">marvex.partner.ledger</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arclight_account_custom.partner_ledger_report_template</field>
+        <field name="report_file">arclight_account_custom.partner_ledger_report_template</field>
+        <field name="paperformat_id" ref="arclight_account_custom.paperformat_partner_ledger_report" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="arclight_account_custom.partner_ledger_report_template" model="ir.ui.view">
+        <field name="name">arclight_account_custom.partner_ledger_report_template</field>
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <template id="partner_ledger_report_template"
+                t-name="arclight_account_custom.partner_ledger_report_template">
+                <t t-call="web.html_container">
+                    <t t-call="web.basic_layout">
+                        <t t-foreach="docs" t-as="o">
+                            <div class="page">
+                                <div style="text-align:center;">
+                                    <h2>MARVEX PIPE TECH PVT.LTD.</h2>
+                                    <p> WORK:BLOCK NO.121, NR.MAYUR CINEMA,BADODARAVILLAGE,
+                                        MAHEMDABAD <br /> HIGHWAY,
+                                        TA.DASKROI,AHMEDABAD-382435.MOB.09909947389 <br />
+                                        OFFICE:409 MARUTI TITANIUM NR. NICE WOOD FURNITURE OPP.
+                                        SURYAM <br /> INDUSTRIAL PARK, S.P. RING ROAD
+                                        NIKOL-382350,AHMEDABAD <br /> info@marvex.co.in </p>
+                                </div>
+                                <div style="text-align:center;">
+                                    <h3>PARTNER LEDGER REPORT</h3>
+                                </div>
+                                <table
+                                    style="border-collapse: collapse; width:100%; border:1px solid black;">
+                                    <tr>
+                                        <td
+                                            style="border-left:1px solid black; width:50%; padding:5px">
+                                            <strong>From :</strong>&#160;&#160;&#160;&#160; <t
+                                                t-esc="o.from_date.strftime('%d-%m-%Y')" />
+                                            <strong>To
+                                            :</strong>&#160;&#160; <t
+                                                t-esc="o.to_date.strftime('%d-%m-%Y')" />
+                                        </td>
+                                        <td style="border-right:1px solid black; width:50%;">
+                                            <strong style="margin-left: 5px;">Print Date :</strong>
+                                            <t t-esc="datetime.date.today().strftime('%d-%m-%Y')" />
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table
+                                    style="width:100%; border-collapse:collapse; border:1px solid black; font-size:12px; margin-top:10px;">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                style="border:1px solid black; padding:6px; text-align:center; width:15%;">
+                                                Date</th>
+                                            <th
+                                                style="border:1px solid black; padding:6px; text-align:center; width:40%;">
+                                                Narration</th>
+                                            <th
+                                                style="border:1px solid black; padding:6px; text-align:center; width:15%;">
+                                                Book</th>
+                                            <th
+                                                style="border:1px solid black; padding:6px; text-align:right; width:15%;">
+                                                Debit</th>
+                                            <th
+                                                style="border:1px solid black; padding:6px; text-align:right; width:15%;">
+                                                Credit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="5"
+                                                style="border:1px solid black; padding:6px; font-weight:bold;">
+                                                Customer: <t t-esc="o.partner_id.name" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3"
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <b>Opening Balance b/f :</b>
+                                            </td>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <t
+                                                    t-esc="'%.2f' % o.get_updated_ledger_lines()['opening_debit']" />
+                                            </td>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <t
+                                                    t-esc="'%.2f' % o.get_updated_ledger_lines()['opening_credit']" />
+                                            </td>
+                                        </tr>
+                                        <t t-set="sorted_lines"
+                                            t-value="sorted(o.get_updated_ledger_lines()['lines'], key=lambda l: l['date'])" />
+                                        <t t-foreach="sorted_lines" t-as="line">
+                                            <tr style="border:none;">
+                                                <td
+                                                    style="border:none; padding:2px 6px; text-align:center;">
+                                                    <t t-esc="line['date'].strftime('%d-%m-%Y')" />
+                                                </td>
+                                                <td
+                                                    style="border:none; padding:2px 6px; text-align:left;">
+                                                    <t t-esc="line['narration']" />
+                                                </td>
+                                                <td
+                                                    style="border:none; padding:2px 6px; text-align:center;">
+                                                    <t t-esc="line['book']" />
+                                                </td>
+                                                <td
+                                                    style="border:none; padding:2px 6px; text-align:right;">
+                                                    <t t-esc="'%.2f' % line['debit']" />
+                                                </td>
+                                                <td
+                                                    style="border:none; padding:2px 6px; text-align:right;">
+                                                    <t t-esc="'%.2f' % line['credit']" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <tr style="background-color:#f9f9f9;">
+                                            <td colspan="3"
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <b>Total :</b>
+                                            </td>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <t
+                                                    t-esc="'%.2f' % o.get_updated_ledger_lines()['debit_total']" />
+                                            </td>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <t
+                                                    t-esc="'%.2f' % o.get_updated_ledger_lines()['credit_total']" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3"
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <b>Closing Balance c/f :</b>
+                                            </td>
+                                            <!-- Closing: amount to receive (levanu baki) in Credit column so last row same -->
+                                            <t t-set="ledger_data" t-value="o.get_updated_ledger_lines()"/>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <t t-esc="'%.2f' % (ledger_data['closing_debit'] or 0.0)" />
+                                            </td>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right;">
+                                                <t t-esc="'%.2f' % (ledger_data['closing_credit'] or 0.0)" />
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color:#e8e8e8;">
+                                            <td colspan="3"
+                                                style="border:1px solid black; padding:6px;"></td>
+                                            <!-- Last row: grand total (same amount both sides - balanced) -->
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right; font-weight:bold;">
+                                                <t t-esc="'%.2f' % (ledger_data['grand_total_debit'] or 0.0)" />
+                                            </td>
+                                            <td
+                                                style="border:1px solid black; padding:6px; text-align:right; font-weight:bold;">
+                                                <t t-esc="'%.2f' % (ledger_data['grand_total_credit'] or 0.0)" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+            </template>
+        </field>
+    </record>
+
+</odoo>
