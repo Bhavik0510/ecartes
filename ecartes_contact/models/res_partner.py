@@ -70,10 +70,25 @@ class ResPartner(models.Model):
                     raise ValidationError(_('You must have atleast one Invoice Address'))
         return res
 
-    @api.constrains('name')
+    def _partner_name_normalize_key(self, name):
+        """Safe compare key: name can be False, '', or rarely non-str from bad data."""
+        if name in (False, None, ""):
+            return ""
+        if not isinstance(name, str):
+            name = str(name)
+        return name.lower().replace(" ", "")
+
+    @api.constrains("name")
     def check_customer_exist(self):
         for rec in self:
-            exiting_customer = self.env['res.partner'].search([]).filtered(lambda a:a.id != rec.id and a.name.lower().replace(' ', '') == rec.name.lower().replace(' ', ''))
+            key = self._partner_name_normalize_key(rec.name)
+            if not key:
+                continue
+            rec_id = rec.id
+            exiting_customer = self.env["res.partner"].search([]).filtered(
+                lambda a, key=key, rec_id=rec_id: a.id != rec_id
+                and self._partner_name_normalize_key(a.name) == key
+            )
             if exiting_customer:
                 raise ValidationError(_("Contact already exits with this name !"))
 

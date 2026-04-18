@@ -5,11 +5,8 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="ecartes_account.account_inherit_form"/>
             <field name="arch" type="xml">
-
-                <xpath expr="//field[@name='deal']" position="after">
+                <xpath expr="//group[@id='header_right_group']" position="inside">
                     <field name="is_amc_invoice" readonly="1" invisible="1"/>
-                </xpath>
-                <xpath expr="//field[@name='deal']" position="before">
                     <field name="amc_id" invisible="not is_amc_invoice"/>
                 </xpath>
 

@@ -4,7 +4,33 @@ from odoo import models,fields ,api
 class Account(models.Model):
     _inherit ='account.move'
 
- 
+    warranty_count = fields.Integer(
+        string="No of Warranty",
+        compute="_compute_warranty_count",
+    )
+    is_warranty_created = fields.Boolean(
+        string="Warranty Created",
+        default=False,
+        copy=False,
+    )
+    is_amc_invoice = fields.Boolean(
+        string="AMC Invoice",
+        default=False,
+        copy=False,
+    )
+
+    @api.depends("line_ids", "line_ids.product_id")
+    def _compute_warranty_count(self):
+        if "product.warranty" not in self.env:
+            for move in self:
+                move.warranty_count = 0
+            return
+        Warranty = self.env["product.warranty"].sudo()
+        for move in self:
+            move.warranty_count = Warranty.search_count(
+                [("invoice_id", "=", move.id)]
+            )
+
     shipping_mode = fields.Selection([('not_selected','Not Selected'),
                                 ('by_air','By Air'),
                                 ('by_hand','By Hand'),
