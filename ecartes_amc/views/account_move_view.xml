@@ -9,6 +9,18 @@
                     <field name="is_amc_invoice" readonly="1" invisible="1"/>
                     <field name="amc_id" invisible="not is_amc_invoice"/>
                 </xpath>
+                <xpath expr="(//button[@name='action_register_payment'])[1]" position="replace">
+                    <button name="action_register_payment"
+                            type="object"
+                            string="Receive Payment"
+                            class="oe_highlight"
+                            invisible="state != 'posted' or payment_state not in ('not_paid', 'partial') or move_type != 'out_invoice'"/>
+                    <button name="action_register_payment"
+                            type="object"
+                            string="Pay"
+                            class="oe_highlight"
+                            invisible="state != 'posted' or payment_state not in ('not_paid', 'partial') or move_type != 'in_invoice'"/>
+                </xpath>
 
             </field>
         </record>
