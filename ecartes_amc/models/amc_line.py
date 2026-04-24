@@ -23,7 +23,7 @@ class AmcLine(models.Model):
         )
     company_id = fields.Many2one(
         'res.company', 'Company',
-        readonly=True, required=True, index=True,
+        readonly=False, required=True, index=True,
         default=lambda self: self.env.company)
 
     tracking = fields.Selection([
@@ -33,7 +33,7 @@ class AmcLine(models.Model):
 
     amc_id = fields.Many2one('amc.amc')
     amc_claim_id = fields.Many2one('amc.claim')
-    currency_id = fields.Many2one(related='company_id.currency_id', depends=['company_id.currency_id'], store=True, string='Currency')
+    currency_id = fields.Many2one(related='company_id.currency_id', depends=['company_id.currency_id'], store=True, string='Currency', readonly=False)
     price_unit = fields.Float('Unit Price', required=True, digits='Product Price', default=0.0)
 
     @api.onchange("product_id")

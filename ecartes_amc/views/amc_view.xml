@@ -94,14 +94,14 @@
                             <page string="Products">
                                 <field name="line_ids">
                                     <list editable="bottom">
-                                        <field name="currency_id" invisible="1"/>
+                                        <field name="currency_id"/>
                                         <field name="product_id" required="1"/>
                                         <field name="lot_id"
                                                required="tracking in ['serial', 'lot'] " 
                                                readonly="tracking not in ['serial', 'lot'] "/>
                                         <field name="product_qty" readonly =" tracking == 'serial'"/>
                                         <field name="price_unit"/>
-                                        <field name="company_id" invisible="1"/>
+                                        <field name="company_id"/>
                                         <field name="tracking" invisible="1"/>
                                     </list>
                                 </field>

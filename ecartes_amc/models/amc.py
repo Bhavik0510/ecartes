@@ -88,7 +88,7 @@ class Amc(models.Model):
         'res.currency',
         string='Currency',
         tracking=True,
-        required=True,
+        # required=True,
         related='company_id.currency_id', store=True, readonly=False
     )
 
@@ -204,7 +204,7 @@ class Amc(models.Model):
             # if len(pw) > 0:
             #     raise UserError('You Cannot Create more than one Warranty with same serial number.')
 
-        super(Amc, self).create(vals_list)
+        return super(Amc, self).create(vals_list)
 
     @api.onchange('amc_term_id', 'amc_start_date')
     def onchnage_amc_term(self):
