@@ -171,7 +171,7 @@ class GSTR2Report(models.TransientModel):
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
                 ws1.write(row, col + 1, invoice.partner_id.vat or "", line_content_style)
-                ws1.write(row, col + 2, invoice.name, line_content_style)
+                ws1.write(row, col + 2, invoice.ref, line_content_style)
                 ws1.write(row, col + 3, self.format_date(invoice.invoice_date), line_content_style)
                 ws1.write(row, col + 4, invoice.amount_total, line_content_style)
                 ws1.write(row, col + 5, place_of_supply, line_content_style)
@@ -248,7 +248,7 @@ class GSTR2Report(models.TransientModel):
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
                 ws1.write(row, col + 1, invoice.partner_id.name or "", line_content_style)
-                ws1.write(row, col + 2, invoice.name, line_content_style)
+                ws1.write(row, col + 2, invoice.ref, line_content_style)
                 ws1.write(row, col + 3, self.format_date(invoice.invoice_date), line_content_style)
                 ws1.write(row, col + 4, invoice.amount_total, line_content_style)
                 ws1.write(row, col + 5, place_of_supply, line_content_style)
@@ -322,7 +322,7 @@ class GSTR2Report(models.TransientModel):
                 place_of_supply = invoice.partner_id.state_id and invoice.partner_id.state_id.name or invoice.company_id.state_id.name
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
-                ws1.write(row, col + 1, invoice.name, line_content_style)
+                ws1.write(row, col + 1, invoice.ref, line_content_style)
                 ws1.write(row, col + 2, self.format_date(invoice.invoice_date), line_content_style)
                 ws1.write(row, col + 3, total_amount, line_content_style)
                 ws1.write(row, col + 4, place_of_supply, line_content_style)
@@ -395,7 +395,7 @@ class GSTR2Report(models.TransientModel):
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
                 ws1.write(row, col + 1, invoice.l10n_in_shipping_port_code_id.code, line_content_style)
-                ws1.write(row, col + 2, invoice.l10n_in_shipping_bill_number or invoice.name, line_content_style)
+                ws1.write(row, col + 2, invoice.l10n_in_shipping_bill_number or invoice.ref, line_content_style)
                 ws1.write(row, col + 3, self.format_date(invoice.l10n_in_shipping_bill_date or invoice.invoice_date), line_content_style)
                 ws1.write(row, col + 4, total_amount, line_content_style)
                 ws1.write(row, col + 5, "Received from SEZ" if invoice.l10n_in_gst_treatment == 'special_economic_zone' else "Imports", line_content_style)
@@ -474,13 +474,13 @@ class GSTR2Report(models.TransientModel):
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
                 ws1.write(row, col + 1, invoice.partner_id.vat, line_content_style)
-                ws1.write(row, col + 2, invoice.name, line_content_style)
+                ws1.write(row, col + 2, invoice.ref, line_content_style)
                 ws1.write(row, col + 3, self.format_date(invoice.invoice_date), line_content_style)
                 ws1.write(row, col + 4, invoice.reversed_entry_id and invoice.reversed_entry_id.name or "", line_content_style)
                 ws1.write(row, col + 5, invoice.reversed_entry_id and self.format_date(invoice.reversed_entry_id.invoice_date) or "", line_content_style)
                 ws1.write(row, col + 6, "", line_content_style)
                 ws1.write(row, col + 7, invoice.move_type == 'in_refund' and "D" or "C", line_content_style)
-                ws1.write(row, col + 8, invoice.name, line_content_style)
+                ws1.write(row, col + 8, invoice.ref, line_content_style)
                 ws1.write(row, col + 9, "", line_content_style)
                 ws1.write(row, col + 10,invoice.amount_total, line_content_style)
                 ws1.write(row, col + 11, tax_rate, line_content_style)
@@ -899,13 +899,13 @@ class GSTR2Report(models.TransientModel):
                 tax_rate = float( self.get_num(tax_amounts['name'].split('%')[0]) )    # 'GST 18% + Cess 1% (included)'
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
-                ws1.write(row, col + 1, invoice.name, line_content_style)
+                ws1.write(row, col + 1, invoice.ref, line_content_style)
                 ws1.write(row, col + 2, self.format_date(invoice.invoice_date), line_content_style)
                 ws1.write(row, col + 3, invoice.reversed_entry_id.name, line_content_style)
                 ws1.write(row, col + 4, self.format_date(invoice.reversed_entry_id.invoice_date), line_content_style)
                 ws1.write(row, col + 5, "N", line_content_style)    #Pre-GST
                 ws1.write(row, col + 6, invoice.move_type == 'in_refund' and "D" or "C", line_content_style)
-                ws1.write(row, col + 7, invoice.name, line_content_style)
+                ws1.write(row, col + 7, invoice.ref, line_content_style)
                 ws1.write(row, col + 8, "TODO", line_content_style) #Supply-Type
                 ws1.write(row, col + 9, self.gst_inv_type_from_l10n(invoice), line_content_style)
                 ws1.write(row, col + 10, invoice.amount_total, line_content_style)
