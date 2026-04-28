@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account.action_move_in_refund_type" model="ir.actions.act_window">
+        <field name="name">Debit Note</field>
+    </record>
+
+    <menuitem id="account.menu_action_move_in_refund_type"
+              name="Debit Note"
+              sequence="2"
+              action="account.action_move_in_refund_type"
+              parent="account.menu_finance_payables"/>
+</odoo>
