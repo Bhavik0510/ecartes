@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.connector</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='integration']" position="inside">
+                <setting string="Connection Details">
+                    <div class="content-group">
+                        <div class="mt16">
+                            <label for="db_receiver_url" string="URL"/> <field name="db_receiver_url" placeholder="https://db-b.odoo.com"/>
+                        </div>
+                        <div class="mt16">
+                            <label for="db_receiver_name" string="DB Name"/> <field name="db_receiver_name"/>
+                        </div>
+                        <div class="mt16">
+                            <label for="db_receiver_username" string="Login Email"/> <field name="db_receiver_username"/>
+                        </div>
+                        <div class="mt16">
+                            <label for="db_receiver_password" string="Password"/> <field name="db_receiver_password" password="True"/>
+                        </div>
+                        <div class="mt16">
+                            <button name="action_connect_and_setup_receiver_db" 
+                                    type="object" 
+                                    string="Connect or Test" 
+                                    class="btn-primary" 
+                                    icon="fa-refresh"/>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
