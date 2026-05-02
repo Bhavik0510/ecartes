@@ -3,6 +3,8 @@ from odoo import models,fields ,api
 
 class Account(models.Model):
     _inherit ='account.move'
+    _order = 'invoice_date desc'
+
 
     warranty_count = fields.Integer(
         string="No of Warranty",

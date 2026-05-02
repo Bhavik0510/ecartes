@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 
 class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
+    _order = 'create_date desc'
 
     responsible_person = fields.Char(string='Contact Person')
     deal_id = fields.Many2one('crm.lead', string='Deal', domain="[('type', '=','opportunity')]")
@@ -68,7 +69,6 @@ class SaleOrderLineInherit(models.Model):
                                    # readonly=lambda line: not line.user.has_group(
                                    #     'ecartes_sale.group_access_user_change_quantity'),
                                    digits='Product Unit of Measure', required=True, default=1.0)
-
 
 
     

@@ -27,6 +27,7 @@ class AccountMove(models.Model):
     """Inherits from the account.move model for adding the depreciation
     field to the account"""
     _inherit = 'account.move'
+    _order = 'invoice_date desc'
 
     has_due = fields.Boolean(string='Has due')
     is_warning = fields.Boolean(string='Is warning')

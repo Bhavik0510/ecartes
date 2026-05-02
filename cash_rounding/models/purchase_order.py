@@ -3,6 +3,7 @@ from odoo import api, fields, models
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
+    _order = 'date_approve desc'
 
     invoice_cash_rounding_id = fields.Many2one(
         "account.cash.rounding",
