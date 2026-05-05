@@ -5,7 +5,6 @@ class Account(models.Model):
     _inherit ='account.move'
     _order = 'invoice_date desc'
 
-
     warranty_count = fields.Integer(
         string="No of Warranty",
         compute="_compute_warranty_count",
@@ -20,6 +19,19 @@ class Account(models.Model):
         default=False,
         copy=False,
     )
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        if not orderby and groupby:
+            groupby_fields = groupby if isinstance(groupby, list) else [groupby]
+            first_group_field = groupby_fields[0].split(':')[0]
+            orderby = f'{first_group_field} desc'
+
+        return super().read_group(
+            domain, fields, groupby,
+            offset=offset, limit=limit,
+            orderby=orderby, lazy=lazy
+        )
 
     @api.depends("line_ids", "line_ids.product_id")
     def _compute_warranty_count(self):

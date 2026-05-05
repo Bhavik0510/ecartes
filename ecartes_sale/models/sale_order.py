@@ -4,7 +4,7 @@ from odoo.exceptions import ValidationError
 
 class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
-    _order = 'create_date desc'
+    _order = 'create_date desc , date_order desc'
 
     responsible_person = fields.Char(string='Contact Person')
     deal_id = fields.Many2one('crm.lead', string='Deal', domain="[('type', '=','opportunity')]")
@@ -19,6 +19,19 @@ class SaleOrderInherit(models.Model):
                                         "Delivery service")
 
     amc_id = fields.Many2one("amc.amc", string="AMC")
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        if not orderby and groupby:
+            groupby_fields = groupby if isinstance(groupby, list) else [groupby]
+            first_group_field = groupby_fields[0].split(':')[0]
+            orderby = f'{first_group_field} desc'
+
+        return super().read_group(
+            domain, fields, groupby,
+            offset=offset, limit=limit,
+            orderby=orderby, lazy=lazy
+        )
 
     @api.model
     def default_get(self, fields):
