@@ -268,59 +268,75 @@
                             </table>
 
                             <!-- Tax Mapping Table -->
-                            <t t-set="total_cgst_amt" t-value="sum((o.invoice_line_ids.filtered(lambda l: any(t.tax_group_id.name == 'CGST' for t in l.tax_ids.mapped('children_tax_ids') or l.tax_ids))).mapped('price_subtotal')) * 0.09" />
+                            <t t-set="hsn_summary" t-value="o._l10n_in_get_hsn_summary_table()"/>
                             <table class="tally-table" style="border-top: none;">
                                 <thead>
                                     <tr>
                                         <th rowspan="2" class="text-center border-left-0"><span class="bg-header">HSN/SAC</span></th>
                                         <th rowspan="2" class="text-center"><span class="bg-header">Taxable<br/>Value</span></th>
-                                        <th colspan="2" class="text-center"><span class="bg-header">Central Tax</span></th>
-                                        <th colspan="2" class="text-center"><span class="bg-header">State Tax</span></th>
+                                        <th t-if="hsn_summary.get('has_gst')" colspan="2" class="text-center"><span class="bg-header">Central Tax</span></th>
+                                        <th t-if="hsn_summary.get('has_gst')" colspan="2" class="text-center"><span class="bg-header">State Tax</span></th>
+                                        <th t-if="hsn_summary.get('has_igst')" colspan="2" class="text-center"><span class="bg-header">Integrated Tax</span></th>
                                         <th rowspan="2" class="text-center border-right-0"><span class="bg-header">Total<br/>Tax Amount</span></th>
                                     </tr>
                                     <tr>
-                                        <th class="text-center"><span class="bg-header">Rate</span></th>
-                                        <th class="text-center"><span class="bg-header">Amount</span></th>
-                                        <th class="text-center"><span class="bg-header">Rate</span></th>
-                                        <th class="text-center"><span class="bg-header">Amount</span></th>
+                                        <t t-if="hsn_summary.get('has_gst')">
+                                            <th class="text-center"><span class="bg-header">Rate</span></th>
+                                            <th class="text-center"><span class="bg-header">Amount</span></th>
+                                            <th class="text-center"><span class="bg-header">Rate</span></th>
+                                            <th class="text-center"><span class="bg-header">Amount</span></th>
+                                        </t>
+                                        <t t-if="hsn_summary.get('has_igst')">
+                                            <th class="text-center"><span class="bg-header">Rate</span></th>
+                                            <th class="text-center"><span class="bg-header">Amount</span></th>
+                                        </t>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-set="total_taxable" t-value="0"/>
-                                    <t t-set="total_cgst" t-value="0"/>
-                                    <t t-set="total_sgst" t-value="0"/>
-                                    <t t-set="total_tax_amt" t-value="0"/>
-                                    <!-- Group by HSN pseudo-logic (just listing lines uniquely here for display demo based on Tally layout) -->
-                                    <t t-foreach="o.invoice_line_ids" t-as="l">
-                                        <t t-set="has_tax" t-value="len(l.tax_ids) > 0"/>
-                                        <tr t-if="has_tax">
-                                            <td class="text-center font-weight-bold border-left-0"><t t-esc="l.product_id.l10n_in_hsn_code"/></td>
-                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(l.price_subtotal)"/></td>
-
-                                            <t t-set="cgst_rate" t-value="9.0"/>
-                                            <t t-set="sgst_rate" t-value="9.0"/>
-                                            <t t-set="cgst_amt" t-value="l.price_subtotal * (cgst_rate / 100.0)"/>
-                                            <t t-set="sgst_amt" t-value="l.price_subtotal * (sgst_rate / 100.0)"/>
-
-                                            <td class="text-right">9%</td>
-                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(cgst_amt)"/></td>
-                                            <td class="text-right">9%</td>
-                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(sgst_amt)"/></td>
-                                            <td class="text-right font-weight-bold border-right-0"><span t-esc="'{:,.2f}'.format(cgst_amt + sgst_amt)"/></td>
-
-                                            <t t-set="total_taxable" t-value="total_taxable + l.price_subtotal"/>
-                                            <t t-set="total_cgst" t-value="total_cgst + cgst_amt"/>
-                                            <t t-set="total_sgst" t-value="total_sgst + sgst_amt"/>
-                                            <t t-set="total_tax_amt" t-value="total_tax_amt + cgst_amt + sgst_amt"/>
+                                    <t t-set="total_taxable" t-value="0.0"/>
+                                    <t t-set="total_cgst" t-value="0.0"/>
+                                    <t t-set="total_sgst" t-value="0.0"/>
+                                    <t t-set="total_igst" t-value="0.0"/>
+                                    <t t-set="total_tax_amt" t-value="0.0"/>
+                                    <t t-foreach="hsn_summary.get('items', [])" t-as="item">
+                                        <t t-set="cgst_amt" t-value="item.get('tax_amount_cgst', 0.0)"/>
+                                        <t t-set="sgst_amt" t-value="item.get('tax_amount_sgst', 0.0)"/>
+                                        <t t-set="igst_amt" t-value="item.get('tax_amount_igst', 0.0)"/>
+                                        <t t-set="item_tax_amt" t-value="cgst_amt + sgst_amt + igst_amt"/>
+                                        <tr>
+                                            <td class="text-center font-weight-bold border-left-0"><t t-esc="item.get('l10n_in_hsn_code')"/></td>
+                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(item.get('amount_untaxed', 0.0))"/></td>
+                                            <t t-if="hsn_summary.get('has_gst')">
+                                                <td class="text-right"><span t-esc="'%g' % (item.get('rate', 0.0) / 2.0)"/>%</td>
+                                                <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(cgst_amt)"/></td>
+                                                <td class="text-right"><span t-esc="'%g' % (item.get('rate', 0.0) / 2.0)"/>%</td>
+                                                <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(sgst_amt)"/></td>
+                                            </t>
+                                            <t t-if="hsn_summary.get('has_igst')">
+                                                <td class="text-right"><span t-esc="'%g' % item.get('rate', 0.0)"/>%</td>
+                                                <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(igst_amt)"/></td>
+                                            </t>
+                                            <td class="text-right font-weight-bold border-right-0"><span t-esc="'{:,.2f}'.format(item_tax_amt)"/></td>
                                         </tr>
+                                        <t t-set="total_taxable" t-value="total_taxable + item.get('amount_untaxed', 0.0)"/>
+                                        <t t-set="total_cgst" t-value="total_cgst + cgst_amt"/>
+                                        <t t-set="total_sgst" t-value="total_sgst + sgst_amt"/>
+                                        <t t-set="total_igst" t-value="total_igst + igst_amt"/>
+                                        <t t-set="total_tax_amt" t-value="total_tax_amt + item_tax_amt"/>
                                     </t>
                                     <tr>
                                         <td class="text-right font-weight-bold border-left-0">Total</td>
                                         <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(total_taxable)"/></td>
-                                        <td></td>
-                                        <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(total_cgst)"/></td>
-                                        <td></td>
-                                        <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(total_sgst)"/></td>
+                                        <t t-if="hsn_summary.get('has_gst')">
+                                            <td></td>
+                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(total_cgst)"/></td>
+                                            <td></td>
+                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(total_sgst)"/></td>
+                                        </t>
+                                        <t t-if="hsn_summary.get('has_igst')">
+                                            <td></td>
+                                            <td class="text-right font-weight-bold"><span t-esc="'{:,.2f}'.format(total_igst)"/></td>
+                                        </t>
                                         <td class="text-right font-weight-bold border-right-0"><span t-esc="'{:,.2f}'.format(total_tax_amt)"/></td>
                                     </tr>
                                 </tbody>
