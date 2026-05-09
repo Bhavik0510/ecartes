@@ -693,6 +693,6 @@ class Gstr_Return(models.Model):
         workbook.save(stream)
         attach_id = self.env['v.excel.output'].create({
             'name' : self.name,
-            'filename': base64.encodestring(stream.getvalue())
+            'filename': base64.b64encode(stream.getvalue())
         })
         return attach_id.download()
