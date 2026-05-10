@@ -190,7 +190,122 @@ class GSTR2Report(models.TransientModel):
                 ws1.write(row, col + 18, 0, line_content_style)   #Cess amount
 
                 row += 1
+# ------------------  JV DATA SECTION -------------------------------------------------------------------
+        # JV Section
+        row += 3
+        ws1.write_merge(row, row, 2, 5, "Summary Of JV (Journal Vouchers)", header_content_style)
+        row += 2
+        # Repeat Headers
+        ws1.write(row, col + 1, "GSTIN of Supplier", sub_header_style)
+
+        ws1.write(row, col + 2, "Invoice Number", sub_header_style)
+        ws1.write(row, col + 3, "Invoice Date", sub_header_style)
+        ws1.write(row, col + 4, "Invoice Value", sub_header_style)
+        ws1.write(row, col + 5, "Place of Supply", sub_header_style)
+        ws1.write(row, col + 6, "Reverse Charge", sub_header_style)
+        ws1.write(row, col + 7, "Invoice Type", sub_header_style)
+        ws1.write(row, col + 8, "Rate", sub_header_style)
+        ws1.write(row, col + 9, "Taxable Value", sub_header_style)
+        ws1.write(row, col + 10, "Integrated Tax Paid", sub_header_style)
+        ws1.write(row, col + 11, "Central Tax Paid", sub_header_style)
+        ws1.write(row, col + 12, "State/UT Tax Paid", sub_header_style)
+        ws1.write(row, col + 13, "Cess Paid", sub_header_style)
+        ws1.write(row, col + 14, "Eligibility For ITC", sub_header_style)
+        ws1.write(row, col + 15, "Availed ITC Integrated Tax", sub_header_style)
+        ws1.write(row, col + 16, "Availed ITC Central Tax", sub_header_style)
+        ws1.write(row, col + 17, "Availed ITC State/UT Tax", sub_header_style)
+        ws1.write(row, col + 18, "Availed ITC Cess", sub_header_style)
+        row += 1
+
+        jvs = self.env['account.move'].search([
+            ('date', '>=', self.date_from),
+            ('date', '<=', self.date_to),
+            ('move_type', '=', 'entry'),
+            ('state', '=', 'posted')
+        ], order='date asc, name asc')
+
+        for jv in jvs:
+            # Broad tax line detection: tax_line_id OR GST/RCM in account name/line name
+            tax_lines = jv.line_ids.filtered(lambda l: l.tax_line_id or 
+                                             any(x in (l.account_id.name or '').upper() for x in ['GST', 'CGST', 'SGST', 'IGST', 'UTGST', 'RCM']) or 
+                                             any(x in (l.name or '').upper() for x in ['GST', 'CGST', 'SGST', 'IGST', 'UTGST', 'RCM']))
+            
+            # Also check if any line has tax_ids or tax_tag_ids set
+            has_tax_info = jv.line_ids.filtered(lambda l: l.tax_ids or l.tax_tag_ids)
+
+            # Partner detection: from move OR from lines
+            partner = jv.partner_id or jv.line_ids.mapped('partner_id').filtered(lambda p: p)[:1]
+
+            # If no tax info AND no partner, it's likely not a relevant JV for GSTR2
+            if not tax_lines and not has_tax_info and not partner:
+                continue
+
+            # Taxable value: Debits that are not tax lines and not partner accounts
+            taxable_value = sum(l.debit for l in jv.line_ids 
+                                if l not in tax_lines and l.debit > 0 
+                                and l.account_id.account_type not in ('asset_payable', 'liability_payable', 'asset_receivable', 'liability_receivable'))
+            
+            # If taxable_value is 0, check if there are credits on non-tax lines (for returns)
+            if float_is_zero(taxable_value, precision_digits=2):
+                taxable_value = sum(l.credit for l in jv.line_ids 
+                                    if l not in tax_lines and l.credit > 0 
+                                    and l.account_id.account_type not in ('asset_payable', 'liability_payable', 'asset_receivable', 'liability_receivable'))
+
+
+            invoice_value = sum(l.credit for l in jv.line_ids if l.credit > 0)
+            
+            igst_paid = sum(l.debit for l in tax_lines if 'IGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
+            cgst_paid = sum(l.debit for l in tax_lines if 'CGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
+            sgst_paid = sum(l.debit for l in tax_lines if 'SGST' in (l.tax_line_id.name or l.account_id.name or '').upper() or 'UTGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
+
+            # If it's a return, taxes might be on credit side
+            if float_is_zero(igst_paid + cgst_paid + sgst_paid, precision_digits=2):
+                igst_paid = sum(l.credit for l in tax_lines if 'IGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
+                cgst_paid = sum(l.credit for l in tax_lines if 'CGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
+                sgst_paid = sum(l.credit for l in tax_lines if 'SGST' in (l.tax_line_id.name or l.account_id.name or '').upper() or 'UTGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
+
+            rate = 0
+            if taxable_value > 0:
+                rate = round(((igst_paid + cgst_paid + sgst_paid) / taxable_value) * 100, 2)
+            
+            # If rate is still 0 but we have GST taxes, default to 18
+            if rate == 0 and (igst_paid + cgst_paid + sgst_paid) > 0:
+                rate = 18
+            
+            # If still 0 but has tax_ids, try to get rate from there
+            if rate == 0 and has_tax_info:
+                rate = sum(has_tax_info.mapped('tax_ids').mapped('amount'))
+
+            # Partner detection: from move OR from lines
+            partner = jv.partner_id or jv.line_ids.mapped('partner_id').filtered(lambda p: p)[:1]
+            
+            place_of_supply = partner.state_id and partner.state_id.name or jv.company_id.state_id.name
+
+            ws1.write(row, col + 1, partner.vat or "", line_content_style)
+            ws1.write(row, col + 2, jv.ref or jv.name, line_content_style)
+            ws1.write(row, col + 3, self.format_date(jv.date), line_content_style)
+            ws1.write(row, col + 4, invoice_value, line_content_style)
+            ws1.write(row, col + 5, place_of_supply, line_content_style) # Place of Supply
+            ws1.write(row, col + 6, "N", line_content_style) # Reverse Charge N
+            ws1.write(row, col + 7, "Regular", line_content_style) # Invoice Type Regular
+            ws1.write(row, col + 8, rate, line_content_style)
+            ws1.write(row, col + 9, taxable_value, line_content_style)
+            ws1.write(row, col + 10, igst_paid, line_content_style)
+            ws1.write(row, col + 11, cgst_paid, line_content_style)
+            ws1.write(row, col + 12, sgst_paid, line_content_style)
+            ws1.write(row, col + 13, 0, line_content_style) # Cess Paid 0
+            ws1.write(row, col + 14, "NA", line_content_style) # Eligibility For ITC NA
+            ws1.write(row, col + 15, 0, line_content_style) # Availed ITC Integrated Tax 0
+            ws1.write(row, col + 16, 0, line_content_style) # Availed ITC Central Tax 0
+            ws1.write(row, col + 17, 0, line_content_style) # Availed ITC State/UT Tax 0
+            ws1.write(row, col + 18, 0, line_content_style) # Availed ITC Cess 0
+
+            row += 1
+
+
+
         return invoice_gst_tax_lines
+# --------------------------   END JV SECTION   ------------------------------------------------
 
     """ B2BUR Summary Of Supplies From Unregistered Suppliers B2BUR(4B) """
     def generate_b2bur_report(self, wb1):
