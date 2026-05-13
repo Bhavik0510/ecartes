@@ -167,7 +167,7 @@ class GSTR2Report(models.TransientModel):
                 #tax_id = self.env['account.tax'].browse(tax_id_id)
                 #if tax_id.gst_type in ('gst','ugst','igst'):
                 tax_rate = float( self.get_num(tax_amounts['name'].split('%')[0]) )    # 'GST 18% + Cess 1% (included)'
-                place_of_supply = invoice.partner_id.state_id and invoice.partner_id.state_id.name or invoice.company_id.state_id.name
+                place_of_supply = invoice.l10n_in_state_id and invoice.l10n_in_state_id.name or invoice.company_id.state_id and invoice.company_id.state_id.name or invoice.partner_id.state_id and invoice.partner_id.state_id.name
                 if float_is_zero(tax_rate, precision_digits=3):     #Skip zero rated/exempted rates
                     continue
                 ws1.write(row, col + 1, invoice.partner_id.vat or "", line_content_style)
@@ -289,7 +289,7 @@ class GSTR2Report(models.TransientModel):
             # Partner detection: from move OR from lines
             partner = jv.partner_id or lines.mapped('partner_id').filtered(lambda p: p)[:1]
             
-            place_of_supply = partner.state_id and partner.state_id.name or jv.company_id.state_id.name
+            place_of_supply = jv.l10n_in_state_id and jv.l10n_in_state_id.name or jv.company_id.state_id and jv.company_id.state_id.name or partner.state_id and partner.state_id.name
 
             ws1.write(row, col + 1, partner.vat or "", line_content_style)
             ws1.write(row, col + 2, jv.ref or jv.name, line_content_style)
