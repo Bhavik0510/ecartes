@@ -240,20 +240,6 @@ class GSTR2Report(models.TransientModel):
             if not tax_lines and not has_tax_info and not partner:
                 continue
 
-            # Taxable value: Debits that are not tax lines and not partner accounts
-            taxable_value = sum(l.debit for l in jv.line_ids 
-                                if l not in tax_lines and l.debit > 0 
-                                and l.account_id.account_type not in ('asset_payable', 'liability_payable', 'asset_receivable', 'liability_receivable'))
-            
-            # If taxable_value is 0, check if there are credits on non-tax lines (for returns)
-            if float_is_zero(taxable_value, precision_digits=2):
-                taxable_value = sum(l.credit for l in jv.line_ids 
-                                    if l not in tax_lines and l.credit > 0 
-                                    and l.account_id.account_type not in ('asset_payable', 'liability_payable', 'asset_receivable', 'liability_receivable'))
-
-
-            invoice_value = sum(l.credit for l in jv.line_ids if l.credit > 0)
-            
             igst_paid = sum(l.debit for l in tax_lines if 'IGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
             cgst_paid = sum(l.debit for l in tax_lines if 'CGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
             sgst_paid = sum(l.debit for l in tax_lines if 'SGST' in (l.tax_line_id.name or l.account_id.name or '').upper() or 'UTGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
@@ -264,6 +250,30 @@ class GSTR2Report(models.TransientModel):
                 cgst_paid = sum(l.credit for l in tax_lines if 'CGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
                 sgst_paid = sum(l.credit for l in tax_lines if 'SGST' in (l.tax_line_id.name or l.account_id.name or '').upper() or 'UTGST' in (l.tax_line_id.name or l.account_id.name or '').upper())
 
+            # Skip entries where all 3 taxes are zero
+            if float_is_zero(igst_paid + cgst_paid + sgst_paid, precision_digits=2):
+                continue
+
+            # Taxable value: Sum debits (or credits for returns) BEFORE the first tax line
+            # This ensures lines like "Freight" after the taxes are excluded as requested.
+            lines = jv.line_ids
+            tax_line_indices = [i for i, l in enumerate(lines) if l in tax_lines]
+            first_tax_idx = min(tax_line_indices) if tax_line_indices else len(lines)
+            pre_tax_lines = lines[:first_tax_idx]
+
+            taxable_value = sum(l.debit for l in pre_tax_lines 
+                                if l.debit > 0 
+                                and l.account_id.account_type not in ('asset_payable', 'liability_payable', 'asset_receivable', 'liability_receivable'))
+            
+            # If taxable_value is 0, check if there are credits on non-tax lines (for returns)
+            if float_is_zero(taxable_value, precision_digits=2):
+                taxable_value = sum(l.credit for l in pre_tax_lines 
+                                    if l.credit > 0 
+                                    and l.account_id.account_type not in ('asset_payable', 'liability_payable', 'asset_receivable', 'liability_receivable'))
+
+
+            invoice_value = sum(l.credit for l in lines if l.credit > 0)
+            
             rate = 0
             if taxable_value > 0:
                 rate = round(((igst_paid + cgst_paid + sgst_paid) / taxable_value) * 100, 2)
@@ -277,7 +287,7 @@ class GSTR2Report(models.TransientModel):
                 rate = sum(has_tax_info.mapped('tax_ids').mapped('amount'))
 
             # Partner detection: from move OR from lines
-            partner = jv.partner_id or jv.line_ids.mapped('partner_id').filtered(lambda p: p)[:1]
+            partner = jv.partner_id or lines.mapped('partner_id').filtered(lambda p: p)[:1]
             
             place_of_supply = partner.state_id and partner.state_id.name or jv.company_id.state_id.name
 
@@ -301,6 +311,7 @@ class GSTR2Report(models.TransientModel):
             ws1.write(row, col + 18, 0, line_content_style) # Availed ITC Cess 0
 
             row += 1
+
 
 
 
