@@ -58,7 +58,7 @@ class PartnerLedgerGenerateReport(models.TransientModel):
             ('invoice_date', '>=', start_date),
             ('invoice_date', '<=', end_date),
             ('state', '=', 'posted'),
-            ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']),
         ])
         payments = self.env['account.payment'].search([
             ('partner_id', '=', self.partner_id.id),
