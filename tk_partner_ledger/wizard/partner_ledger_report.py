@@ -16,8 +16,7 @@ class PartnerLedgerGenerateReport(models.TransientModel):
 
     start_date = fields.Date(string="From Date", required=True)
     end_date = fields.Date(string="To Date", required=True)
-    partner_id = fields.Many2one('res.partner', string="Partner", required=True,
-                                 domain=[('customer_rank', '>', 0)])
+    partner_id = fields.Many2one('res.partner', string="Partner", required=True)
 
     @api.model
     def default_get(self, fields):

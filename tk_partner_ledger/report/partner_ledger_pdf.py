@@ -29,7 +29,7 @@ class PartnerLedgerAbstract(models.AbstractModel):
             ('invoice_date', '>=', start_date),
             ('invoice_date', '<=', end_date),
             ('state', '=', 'posted'),
-            ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']),
         ])
 
         combined_data = []
