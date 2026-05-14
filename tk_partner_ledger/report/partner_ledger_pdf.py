@@ -25,18 +25,18 @@ class PartnerLedgerAbstract(models.AbstractModel):
             ('state', 'in', ['paid', 'in_process']),
         ])
         invoices = self.env['account.move'].search([
-            ('partner_id', '=', partner_id),
-            ('invoice_date', '>=', start_date),
-            ('invoice_date', '<=', end_date),
+            '|', ('partner_id', '=', partner_id), ('line_ids.partner_id', '=', partner_id),
+            ('date', '>=', start_date),
+            ('date', '<=', end_date),
             ('state', '=', 'posted'),
-            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']),
+            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'entry']),
         ])
 
         combined_data = []
         for invoice, payment in zip(invoices, payments):
             combined_data.append({
                 'invoice_name': invoice.name,
-                'invoice_date': invoice.invoice_date,
+                'invoice_date': invoice.invoice_date or invoice.date,
                 'invoice_amount': invoice.amount_total,
                 'payment_name': payment.name,
                 'payment_date': payment.date,
@@ -46,7 +46,7 @@ class PartnerLedgerAbstract(models.AbstractModel):
             for invoice in invoices[len(payments):]:
                 combined_data.append({
                     'invoice_name': invoice.name,
-                    'invoice_date': invoice.invoice_date,
+                    'invoice_date': invoice.invoice_date or invoice.date,
                     'invoice_amount': invoice.amount_total,
                     'payment_name': '',
                     'payment_date': '',
