@@ -19,18 +19,19 @@ class PartnerLedgerAbstract(models.AbstractModel):
         company_currency_symbol = self.env.user.company_id.currency_id.symbol
 
         payments = self.env['account.payment'].search([
-            ('partner_id', '=', partner_id),
+            ('partner_id', 'child_of', partner_id),
             ('date', '>=', start_date),
             ('date', '<=', end_date),
             ('state', 'in', ['paid', 'in_process']),
-        ])
+        ], order='date desc')
         invoices = self.env['account.move'].search([
-            '|', ('partner_id', '=', partner_id), ('line_ids.partner_id', '=', partner_id),
+            '|', ('partner_id', 'child_of', partner_id), ('line_ids.partner_id', 'child_of', partner_id),
             ('date', '>=', start_date),
             ('date', '<=', end_date),
             ('state', '=', 'posted'),
             ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'entry']),
-        ])
+            ('journal_id.type', 'in', ['sale', 'purchase', 'general']),
+        ], order='date desc')
 
         combined_data = []
         for invoice, payment in zip(invoices, payments):
