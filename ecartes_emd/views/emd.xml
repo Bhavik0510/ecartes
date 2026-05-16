@@ -58,7 +58,7 @@
                             <field name="due_date" required='1' readonly="state != 'draft'"/>
                             <field name="bank_details" required='1' readonly="state != 'draft'"/>
                             <field name="bank_details_attachments" readonly="state != 'draft'"/>
-                            <field name="payable_at" readonly="state != 'draft'"/>
+                            <field name="payable_at"/>
                         </group>
                         <group>
                             <field name="customer_email" readonly="state != 'draft'"/>

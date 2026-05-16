@@ -68,7 +68,7 @@
                                 <field name="order_id" required='1' readonly="state != 'draft'"/>
                                 <field name="bank_details_attachments"
                                        readonly="state != 'draft'"/>
-                                <field name="payable_at" readonly="state != 'draft'"/>
+                                <field name="payable_at"/>
                             </group>
                         </group>
                         <group>
