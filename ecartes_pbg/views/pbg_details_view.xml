@@ -65,7 +65,7 @@
                                 <field name="due_date" required='1' readonly="state != 'draft'"/>
                                 <field name="beneficiary_address" required='1'
                                        readonly="state != 'draft'"/>
-                                <field name="order_id" required='1' readonly="state != 'draft'"/>
+                                <field name="order_id" required='1'/>
                                 <field name="bank_details_attachments"
                                        readonly="state != 'draft'"/>
                                 <field name="payable_at"/>
