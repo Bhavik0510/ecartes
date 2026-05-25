@@ -8,7 +8,7 @@
             <xpath expr="//field[@name='partner_id']" position="attributes">
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
-            <xpath expr="//field[@name='partner_invoice_id']" position="after">   
+            <xpath expr="//field[@name='partner_invoice_id']" position="after">
                 <field name="responsible_person"/>
                 <field name="deal_id" readonly="state in ['sent','sale','done','cancel']"/>
             </xpath>
