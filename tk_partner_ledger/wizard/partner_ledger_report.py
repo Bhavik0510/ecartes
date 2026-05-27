@@ -49,23 +49,23 @@ class PartnerLedgerGenerateReport(models.TransientModel):
         start_date = self.start_date
         end_date = self.end_date
 
-        active_id = self.env.context.get('active_id')
-        partners = self.env['res.partner'].browse(active_id)
+        partners = self.partner_id
         company_currency_symbol = self.env.user.company_id.currency_id.symbol
 
         invoices = self.env['account.move'].search([
-            ('partner_id', '=', self.partner_id.id),
-            ('invoice_date', '>=', start_date),
-            ('invoice_date', '<=', end_date),
+            '|', ('partner_id', 'child_of', self.partner_id.id), ('line_ids.partner_id', 'child_of', self.partner_id.id),
+            ('date', '>=', start_date),
+            ('date', '<=', end_date),
             ('state', '=', 'posted'),
-            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']),
-        ])
+            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'entry']),
+            ('journal_id.type', 'in', ['sale', 'purchase', 'general']),
+        ], order='date desc')
         payments = self.env['account.payment'].search([
-            ('partner_id', '=', self.partner_id.id),
+            ('partner_id', 'child_of', self.partner_id.id),
             ('date', '>=', start_date),
             ('date', '<=', end_date),
             ('state', 'in', ['paid', 'in_process']),
-        ])
+        ], order='date desc')
         workbook = xlwt.Workbook(encoding="UTF-8")
         sheet1 = workbook.add_sheet('Partner Ledger', cell_overwrite_ok=True)
 
@@ -111,39 +111,52 @@ class PartnerLedgerGenerateReport(models.TransientModel):
         sheet1.write(9, 4, 'Date', header_style)
         sheet1.write(9, 5, 'Amount', header_style_amount)
 
-        row = 10
-
         total_invoice = 0.0
         total_payment = 0.0
 
-        for invoice in invoices:
-            if invoices.partner_id:
-                sheet1.write(row, 0, invoice.name, data_style)
-                sheet1.write(row, 1, invoice.invoice_date.strftime('%d-%m-%Y'), data_style)
-                sheet1.write(row, 2, f"{invoice.amount_total:.2f}", data_style_amount)
+        max_rows = max(len(invoices), len(payments))
+
+        for i in range(max_rows):
+            current_row = 10 + i
+
+            # Write invoice side
+            if i < len(invoices):
+                invoice = invoices[i]
+                sheet1.write(current_row, 0, invoice.name, data_style)
+                invoice_date = invoice.invoice_date or invoice.date
+                sheet1.write(current_row, 1, invoice_date.strftime('%d-%m-%Y') if invoice_date else '', data_style)
+                sheet1.write(current_row, 2, f"{invoice.amount_total:.2f}", data_style_amount)
                 total_invoice += invoice.amount_total
-                row += 1
+            else:
+                sheet1.write(current_row, 0, '', data_style)
+                sheet1.write(current_row, 1, '', data_style)
+                sheet1.write(current_row, 2, '0.00', data_style_amount)
 
-        payment_row = 10
-        for payment in payments:
-            if payment.partner_id:
-                sheet1.write(payment_row, 3, payment.name, data_style)
-                sheet1.write(payment_row, 4, payment.date.strftime('%d-%m-%Y'), data_style)
-                sheet1.write(payment_row, 5, f"{payment.amount:.2f}", data_style_amount)
+            # Write payment side
+            if i < len(payments):
+                payment = payments[i]
+                sheet1.write(current_row, 3, payment.name, data_style)
+                sheet1.write(current_row, 4, payment.date.strftime('%d-%m-%Y'), data_style)
+                sheet1.write(current_row, 5, f"{payment.amount:.2f}", data_style_amount)
                 total_payment += payment.amount
-                payment_row += 1
+            else:
+                sheet1.write(current_row, 3, '', data_style)
+                sheet1.write(current_row, 4, '', data_style)
+                sheet1.write(current_row, 5, '0.00', data_style_amount)
 
-        sheet1.write_merge(row, row, 0, 1, 'Total Invoice Amount',
-                           header_style_amount)
-        sheet1.write(row, 2, f"{total_invoice:.2f}", data_style_amount)
+        totals_row = 10 + max_rows
 
-        sheet1.write_merge(payment_row, payment_row, 3, 4, 'Total Payment Amount',
+        sheet1.write_merge(totals_row, totals_row, 0, 1, 'Total Invoice Amount',
                            header_style_amount)
-        sheet1.write(payment_row, 5, f"{total_payment:.2f}", data_style_amount)
+        sheet1.write(totals_row, 2, f"{total_invoice:.2f}", data_style_amount)
 
-        sheet1.write_merge(payment_row + 1, payment_row + 1, 3, 4, 'Amount Due',
+        sheet1.write_merge(totals_row, totals_row, 3, 4, 'Total Payment Amount',
                            header_style_amount)
-        sheet1.write(payment_row + 1, 5, f"{total_invoice - total_payment:.2f}", data_style_amount)
+        sheet1.write(totals_row, 5, f"{total_payment:.2f}", data_style_amount)
+
+        sheet1.write_merge(totals_row + 1, totals_row + 1, 3, 4, 'Amount Due',
+                           header_style_amount)
+        sheet1.write(totals_row + 1, 5, f"{total_invoice - total_payment:.2f}", data_style_amount)
 
         stream = BytesIO()
         workbook.save(stream)
