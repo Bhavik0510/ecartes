@@ -58,8 +58,14 @@ class Account(models.Model):
     @api.depends('invoice_origin')
     def _compute_order_id(self):
         for rec in self:
-            sale_id = self.env['sale.order'].sudo().search([('name','=',rec.invoice_origin)])
-            rec.order_id = sale_id.id
+            if not rec.invoice_origin:
+                rec.order_id = False
+                continue
+            sale_id = self.env['sale.order'].sudo().search([
+                ('name', '=', rec.invoice_origin),
+                ('company_id', '=', rec.company_id.id)
+            ], limit=1)
+            rec.order_id = sale_id
 
     @api.model_create_multi
     def create(self, vals_list):
