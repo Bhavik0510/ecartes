@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ecartes_purchase.ProductLabelSectionAndNoteField" t-inherit="account.ProductLabelSectionAndNoteField" t-inherit-mode="primary">
+        <xpath expr="//textarea[@readonly='1']" position="attributes">
+            <attribute name="readonly"/>
+            <attribute name="t-att-readonly">labelIsReadonly</attribute>
+        </xpath>
+    </t>
+
+</templates>

@@ -14,8 +14,16 @@
     'depends': ['purchase'],
     'data': [
         'security/purchase_security.xml',
-        'views/purchase_views.xml'
+        'security/security.xml',
+        'views/purchase_views.xml',
+        'views/res_users_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'ecartes_purchase/static/src/xml/purchase_product_label_field.xml',
+            'ecartes_purchase/static/src/js/purchase_product_label_field.js',
+        ],
+    },
     'license': "LGPL-3"
 }
 
