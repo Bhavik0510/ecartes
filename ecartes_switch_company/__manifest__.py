@@ -7,6 +7,7 @@
     "assets": {
         "web.assets_backend": [
             "ecartes_switch_company/static/src/js/switch_company_no_branch_cascade.js",
+            "ecartes_switch_company/static/src/js/disable_auto_company_switch.js",
         ],
     },
     "installable": True,

@@ -4,6 +4,8 @@ from dateutil import relativedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError, ValidationError
 import pandas as pd
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class Amc(models.Model):
@@ -219,8 +221,12 @@ class Amc(models.Model):
             self.amc_end_date = end_date
 
     def confirm_amc(self):
+        _logger.info("=== CONFIRM AMC START === %s", self.name)
+
         if self.amc_cost == 'free':
             self.state = 'under_amc'
+
+            _logger.info("=== BEFORE AMC HISTORY CREATE ===")
 
             self.amc_history_ids = [(0, 0, {
                 'name': self.name,
@@ -232,9 +238,12 @@ class Amc(models.Model):
                 'is_free': True if self.amc_type == 'free' else False,
             })]
 
-        else:
+            _logger.info("=== AFTER AMC HISTORY CREATE ===")
 
-            self.state = '2beinvoice'   
+        else:
+            self.state = '2beinvoice'
+
+        _logger.info("=== CONFIRM AMC END ===")   
 
 
     def create_amc_invoice(self):
