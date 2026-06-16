@@ -1,5 +1,5 @@
-from odoo import fields, models, api
-
+from odoo import fields, models, api, _
+from odoo.exceptions import AccessError
 
 class Products(models.Model):
     _inherit = 'product.template'
@@ -11,6 +11,8 @@ class Products(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not self.env.user.has_group('product.group_product_manager'):
+            raise AccessError(_("You do not have permission to create products. Please enable 'Product Creation' in your user settings."))
         product_ids = super(Products,self).create(vals_list)
         for product_id in product_ids:
             product_id.write({'p_id':product_id.id})
@@ -19,6 +21,12 @@ class Products(models.Model):
 
 class ProductInh(models.Model):
     _inherit = 'product.product'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        if not self.env.user.has_group('product.group_product_manager'):
+            raise AccessError(_("You do not have permission to create products. Please enable 'Product Creation' in your user settings."))
+        return super(ProductInh, self).create(vals_list)
 
     def get_product_multiline_description_sale(self):
         """ Compute a multiline description of this product, in the context of sales

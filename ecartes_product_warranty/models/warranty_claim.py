@@ -53,7 +53,7 @@ class WaarantyClaim(models.Model):
                 claim_limit = rec.product_id.no_of_claim
                 if rec.tracking in ['serial', 'lot']:
                     domain+= [('product_id','=',rec.product_id.id)]
-                    domain+= [('lot_id','=',rec.lot_id.id)]
+                    domain+= [('lot_ids','in',rec.lot_ids.ids)]
                 else:
                     domain += [('product_id', '=', rec.product_id.id)]
                 record = self.search_count(domain)
@@ -64,7 +64,7 @@ class WaarantyClaim(models.Model):
     @api.onchange('warranty_id')
     def onchnage_warranty(self):
         self.product_id = self.warranty_id.product_id
-        self.lot_ids = self.warranty_id.lot_id
+        self.lot_ids = self.warranty_id.lot_ids
         self.partner_id = self.warranty_id.partner_id
 
     def under_maintenance(self):

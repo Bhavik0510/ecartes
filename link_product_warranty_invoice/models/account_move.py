@@ -25,7 +25,7 @@ class AccountMoveInherit(models.Model):
                                 "warranty_term_id": lines.product_id.warranty_term_id.id,
                                 "warranty_start_date": self.invoice_date,
                                 "product_id": lines.product_id.id,
-                                "lot_id": lot.id,
+                                "lot_ids": [(4, lot.id)],
                             }
                             warranty = self.env["product.warranty"].create(vals)
                             warranty.onchnage_warranty_term()

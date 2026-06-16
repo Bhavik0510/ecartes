@@ -19,7 +19,7 @@ class ProductWarranty(models.Model):
     product_id = fields.Many2one(
         'product.product', string='Product',
         domain="[('is_under_warranty','=',True),('type', 'in', ['product', 'consu']), '|', ('company_id', '=', company_id), ('company_id', '=', False)]",
-        readonly=True, required=True, check_company=True, tracking=True)
+        required=True, check_company=True, tracking=True)
 
     lot_ids = fields.Many2many(
         'stock.lot', string='Lot/Serial', tracking=True,
@@ -107,14 +107,16 @@ class ProductWarranty(models.Model):
             if not vals.get('name') or vals['name'] == _('New'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('product.warranty.seq') or _('New')
 
-            if vals.get('lot_id'):
-                pw = self.search([('product_id', '=', vals.get('product_id')), ('lot_id', '=', vals.get('lot_id'))]).ids
-                if len(pw) > 0:
-                    raise UserError('You Cannot Create more than one Warranty with same serial number.')
             if vals.get('installation_date'):
                 vals.update({'is_set_install_date': True})
 
-        return super(ProductWarranty, self).create(vals_list)
+        warranties = super(ProductWarranty, self).create(vals_list)
+        for warranty in warranties:
+            if warranty.lot_ids:
+                pw = self.search([('product_id', '=', warranty.product_id.id), ('lot_ids', 'in', warranty.lot_ids.ids), ('id', '!=', warranty.id)])
+                if pw:
+                    raise UserError('You Cannot Create more than one Warranty with same serial number.')
+        return warranties
 
     def write(self, vals):
         if vals.get('installation_date'):
@@ -377,7 +379,7 @@ class ProductWarranty(models.Model):
                     (0, 0, {
                         'product_id': self.product_id.id,
                         'product_qty': self.product_qty,
-                        'lot_id': self.lot_id.id,
+                        'lot_id': self.lot_ids[0].id if self.lot_ids else False,
                     })
                 ],  
         })
@@ -414,7 +416,7 @@ class ProductWarranty(models.Model):
             for rec in self:
                 line_lst.append((0, 0, {
                     'product_id': rec.product_id.id,
-                    'lot_id': rec.lot_id.id,
+                    'lot_id': rec.lot_ids[0].id if rec.lot_ids else False,
                     'product_qty': rec.product_qty,
                 }))
             
