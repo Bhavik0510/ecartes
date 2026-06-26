@@ -29,5 +29,24 @@ def strip_kanban_from_invoice_window_actions(env):
             act.write({"view_mode": ",".join(modes)})
 
 
+def update_outdated_multi_company_rules(env):
+    rules_to_update = {
+        'account.account_fiscal_position_comp_rule': "[('company_id', 'parent_of', company_ids)]",
+        'account.journal_group_comp_rule': "['|', ('company_id', '=', False), ('company_id', 'parent_of', company_ids)]",
+        'account.account_group_comp_rule': "[('company_id', 'parent_of', company_ids)]",
+        'account.tax_comp_rule': "[('company_id', 'parent_of', company_ids)]",
+        'account.tax_rep_comp_rule': "['|',('company_id','=',False), ('company_id', 'parent_of', company_ids)]",
+        'account.account_reconcile_model_template_comp_rule': "[('company_id', 'parent_of', company_ids)]",
+        'account.account_reconcile_model_line_template_comp_rule': "[('company_id', 'parent_of', company_ids)]",
+        'account.account_payment_term_comp_rule': "['|', ('company_id', '=', False), ('company_id', 'parent_of', company_ids)]",
+    }
+    for xml_id, domain in rules_to_update.items():
+        rule = env.ref(xml_id, raise_if_not_found=False)
+        if rule and rule.domain_force != domain:
+            rule.write({'domain_force': domain})
+
+
 def post_init_hook(env):
     strip_kanban_from_invoice_window_actions(env)
+    update_outdated_multi_company_rules(env)
+
