@@ -9,7 +9,6 @@
                     <header>
                         <button name="start_amc" type="object" string="Start AMC" class="oe_highlight" invisible="state != 'invoiced' "/>
                         <button name="confirm_amc" type="object" string="Confirm" class="oe_highlight" invisible="state != 'draft' "/>
-                        <button name="create_amc_invoice" type="object" string="Create Invoice" class="oe_highlight" invisible="state != '2beinvoice' "/>
                         <button name="renew_amc" type="object" string="Renew" class="oe_highlight" invisible="state != 'expired'"/>
 
                         <button name="create_amc_claim" type="object" string="Create Claim" class="oe_highlight"/>
@@ -88,6 +87,10 @@
                                 <field name="renew_date" readonly="1" invisible="state != 'renewed'"/>
                                 <field name="create_date" readonly="1"/>
                                 <field name="invoice_state" invisible="1"/>
+                                <field name="sale_order_id" options="{'no_create': True}"/>
+                                <field name="sale_order_ref"/>
+                                <field name="invoice_id" options="{'no_create': True}" readonly="1"/>
+                                <field name="invoice_ref"/>
                             </group>
                         </group>
                         <notebook>
@@ -166,6 +169,7 @@
                     <field name="create_date"/>
                     <field name="user_id" optional="hide"/>
                     <field name="partner_id"/>
+                    <field name="sale_order_id" optional="hide"/>
                     <field name="amc_cost"/>
                     <field name="amc_type"/>
                     <field name="amc_term_id"/>

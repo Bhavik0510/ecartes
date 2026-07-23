@@ -19,6 +19,50 @@ class SaleOrderInherit(models.Model):
                                         "Delivery service")
 
     amc_id = fields.Many2one("amc.amc", string="AMC")
+    amc_count = fields.Integer(compute='_compute_amc_count')
+
+    @api.depends('amc_id')
+    def _compute_amc_count(self):
+        for order in self:
+            order.amc_count = 1 if order.amc_id else 0
+
+    def write(self, vals):
+        res = super(SaleOrderInherit, self).write(vals)
+        if not self.env.context.get('skip_amc_so_sync') and 'amc_id' in vals:
+            for order in self:
+                if order.amc_id and order.amc_id.sale_order_id != order:
+                    order.amc_id.with_context(skip_amc_so_sync=True).write({
+                        'sale_order_id': order.id,
+                    })
+        return res
+
+    def action_show_amc(self):
+        self.ensure_one()
+        if not self.amc_id:
+            return self.action_create_amc()
+        return {
+            'name': _('AMC'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'amc.amc',
+            'res_id': self.amc_id.id,
+            'target': 'current',
+        }
+
+    def action_create_amc(self):
+        self.ensure_one()
+        return {
+            'name': _('AMC'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'amc.amc',
+            'target': 'current',
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_sale_order_id': self.id,
+                'default_user_id': self.user_id.id,
+            },
+        }
 
     @api.model
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):

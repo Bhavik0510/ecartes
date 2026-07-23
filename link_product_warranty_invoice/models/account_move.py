@@ -26,6 +26,7 @@ class AccountMoveInherit(models.Model):
                                 "warranty_start_date": self.invoice_date,
                                 "product_id": lines.product_id.id,
                                 "lot_ids": [(4, lot.id)],
+                                "sale_order_id": rec.order_id.id if rec.order_id else False,
                             }
                             warranty = self.env["product.warranty"].create(vals)
                             warranty.onchnage_warranty_term()
@@ -39,6 +40,7 @@ class AccountMoveInherit(models.Model):
                             "warranty_start_date": self.invoice_date,
                             "product_id": lines.product_id.id,
                             "product_qty": lines.quantity,
+                            "sale_order_id": rec.order_id.id if rec.order_id else False,
                         }
                         warranty = self.env["product.warranty"].create(vals)
                         warranty.onchnage_warranty_term()

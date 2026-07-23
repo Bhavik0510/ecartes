@@ -6,7 +6,4 @@ class AccountMove(models.Model):
 
     invoice_cash_rounding_id = fields.Many2one(
         "account.cash.rounding",
-        default=lambda self: self.env["account.cash.rounding"].search(
-            [("name", "=", "Half Up")], limit=1
-        ),
     )

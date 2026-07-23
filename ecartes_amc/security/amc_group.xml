@@ -13,6 +13,11 @@
             <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>
         </record>
 
+        <record id="allow_amc_status_update" model="res.groups">
+            <field name="name">Allow AMC Status Update</field>
+            <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>
+        </record>
+
         <record id="allow_configurration" model="res.groups">
             <field name="name">Allow AMC Configuration</field>
             <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>

@@ -16,10 +16,15 @@ class SaleOrder(models.Model):
     )
 
     def _compute_warranty_ids(self):
+        Warranty = self.env['product.warranty']
         for sale in self:
-            warranty = self.env['product.warranty'].search([('sale_id', '=', sale.id)]).ids
-            sale.warranty_ids = warranty
-            sale.warranty_count = len(warranty)
+            warranties = Warranty.search([
+                '|',
+                ('sale_order_id', '=', sale.id),
+                ('sale_id', '=', sale.id),
+            ])
+            sale.warranty_ids = warranties
+            sale.warranty_count = len(warranties)
 
     def action_show_warranty(self):
         return {
@@ -27,7 +32,7 @@ class SaleOrder(models.Model):
             'type': 'ir.actions.act_window',
             'view_mode': 'list,form',
             'res_model': 'product.warranty',
-            'domain': [('sale_id', '=', self.id)],
+            'domain': ['|', ('sale_order_id', '=', self.id), ('sale_id', '=', self.id)],
             'context': "{'create': False}"
         }
 

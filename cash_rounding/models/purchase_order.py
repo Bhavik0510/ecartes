@@ -9,9 +9,6 @@ class PurchaseOrder(models.Model):
         "account.cash.rounding",
         string="Cash Rounding Method",
         copy=False,
-        default=lambda self: self.env['account.cash.rounding'].search(
-            [('rounding_method', '=', 'HALF-UP')], limit=1
-        ),
     )
 
     @api.model

@@ -17,5 +17,5 @@ class WarrantyStatus(models.TransientModel):
     def action_apply_state(self):
         active_ids = self.env.context.get('active_ids', [])
         warranties = self.env['product.warranty'].browse(active_ids)
-        warranties.write({'state': self.state})
+        warranties.with_context(skip_warranty_status_check=True).write({'state': self.state})
         return {'type': 'ir.actions.act_window_close'}

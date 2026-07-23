@@ -12,10 +12,15 @@
                 <field name="responsible_person"/>
                 <field name="deal_id" readonly="state in ['sent','sale','done','cancel']"/>
             </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="amc_id" invisible="1"/>
+                <button type="object" name="action_show_amc" class="oe_stat_button" icon="fa-wrench">
+                    <field name="amc_count" widget="statinfo" string="AMC"/>
+                </button>
+            </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="after">
                 <field name="delivery_service" invisible="state in ['draft','sent','done','cancel']"/>
                 <field name='shipping_mode'/>
-                <field name="amc_id" invisible="1"/>
             </xpath>
             <xpath expr="//notebook/page/field[@name='order_line']/list/field[@name='product_id']" position="after">
                 <field name="can_edit_price" column_invisible="1"/>

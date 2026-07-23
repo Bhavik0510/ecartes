@@ -12,6 +12,11 @@
         <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>
     </record>
 
+    <record id="allow_warranty_status_update" model="res.groups">
+        <field name="name">Allow Warranty Status Update</field>
+        <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>
+    </record>
+
     <record id="show_warranty" model="res.groups">
         <field name="name">Show Warranty</field>
         <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>

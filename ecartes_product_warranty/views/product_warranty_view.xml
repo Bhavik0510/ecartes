@@ -16,7 +16,7 @@
                         <button name="create_amcs" type="object" string="Create AMC"
                                 class="oe_highlight" invisible="state != 'expired'"/>
                         <field name="state" widget="statusbar"
-                               statusbar_visible="draft,under_warranty,2beinvoice,invoiced,expired,renewed" clickable="1"/>
+                               statusbar_visible="draft,under_warranty,2beinvoice,invoiced,expired,renewed"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Expired" bg_color="bg-danger"
@@ -90,6 +90,8 @@
                                 <field name="invoice_state" invisible="1"/>
                                 <field name="is_renewed" invisible="1"/>
                                 <field name="sale_id" invisible="1"/>
+                                <field name="sale_order_id" options="{'no_create': True}"/>
+                                <field name="sale_order_ref"/>
                             </group>
                         </group>
                         <group>
@@ -143,6 +145,7 @@
                     <field name="create_date"/>
                     <field name="user_id" optional="hide"/>
                     <field name="partner_id"/>
+                    <field name="sale_order_id" optional="hide"/>
                     <field name="product_id"/>
                     <field name="lot_ids"/>
                     <field name="warranty_type"/>

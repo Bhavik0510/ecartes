@@ -24,5 +24,15 @@
             <!-- <field name="doall" eval="False"/> -->
         </record>
 
+        <record id="amc_invoice_reminder_cron" model="ir.cron">
+            <field name="name">AMC Invoice Reminder Cron</field>
+            <field name="model_id" ref="model_amc_amc"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_invoice_reminder()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
     </data>
 </odoo>

@@ -6,6 +6,7 @@ access_amc_claim,access.amc.claim,model_amc_claim,ecartes_amc.allow_claim_access
 access_amc_term,access.amc.term,model_amc_term,ecartes_amc.allow_claim_access,1,1,1,1
 access_amc_renew,access.amc.renew,model_amc_renew,ecartes_amc.allow_claim_access,1,1,1,1
 access_amc_visitor,access.amc.visitor,model_amc_visitor,ecartes_amc.allow_claim_access,1,1,1,1
+access_amc_status,access.amc.status,model_amc_status,ecartes_amc.allow_amc_status_update,1,1,1,1
 
 
 

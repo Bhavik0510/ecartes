@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_amc_status_form" model="ir.ui.view">
+        <field name="name">amc.status.form</field>
+        <field name="model">amc.status</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Update AMC Status">
+                <group>
+                    <field name="state"/>
+                </group>
+                <footer>
+                    <button string="Apply" type="object" name="action_apply_state" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_update_amc_status" model="ir.actions.server">
+        <field name="name">Bulk Update AMC Status</field>
+        <field name="model_id" ref="model_amc_amc"/>
+        <field name="state">code</field>
+        <field name="binding_model_id" ref="model_amc_amc"/>
+        <field name="binding_view_types">list</field>
+        <field name="groups_id" eval="[(4, ref('ecartes_amc.allow_amc_status_update'))]"/>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_window',
+                'name': 'Bulk Update AMC Status',
+                'res_model': 'amc.status',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'active_ids': env.context.get('active_ids', [])},
+            }
+        </field>
+    </record>
+</odoo>

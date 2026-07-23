@@ -38,7 +38,7 @@ class ProductWarranty(models.Model):
         ('expired', 'Expired'),
         ('renewed', 'Renewed'),
         ('cancel', 'Cancelled')], string='Status',
-        copy=False, default='draft', readonly=True, tracking=True )
+        copy=False, default='draft', tracking=True )
 
     partner_id = fields.Many2one(
         'res.partner', 'Customer',
@@ -55,7 +55,8 @@ class ProductWarranty(models.Model):
                                domain="[('country_id', '=?', country_id)]", related="partner_id.state_id")
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', related="partner_id.country_id")
 
-    sale_order_id = fields.Many2one('sale.order', 'Sale Order', copy=False)
+    sale_order_id = fields.Many2one('sale.order', 'Sale Order', copy=False, tracking=True)
+    sale_order_ref = fields.Char('Sale Order Ref', help='Legacy/Tally SO reference', tracking=True)
     user_id = fields.Many2one('res.users', string="Sales Person", default=lambda self: self.env.user, check_company=True)
     renewal_user_id = fields.Many2one('res.users', string="Renewal By", default=lambda self: self.env.user,
                                       check_company=True)
@@ -343,6 +344,10 @@ class ProductWarranty(models.Model):
     def btn_cancel(self):
         self.state = 'cancel'
 
+    def _get_linked_sale_order_id(self):
+        self.ensure_one()
+        return self.sale_order_id.id or self.sale_id.id
+
     def create_amcs(self):
         amc_term = None
 
@@ -369,12 +374,10 @@ class ProductWarranty(models.Model):
             'amc_start_date':self.warranty_start_date,
             'amc_cost':self.warranty_type,
             'product_warrenty_ids': line_lst1,
-            # 'state':self.state,
-            # 'amc_type':'namc',
             'partner_id': self.partner_id.id,
-            # 'amc_end_date': self.warranty_end_date,
             'amc_amt': self.warranty_amt,
             'renewal_user_id':self.renewal_user_id.id,
+            'sale_order_id': self._get_linked_sale_order_id(),
             'line_ids': [
                     (0, 0, {
                         'product_id': self.product_id.id,
@@ -384,8 +387,9 @@ class ProductWarranty(models.Model):
                 ],  
         })
         new_amc._onchange_invoice_term()
-        amc=self.env['amc.amc'].sudo().search([('product_warrenty_ids','in',self.id)])
-        self.sale_id.amc_id=amc[0].id
+        amc = self.env['amc.amc'].sudo().search([('product_warrenty_ids', 'in', self.id)], limit=1)
+        if amc and self.sale_id:
+            self.sale_id.with_context(skip_amc_so_sync=True).write({'amc_id': amc.id})
     
     def get_amc(self):
         self.ensure_one()
@@ -437,13 +441,15 @@ class ProductWarranty(models.Model):
                     'amc_term_id': amc_term,
                     'product_warrenty_ids': line_lst1,
                     'line_ids': line_lst,
+                    'sale_order_id': self[0]._get_linked_sale_order_id(),
                 }
                 amc = self.env['amc.amc'].create(vals)
                 amc.onchnage_amc_term()
                 amc._onchange_invoice_term()
 
-        amc=self.env['amc.amc'].sudo().search([('product_warrenty_ids','in',line_lst1)])
-        self.sale_id.amc_id=amc[0].id
+        amc = self.env['amc.amc'].sudo().search([('product_warrenty_ids', 'in', line_lst1)], limit=1)
+        if amc and self.sale_id:
+            self.sale_id.with_context(skip_amc_so_sync=True).write({'amc_id': amc.id})
     
     @api.model
     def _expire_warranties(self):

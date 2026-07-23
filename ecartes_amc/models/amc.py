@@ -32,7 +32,7 @@ class Amc(models.Model):
         ('expired', 'Expired'),
         ('renewed', 'Renewed'),
         ('cancel', 'Cancelled')], string='Status',
-        copy=False, default='draft', readonly=True, tracking=True, )
+        copy=False, default='draft', tracking=True, )
 
     partner_id = fields.Many2one(
         'res.partner', 'Customer',
@@ -50,6 +50,9 @@ class Amc(models.Model):
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', related="partner_id.country_id")
 
     # sale_order_id = fields.Many2one('sale.order', 'Sale Order', copy=False)
+    sale_order_id = fields.Many2one('sale.order', 'Sale Order', copy=False, tracking=True)
+    sale_order_ref = fields.Char('Sale Order Ref', help='Legacy/Tally SO reference', tracking=True)
+    invoice_ref = fields.Char('Invoice Ref', help='Legacy/Tally invoice reference', tracking=True)
     user_id = fields.Many2one('res.users', string="Sales Person", default=lambda self: self.env.user, check_company=True)
     renewal_user_id = fields.Many2one('res.users', string="Renewal By", default=lambda self: self.env.user,
                                       check_company=True)
@@ -206,7 +209,24 @@ class Amc(models.Model):
             # if len(pw) > 0:
             #     raise UserError('You Cannot Create more than one Warranty with same serial number.')
 
-        return super(Amc, self).create(vals_list)
+        amcs = super(Amc, self).create(vals_list)
+        if not self.env.context.get('skip_amc_so_sync'):
+            for amc in amcs:
+                if amc.sale_order_id and amc.sale_order_id.amc_id != amc:
+                    amc.sale_order_id.with_context(skip_amc_so_sync=True).write({
+                        'amc_id': amc.id,
+                    })
+        return amcs
+
+    def write(self, vals):
+        res = super(Amc, self).write(vals)
+        if not self.env.context.get('skip_amc_so_sync') and 'sale_order_id' in vals:
+            for amc in self:
+                if amc.sale_order_id and amc.sale_order_id.amc_id != amc:
+                    amc.sale_order_id.with_context(skip_amc_so_sync=True).write({
+                        'amc_id': amc.id,
+                    })
+        return res
 
     @api.onchange('amc_term_id', 'amc_start_date')
     def onchnage_amc_term(self):
@@ -449,3 +469,51 @@ class Amc(models.Model):
                         'author_id': self.env.user.partner_id.id
                     }
                     self.env['mail.mail'].create(mail_values).send()
+
+    def _cron_invoice_reminder(self):
+        """Send activity and email 7 days before the next AMC invoice visit date."""
+        today = datetime.today().date()
+        reminder_date = today + timedelta(days=7)
+        visitors = self.env['amc.visitor'].search([
+            ('visit_date', '=', reminder_date),
+            ('amc_id.state', 'in', ('under_amc', '2beinvoice')),
+        ])
+        activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+        for visitor in visitors:
+            amc = visitor.amc_id
+            if not amc:
+                continue
+            summary = _('AMC invoice due on %s') % visitor.visit_date
+            body = _(
+                'Next AMC invoice is due on %(visit_date)s for %(amc)s (customer: %(partner)s). '
+                'Please create the invoice from the linked Sales Order %(so)s.',
+                visit_date=visitor.visit_date,
+                amc=amc.name,
+                partner=amc.partner_id.display_name,
+                so=amc.sale_order_id.name or amc.sale_order_ref or '-',
+            )
+            if activity_type:
+                existing = self.env['mail.activity'].search([
+                    ('res_model', '=', 'amc.amc'),
+                    ('res_id', '=', amc.id),
+                    ('summary', '=', summary),
+                ], limit=1)
+                if not existing:
+                    self.env['mail.activity'].create({
+                        'activity_type_id': activity_type.id,
+                        'res_model_id': self.env['ir.model']._get('amc.amc').id,
+                        'res_id': amc.id,
+                        'user_id': amc.user_id.id or self.env.user.id,
+                        'summary': summary,
+                        'note': body,
+                        'date_deadline': visitor.visit_date,
+                    })
+            mail_to = amc.partner_id.email
+            if mail_to:
+                mail_values = {
+                    'subject': _('Reminder: AMC invoice due on %s') % visitor.visit_date,
+                    'body_html': '<p>%s</p>' % body,
+                    'email_from': amc.company_id.partner_id.email or self.env.user.email,
+                    'email_to': mail_to,
+                }
+                self.env['mail.mail'].sudo().create(mail_values).send()
