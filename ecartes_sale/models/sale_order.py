@@ -37,9 +37,13 @@ class SaleOrderInherit(models.Model):
         return res
 
     def action_show_amc(self):
+        """Open linked AMC only (do not create from smart button)."""
         self.ensure_one()
         if not self.amc_id:
-            return self.action_create_amc()
+            raise ValidationError(_(
+                "No AMC is linked to this Sales Order. "
+                "Use the 'Create AMC' button after confirming the order."
+            ))
         return {
             'name': _('AMC'),
             'type': 'ir.actions.act_window',
@@ -49,19 +53,70 @@ class SaleOrderInherit(models.Model):
             'target': 'current',
         }
 
-    def action_create_amc(self):
+    def _prepare_amc_vals_from_sale(self):
+        """Build AMC values from confirmed SO, including order lines."""
         self.ensure_one()
+        product_lines = self.order_line.filtered(
+            lambda line: not line.display_type and line.product_id
+        )
+        amc_product_lines = product_lines.filtered(
+            lambda line: line.product_id.is_under_amc
+        )
+        lines_to_use = amc_product_lines or product_lines
+
+        line_cmds = []
+        for line in lines_to_use:
+            line_cmds.append((0, 0, {
+                'product_id': line.product_id.id,
+                'product_qty': line.product_uom_qty,
+                'price_unit': line.price_unit,
+                'company_id': self.company_id.id,
+                'tracking': line.product_id.tracking,
+            }))
+
+        amc_term = self.env['amc.term'].search([
+            ('amc_by', '=', 'year'),
+            ('total_no_of', '=', 1),
+        ], limit=1)
+
+        amount = sum(lines_to_use.mapped('price_subtotal')) or self.amount_untaxed
+        return {
+            'partner_id': self.partner_id.id,
+            'sale_order_id': self.id,
+            'user_id': self.user_id.id,
+            'company_id': self.company_id.id,
+            'responsible_person': self.responsible_person or False,
+            'amc_cost': 'paid',
+            'amc_amt': amount,
+            'total_amc_amount': amount,
+            'amc_term_id': amc_term.id if amc_term else False,
+            'line_ids': line_cmds,
+        }
+
+    def action_create_amc(self):
+        """Create AMC from confirmed SO with customer, SO link and product lines."""
+        self.ensure_one()
+        if self.state not in ('sale', 'done'):
+            raise ValidationError(_(
+                "Please confirm the Sales Order before creating AMC."
+            ))
+        if self.amc_id:
+            return self.action_show_amc()
+
+        amc = self.env['amc.amc'].create(self._prepare_amc_vals_from_sale())
+        if amc.amc_term_id:
+            amc.onchnage_amc_term()
+        amc._onchange_invoice_term()
+
+        self.with_context(skip_amc_so_sync=True).write({'amc_id': amc.id})
+
         return {
             'name': _('AMC'),
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'amc.amc',
+            'res_id': amc.id,
             'target': 'current',
-            'context': {
-                'default_partner_id': self.partner_id.id,
-                'default_sale_order_id': self.id,
-                'default_user_id': self.user_id.id,
-            },
         }
 
     @api.model

@@ -12,9 +12,17 @@
                 <field name="responsible_person"/>
                 <field name="deal_id" readonly="state in ['sent','sale','done','cancel']"/>
             </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_create_amc"
+                        type="object"
+                        string="Create AMC"
+                        class="btn-primary"
+                        invisible="state not in ('sale', 'done') or amc_id"/>
+            </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
                 <field name="amc_id" invisible="1"/>
-                <button type="object" name="action_show_amc" class="oe_stat_button" icon="fa-wrench">
+                <button type="object" name="action_show_amc" class="oe_stat_button" icon="fa-wrench"
+                        invisible="not amc_id">
                     <field name="amc_count" widget="statinfo" string="AMC"/>
                 </button>
             </xpath>

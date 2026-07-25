@@ -1,10 +1,10 @@
 {
     "name" : "ecartes_account",
-    "version": "18.0.1.3",
+    "version": "18.0.1.4",
     "category": "Uncategorized",
     "summary": "ecartes_account",
     "description": "ecartes_account",
-    "depends": ['account', 'crm', 'sale', 'ecartes_contact'],
+    "depends": ['account', 'crm', 'sale', 'ecartes_contact', 'mail'],
     "data": [
         "views/account_view.xml",
     ],
