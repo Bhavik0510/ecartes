@@ -49,12 +49,32 @@ class ResPartner(models.Model):
     # billing_country = fields.Many2one("res.country","Billing Country" ,required=True)
     # shipping_country = fields.Many2one("res.country","Shipping Country",required=True)
 
-    # @api.model
-    # def default_get(self, default_fields):
-    #     values = super().default_get(default_fields)
-    #     if self.env.user.has_group('ecartes_contact.own_contacts_group'):
-    #         values['user_id'] = self.env.user.id
-    #     return values
+    @api.model
+    def default_get(self, default_fields):
+        values = super().default_get(default_fields)
+        if self.env.user.has_group('ecartes_contact.own_contacts_group'):
+            values['user_id'] = self.env.user.id
+
+        company = self.env.company
+        if company and 'Ecartes' in company.name:
+            if 'property_account_receivable_id' in default_fields:
+                rec_account = self.env['account.account'].search([
+                    ('code', '=', '1024'),
+                    ('company_ids', 'in', [company.id])
+                ], limit=1)
+                if rec_account:
+                    values['property_account_receivable_id'] = rec_account.id
+
+            if 'property_account_payable_id' in default_fields:
+                pay_account = self.env['account.account'].search([
+                    ('code', '=', '2022'),
+                    ('company_ids', 'in', [company.id])
+                ], limit=1)
+                if pay_account:
+                    values['property_account_payable_id'] = pay_account.id
+
+        return values
+
 
     @api.model_create_multi
     def create(self, vals_list):
