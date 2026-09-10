@@ -52,20 +52,39 @@ class PartnerLedgerGenerateReport(models.TransientModel):
         partners = self.partner_id
         company_currency_symbol = self.env.user.company_id.currency_id.symbol
 
-        invoices = self.env['account.move'].search([
-            '|', ('partner_id', 'child_of', self.partner_id.id), ('line_ids.partner_id', 'child_of', self.partner_id.id),
+        commercial_partner = partners.commercial_partner_id or partners
+        all_partners = self.env['res.partner'].search([
+            '|', ('id', '=', commercial_partner.id),
+            ('id', 'child_of', commercial_partner.id)
+        ])
+
+        move_lines = self.env['account.move.line'].search([
+            ('partner_id', 'in', all_partners.ids),
+            ('account_id.account_type', 'in', ('asset_receivable', 'liability_payable')),
+            ('parent_state', '=', 'posted'),
             ('date', '>=', start_date),
             ('date', '<=', end_date),
-            ('state', '=', 'posted'),
-            ('move_type', 'in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'entry']),
-            ('journal_id.type', 'in', ['sale', 'purchase', 'general']),
-        ], order='date desc')
-        payments = self.env['account.payment'].search([
-            ('partner_id', 'child_of', self.partner_id.id),
-            ('date', '>=', start_date),
-            ('date', '<=', end_date),
-            ('state', 'in', ['paid', 'in_process']),
-        ], order='date desc')
+        ], order='date desc, id desc')
+
+        invoice_items = []
+        payment_items = []
+        for line in move_lines:
+            if line.debit > 0:
+                name = line.move_id.name or line.name or ''
+                date_val = line.move_id.invoice_date or line.date
+                invoice_items.append({
+                    'name': name,
+                    'date': date_val,
+                    'amount': line.debit,
+                })
+            elif line.credit > 0:
+                name = line.move_id.name or line.payment_id.name or line.name or ''
+                date_val = line.date
+                payment_items.append({
+                    'name': name,
+                    'date': date_val,
+                    'amount': line.credit,
+                })
         workbook = xlwt.Workbook(encoding="UTF-8")
         sheet1 = workbook.add_sheet('Partner Ledger', cell_overwrite_ok=True)
 
@@ -114,31 +133,32 @@ class PartnerLedgerGenerateReport(models.TransientModel):
         total_invoice = 0.0
         total_payment = 0.0
 
-        max_rows = max(len(invoices), len(payments))
+        max_rows = max(len(invoice_items), len(payment_items))
 
         for i in range(max_rows):
             current_row = 10 + i
 
             # Write invoice side
-            if i < len(invoices):
-                invoice = invoices[i]
-                sheet1.write(current_row, 0, invoice.name, data_style)
-                invoice_date = invoice.invoice_date or invoice.date
+            if i < len(invoice_items):
+                inv = invoice_items[i]
+                sheet1.write(current_row, 0, inv['name'], data_style)
+                invoice_date = inv['date']
                 sheet1.write(current_row, 1, invoice_date.strftime('%d-%m-%Y') if invoice_date else '', data_style)
-                sheet1.write(current_row, 2, f"{invoice.amount_total:.2f}", data_style_amount)
-                total_invoice += invoice.amount_total
+                sheet1.write(current_row, 2, f"{inv['amount']:.2f}", data_style_amount)
+                total_invoice += inv['amount']
             else:
                 sheet1.write(current_row, 0, '', data_style)
                 sheet1.write(current_row, 1, '', data_style)
                 sheet1.write(current_row, 2, '0.00', data_style_amount)
 
             # Write payment side
-            if i < len(payments):
-                payment = payments[i]
-                sheet1.write(current_row, 3, payment.name, data_style)
-                sheet1.write(current_row, 4, payment.date.strftime('%d-%m-%Y'), data_style)
-                sheet1.write(current_row, 5, f"{payment.amount:.2f}", data_style_amount)
-                total_payment += payment.amount
+            if i < len(payment_items):
+                pay = payment_items[i]
+                sheet1.write(current_row, 3, pay['name'], data_style)
+                payment_date = pay['date']
+                sheet1.write(current_row, 4, payment_date.strftime('%d-%m-%Y') if payment_date else '', data_style)
+                sheet1.write(current_row, 5, f"{pay['amount']:.2f}", data_style_amount)
+                total_payment += pay['amount']
             else:
                 sheet1.write(current_row, 3, '', data_style)
                 sheet1.write(current_row, 4, '', data_style)
