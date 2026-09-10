@@ -35,21 +35,28 @@ class PartnerLedgerAbstract(models.AbstractModel):
         invoice_items = []
         payment_items = []
         for line in move_lines:
-            if line.debit > 0:
+            if line.debit == 0 and line.credit == 0:
+                continue
+            is_payable = (line.account_id.account_type == 'liability_payable')
+            is_invoice = (line.credit > 0) if is_payable else (line.debit > 0)
+
+            if is_invoice:
+                amount = line.credit if is_payable else line.debit
                 name = line.move_id.name or line.name or ''
                 date_val = line.move_id.invoice_date or line.date
                 invoice_items.append({
                     'name': name,
                     'date': date_val,
-                    'amount': line.debit,
+                    'amount': amount,
                 })
-            elif line.credit > 0:
+            else:
+                amount = line.debit if is_payable else line.credit
                 name = line.move_id.name or line.payment_id.name or line.name or ''
                 date_val = line.date
                 payment_items.append({
                     'name': name,
                     'date': date_val,
-                    'amount': line.credit,
+                    'amount': amount,
                 })
 
         combined_data = []
