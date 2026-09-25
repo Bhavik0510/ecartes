@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Custom Tree View for Partner Ledger -->
+    <record id="view_partner_ledger_tree" model="ir.ui.view">
+        <field name="name">partner.ledger.tree</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Partner Ledger" create="0" edit="0">
+                <field name="name" string="Number"/>
+                <field name="date" string="Date"/>
+                <field name="invoice_date_due" string="Due Date" optional="show"/>
+                <field name="move_type" string="Type"/>
+                <field name="amount_untaxed" string="Untaxed Amount" sum="Total Untaxed" optional="show"/>
+                <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide"/>
+                <field name="amount_total" string="Total" sum="Grand Total"/>
+                <field name="amount_residual" string="Amount Due" sum="Total Due" decoration-danger="amount_residual > 0" decoration-success="amount_residual == 0"/>
+                <field name="payment_state" string="Payment Status" widget="badge"
+                       decoration-success="payment_state == 'paid'"
+                       decoration-warning="payment_state == 'partial'"
+                       decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
+                <field name="state" string="Status" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Smart Button on Partner Form -->
+    <record id="view_partner_balance_button" model="ir.ui.view">
+        <field name="name">res.partner.balance.button</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_partner_balance"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-balance-scale">
+                    <div class="o_stat_info">
+                        <field name="partner_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <span class="o_stat_text">Balance</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -6,6 +6,8 @@
     "description": "ecartes_account",
     "depends": ['account', 'crm', 'sale', 'ecartes_contact', 'mail'],
     "data": [
+        "security/ir.model.access.csv",
+        "wizard/partner_balance_wizard_views.xml",
         "views/account_view.xml",
     ],
     "post_init_hook": "post_init_hook",
