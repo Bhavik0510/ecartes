@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="gstr_dynamic_report_template" owl="1">
+        <div class="container">
+            <div class="fin_report">
+                <!-- Header / Filter Bar -->
+                <div class="filter_view_pl pt-3 pb-4">
+                    <div>
+                        <h2 class="text-uppercase" style="padding: 10px 0; font-weight: 700; color: #212529;">
+                            <t t-esc="props.action.name"/>
+                        </h2>
+                    </div>
+                    <div style="margin-right: 10px; margin-left: 10px; margin-bottom: 15px; display: flex; align-items: center;">
+                        <div class="sub_container_left" style="width: 70%;">
+                            <div class="report_print">
+                                <!-- Print (PDF) Button -->
+                                <button type="button"
+                                        class="btn btn-primary btn-report-print"
+                                        t-on-click="printPdf"
+                                        style="margin-right: 8px;">
+                                    Print (PDF)
+                                </button>
+                                <!-- Export (XLSX) Button -->
+                                <button type="button"
+                                        class="btn btn-primary btn-report-print"
+                                        t-on-click="exportXlsx"
+                                        style="margin-right: 8px;">
+                                    Export (XLSX)
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end w-100">
+                            <!-- Date Range Dropdown matching Photo 2 -->
+                            <div class="time_range">
+                                <a type="button" class="dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer; font-size: 14px; color: #495057; text-decoration: none;">
+                                    <span class="fa fa-calendar me-1" title="Dates" role="img" aria-label="Dates"/>
+                                    Date Range
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end shadow" role="menu" style="min-width: 220px;">
+                                    <div class="list-group list-group-flush">
+                                        <button class="dropdown-item py-2" t-att-data-value="'month'" type="button" t-on-click="applyFilter">
+                                            This Month
+                                        </button>
+                                        <button class="dropdown-item py-2" t-att-data-value="'quarter'" type="button" t-on-click="applyFilter">
+                                            This Quarter
+                                        </button>
+                                        <button class="dropdown-item py-2" t-att-data-value="'year'" type="button" t-on-click="applyFilter">
+                                            This Year
+                                        </button>
+                                        <div class="dropdown-divider my-1"/>
+                                        <button class="dropdown-item py-2" t-att-data-value="'last-month'" type="button" t-on-click="applyFilter">
+                                            Last month
+                                        </button>
+                                        <button class="dropdown-item py-2" t-att-data-value="'last-quarter'" type="button" t-on-click="applyFilter">
+                                            Last quarter
+                                        </button>
+                                        <button class="dropdown-item py-2" t-att-data-value="'last-year'" type="button" t-on-click="applyFilter">
+                                            Last year
+                                        </button>
+                                        <div class="dropdown-divider my-1"/>
+                                        <div class="px-3 py-2">
+                                            <label class="form-label small mb-1 fw-bold" for="date_from">Start Date:</label>
+                                            <input type="date" id="date_from" t-ref="date_from" class="form-control form-control-sm mb-2" t-att-value="state.date_from" t-on-change="onCustomDateChange"/>
+                                            <label class="form-label small mb-1 fw-bold" for="date_to">End Date:</label>
+                                            <input type="date" id="date_to" t-ref="date_to" class="form-control form-control-sm" t-att-value="state.date_to" t-on-change="onCustomDateChange"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sheet Navigation Tabs (Matching Excel Sheets) -->
+            <div class="px-2 pt-2 pb-1 border-bottom bg-light d-flex align-items-center flex-wrap gap-1">
+                <!-- Summary Tab -->
+                <button type="button"
+                        class="btn btn-sm"
+                        t-att-class="state.active_tab === 'summary' ? 'btn-dark active fw-bold shadow-sm' : 'btn-outline-secondary'"
+                        t-on-click="() => this.setActiveTab('summary')">
+                    <i class="fa fa-th-list me-1"/> Summary Overview
+                </button>
+
+                <!-- Sheet Tabs from Excel -->
+                <t t-if="state.tables and state.tables.length > 0">
+                    <t t-foreach="state.tables" t-as="tbl" t-key="tbl.sheet_code">
+                        <button type="button"
+                                class="btn btn-sm"
+                                t-att-class="state.active_tab === tbl.sheet_code ? 'btn-primary active fw-bold shadow-sm' : 'btn-outline-secondary'"
+                                t-on-click="() => this.setActiveTab(tbl.sheet_code)">
+                            <i class="fa fa-file-excel-o me-1"/> <t t-esc="tbl.sheet_code.toUpperCase()"/>
+                            <span class="badge rounded-pill ms-1"
+                                  t-att-class="state.active_tab === tbl.sheet_code ? 'bg-white text-primary' : 'bg-secondary text-white'"
+                                  style="font-size: 10px;">
+                                <t t-esc="tbl.row_count"/>
+                            </span>
+                        </button>
+                    </t>
+
+                    <!-- All Sheets View -->
+                    <button type="button"
+                            class="btn btn-sm"
+                            t-att-class="state.active_tab === 'all' ? 'btn-dark active fw-bold shadow-sm' : 'btn-outline-secondary'"
+                            t-on-click="() => this.setActiveTab('all')">
+                        <i class="fa fa-bars me-1"/> All Sheets (<t t-esc="state.tables.length"/>)
+                    </button>
+                </t>
+            </div>
+
+            <!-- Content Area -->
+            <div class="table_style" style="height: calc(100vh - 220px); overflow-y: auto;">
+                
+                <!-- Loading State -->
+                <t t-if="state.loading">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2 text-muted fw-bold">Loading report &amp; Excel sheet records...</div>
+                    </div>
+                </t>
+
+                <!-- TAB 1: TALLY PRIME GSTR SUMMARY VIEW -->
+                <t t-elif="state.active_tab === 'summary'">
+                    <div class="p-3" style="width: 100%; max-width: 1300px; margin: 0 auto;">
+                        <div class="card shadow-sm" style="border: 1px solid #c8c8c8; border-radius: 4px; overflow: hidden; background: #ffffff;">
+                            
+                            <!-- TOP BAR: GSTIN & DATE PERIOD -->
+                            <div class="d-flex justify-content-between align-items-center px-3 py-2 fw-bold text-dark" style="font-size: 13px; border-bottom: 2px solid #555; background-color: #fafafa; font-family: monospace, Arial, sans-serif;">
+                                <div>
+                                    GSTIN : <span t-esc="state.company_gstin or ''" style="letter-spacing: 0.5px;"/>
+                                </div>
+                                <div>
+                                    <span t-esc="state.period_display or ''"/>
+                                </div>
+                            </div>
+
+                            <!-- TOP SUMMARY: TOTAL VOUCHERS HIERARCHY -->
+                            <div style="font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 2px solid #555; background-color: #ffffff;">
+                                <div class="d-flex justify-content-between px-3 py-1 fw-bold text-muted" style="background-color: #f1f3f5; border-bottom: 1px solid #dee2e6; font-size: 11px; text-transform: uppercase;">
+                                    <div>Particulars</div>
+                                    <div class="text-end" style="width: 160px;">Voucher Count</div>
+                                </div>
+                                <div class="px-3 py-2">
+                                    <div class="d-flex justify-content-between py-1 fw-bold text-dark">
+                                        <div>Total Vouchers</div>
+                                        <div class="text-end fw-bold" style="width: 160px;">
+                                            <t t-esc="state.vouchers_summary.total_vouchers || 0"/>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-1 ps-3 text-dark">
+                                        <div>Included in Return</div>
+                                        <div class="text-end" style="width: 160px;">
+                                            <t t-esc="state.vouchers_summary.included_in_return || 0"/>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-1 ps-5 text-secondary fst-italic" style="font-size: 11px;">
+                                        <div>Included in HSN/SAC Summary</div>
+                                        <div class="text-end pe-4" style="width: 220px;">
+                                            <t t-esc="state.vouchers_summary.included_in_hsn || 0"/>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-1 ps-5 text-secondary fst-italic" style="font-size: 11px;">
+                                        <div>Incomplete Information in HSN/SAC Summary (Corrections needed)</div>
+                                        <div class="text-end pe-4" style="width: 220px;">
+                                            <t t-esc="state.vouchers_summary.incomplete_hsn || 0"/>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-1 ps-3 text-dark">
+                                        <div>Not relevant in this Return</div>
+                                        <div class="text-end" style="width: 160px;">
+                                            <t t-esc="state.vouchers_summary.not_relevant || 0"/>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-1 ps-3 text-dark">
+                                        <div>Uncertain Transactions (Corrections needed)</div>
+                                        <div class="text-end" style="width: 160px;">
+                                            <t t-esc="state.vouchers_summary.uncertain || 0"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MAIN TABLE -->
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 11.5px; border-collapse: separate; border-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+                                    <thead>
+                                        <tr style="border-top: 1px solid #777; border-bottom: 2px solid #555; background-color: #f8f9fa;">
+                                            <th style="width: 35px; text-align: center; padding: 7px 4px; vertical-align: bottom; font-weight: 600; color: #212529;">
+                                                Sl<br/>No.
+                                            </th>
+                                            <th style="padding: 7px 10px; vertical-align: bottom; font-weight: 600; color: #212529; letter-spacing: 0.5px;">
+                                                P a r t i c u l a r s
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 85px; font-weight: 600; color: #212529;">
+                                                Voucher<br/>Count
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 110px; font-weight: 600; color: #212529;">
+                                                Taxable Amount
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 110px; font-weight: 600; color: #212529;">
+                                                Integrated Tax<br/>Amount
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 105px; font-weight: 600; color: #212529;">
+                                                Central Tax<br/>Amount
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 105px; font-weight: 600; color: #212529;">
+                                                State Tax<br/>Amount
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 85px; font-weight: 600; color: #212529;">
+                                                Cess Amount
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 105px; font-weight: 600; color: #212529;">
+                                                Tax Amount
+                                            </th>
+                                            <th style="text-align: right; padding: 7px 10px; vertical-align: bottom; width: 120px; font-weight: 600; color: #212529;">
+                                                Invoice Amount
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="state.sections and state.sections.length > 0">
+                                            <t t-foreach="state.sections" t-as="sec" t-key="sec_index">
+                                                <t t-set="sec_code" t-value="sec.sheet_code or getSheetCodeForSection(sec)"/>
+                                                <tr style="border-bottom: 1px solid #f0f0f0; transition: background-color 0.15s ease;"
+                                                    t-att-style="sec_code and hasTable(sec_code) ? 'cursor: pointer;' : ''"
+                                                    t-on-click="() => this.onSectionClick(sec)">
+                                                    <td style="text-align: center; color: #666; padding: 6px 4px;">
+                                                        <t t-esc="sec.sr_no || (sec_index + 1)"/>
+                                                    </td>
+                                                    <td style="padding: 6px 10px; font-weight: 500; color: #212529;">
+                                                        <t t-esc="sec.section"/>
+                                                        <t t-if="sec_code and hasTable(sec_code)">
+                                                            <span class="badge bg-light text-primary border ms-2" style="font-size: 10px;">
+                                                                <i class="fa fa-folder-open-o me-1"/>View <t t-esc="sec_code.toUpperCase()"/>
+                                                            </span>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px;">
+                                                        <t t-esc="formatCount(sec.doc_count)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.taxable_value)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.igst)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.cgst)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.sgst)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.cess)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.tax_amount)"/>
+                                                    </td>
+                                                    <td class="text-end" style="padding: 6px 10px; font-weight: 600; font-family: monospace, Arial, sans-serif;">
+                                                        <t t-esc="formatTallyAmount(sec.invoice_amount)"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+
+                                        <!-- TOTAL ROW -->
+                                        <tr class="fw-bold" style="border-top: 2px solid #555; border-bottom: 2px solid #555; background-color: #f1f3f5;">
+                                            <td></td>
+                                            <td style="padding: 8px 10px; font-weight: 700; color: #212529;">Total</td>
+                                            <td class="text-end" style="padding: 8px 10px;">
+                                                <t t-esc="formatCount(state.totals.doc_count)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.taxable_value)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.igst)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.cgst)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.sgst)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.cess)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.tax_amount)"/>
+                                            </td>
+                                            <td class="text-end" style="padding: 8px 10px; font-weight: 700; font-family: monospace, Arial, sans-serif;">
+                                                <t t-esc="formatTallyAmount(state.totals.invoice_amount)"/>
+                                            </td>
+                                        </tr>
+
+                                        <!-- BOTTOM SECTIONS (HSN/SAC Summary & Document Summary) -->
+                                        <tr style="border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.15s ease;"
+                                            t-on-click="() => this.openSheet('hsn.b2b')">
+                                            <td></td>
+                                            <td colspan="9" style="padding: 7px 10px; font-weight: 500; color: #212529;">
+                                                HSN/SAC Summary - 12
+                                                <t t-if="hasTable('hsn.b2b') or hasTable('hsn')">
+                                                    <span class="badge bg-light text-primary border ms-2" style="font-size: 10px;">
+                                                        <i class="fa fa-folder-open-o me-1"/>View HSN Details
+                                                    </span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.15s ease;"
+                                            t-on-click="() => this.openSheet('docs')">
+                                            <td></td>
+                                            <td colspan="9" style="padding: 7px 10px; font-weight: 500; color: #212529;">
+                                                Document Summary - 13
+                                                <t t-if="hasTable('docs')">
+                                                    <span class="badge bg-light text-primary border ms-2" style="font-size: 10px;">
+                                                        <i class="fa fa-folder-open-o me-1"/>View Document Details
+                                                    </span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- FOOTNOTE -->
+                            <div class="px-3 py-2 bg-light border-top text-muted fst-italic" style="font-size: 11px; color: #777;">
+                                Note: Voucher count and values are not provided for HSN/SAC Summary and Document Summary. Drill down for details.
+                            </div>
+
+                        </div>
+                    </div>
+                </t>
+
+                <!-- TAB 2: SINGLE EXCEL SHEET VIEW (e.g. B2B, B2CS, EXP, CDNR) -->
+                <t t-elif="activeTable">
+                    <t t-set="filtered" t-value="getFilteredRows(activeTable)"/>
+                    <div class="p-3">
+                        <div class="card shadow-sm mb-3">
+                            <!-- Sheet Header / Filter Banner -->
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-dark">
+                                        <i class="fa fa-table text-primary me-2"/>
+                                        <t t-esc="activeTable.title"/>
+                                    </h6>
+                                    <small class="text-muted">
+                                        Showing <strong><t t-esc="filtered.length"/></strong> of <strong><t t-esc="activeTable.row_count"/></strong> records from Excel
+                                    </small>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="input-group input-group-sm" style="width: 280px;">
+                                        <span class="input-group-text bg-white"><i class="fa fa-search text-muted"/></span>
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="Search invoices / records..."
+                                               t-att-value="state.search_query"
+                                               t-on-input="onSearchInput"/>
+                                        <button t-if="state.search_query"
+                                                class="btn btn-outline-secondary"
+                                                type="button"
+                                                t-on-click="clearSearch">
+                                            <i class="fa fa-times"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sheet Records Table -->
+                            <div class="card-body p-0 table-responsive" style="max-height: calc(100vh - 300px); overflow-y: auto;">
+                                <table class="table table-sm table-bordered table-hover align-middle mb-0" style="font-size: 11.5px; border-collapse: separate; border-spacing: 0;">
+                                    <thead style="position: sticky; top: 0; z-index: 2;">
+                                        <tr>
+                                            <th style="width: 45px; text-align: center; background-color: #2c3e50; color: #fff; padding: 7px 8px; border-color: #1a252f;">#</th>
+                                            <t t-foreach="activeTable.headers" t-as="hdr" t-key="hdr_index">
+                                                <th t-att-style="'background-color: #2c3e50; color: #fff; font-weight: 600; white-space: nowrap; padding: 7px 10px; border-color: #1a252f; text-align: ' + (isColNumeric(activeTable, hdr_index) ? 'right' : 'left')">
+                                                    <t t-esc="hdr"/>
+                                                </th>
+                                            </t>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="filtered.length > 0">
+                                            <t t-foreach="filtered" t-as="row" t-key="row_index">
+                                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                                    <td style="text-align: center; color: #888; font-size: 10px; background-color: #fbfbfb;">
+                                                        <t t-esc="row_index + 1"/>
+                                                    </td>
+                                                    <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                                        <td t-att-style="'padding: 5px 10px; white-space: nowrap; ' + (isColNumeric(activeTable, cell_index) ? 'text-align: right; font-family: monospace;' : 'text-align: left;')">
+                                                            <t t-esc="cell"/>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td t-att-colspan="activeTable.headers.length + 1" class="text-center text-muted py-5">
+                                                    No records matching search query "<t t-esc="state.search_query"/>"
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- TAB 3: ALL SHEETS VIEW -->
+                <t t-elif="state.active_tab === 'all'">
+                    <div class="p-3">
+                        <t t-foreach="state.tables" t-as="sheetTable" t-key="sheetTable.sheet_code">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 fw-bold">
+                                        <i class="fa fa-table me-2"/> <t t-esc="sheetTable.title"/>
+                                    </h6>
+                                    <span class="badge bg-light text-dark">
+                                        <t t-esc="sheetTable.row_count"/> Records
+                                    </span>
+                                </div>
+                                <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-sm table-bordered table-hover align-middle mb-0" style="font-size: 11px; border-collapse: separate; border-spacing: 0;">
+                                        <thead style="position: sticky; top: 0; z-index: 2;">
+                                            <tr>
+                                                <th style="width: 40px; text-align: center; background-color: #343a40; color: #fff; padding: 6px;">#</th>
+                                                <t t-foreach="sheetTable.headers" t-as="hdr" t-key="hdr_index">
+                                                    <th t-att-style="'background-color: #343a40; color: #fff; font-weight: 600; white-space: nowrap; padding: 6px 8px; text-align: ' + (isColNumeric(sheetTable, hdr_index) ? 'right' : 'left')">
+                                                        <t t-esc="hdr"/>
+                                                    </th>
+                                                </t>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="sheetTable.rows" t-as="row" t-key="row_index">
+                                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                                    <td style="text-align: center; color: #888; font-size: 10px;">
+                                                        <t t-esc="row_index + 1"/>
+                                                    </td>
+                                                    <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                                        <td t-att-style="'padding: 5px 8px; white-space: nowrap; ' + (isColNumeric(sheetTable, cell_index) ? 'text-align: right; font-family: monospace;' : 'text-align: left;')">
+                                                            <t t-esc="cell"/>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+            </div>
+        </div>
+    </t>
+</templates>

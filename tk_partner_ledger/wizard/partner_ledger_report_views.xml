@@ -15,8 +15,13 @@
                             <field name="partner_id"/>
                         </group>
                     </group>
+                    <div invisible="not report_html" style="max-height: 60vh; overflow-y: auto; overflow-x: auto; margin-top: 15px; margin-bottom: 15px; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; background: #ffffff;">
+                        <field name="report_html" widget="html" readonly="1" nolabel="1"/>
+                    </div>
                     <footer>
                         <div style="display: flex; justify-content: center; align-items: center;">
+                            <button name="btn_preview_action" string="Preview" type="object" class="oe_highlight"/>
+                            <span style="vertical-align: middle; margin: 0 5px;">or</span>
                             <button name="btn_pdf_action" string="PDF" type="object" class="oe_highlight"/>
                             <span style="vertical-align: middle; margin: 0 5px;">or</span>
                             <button name="btn_excel_action" string="Excel" type="object" class="oe_highlight"/>
@@ -32,6 +37,7 @@
             <field name="res_model">partner.ledger.report</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
+            <field name="context">{'dialog_size': 'extra-large'}</field>
         </record>
 
         <!-- Menu entry under Accounting / Reporting -->

@@ -21,9 +21,17 @@
         'report/account_tax_invoice_report_action.xml',
         'views/dynamic_accounts_menu.xml',
         'views/hsn_summary_views.xml',
+        'views/gstr_dynamic_report_views.xml',
+        'report/gstr_dynamic_report_template.xml',
         'views/stock_move_line_views.xml',
         'views/account_move_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'arclight_account_custom/static/src/xml/gstr_dynamic_report.xml',
+            'arclight_account_custom/static/src/js/gstr_dynamic_report.js',
+        ],
+    },
     'license': 'LGPL-3',
     'installable': True,
     'auto_install': False,

@@ -16,5 +16,6 @@ class PartnerLedger(models.Model):
                   ("tk_partner_ledger.partner_ledger_wizard_action"))
         action['context'] = {
             'active_id': self._context.get('active_id'),
+            'dialog_size': 'extra-large',
         }
         return action

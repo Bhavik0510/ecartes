@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dynamic GSTR Client Actions -->
+    <record id="action_dynamic_gstr1" model="ir.actions.client">
+        <field name="name">GSTR1 Report</field>
+        <field name="tag">gstr1_report</field>
+    </record>
+
+    <record id="action_dynamic_gstr2" model="ir.actions.client">
+        <field name="name">GSTR2 Report</field>
+        <field name="tag">gstr2_report</field>
+    </record>
+
+    <record id="action_dynamic_gstr3b" model="ir.actions.client">
+        <field name="name">GSTR3B Report</field>
+        <field name="tag">gstr3b_report</field>
+    </record>
+
+    <record id="action_dynamic_gstr9" model="ir.actions.client">
+        <field name="name">GSTR9 Report</field>
+        <field name="tag">gstr9_report</field>
+    </record>
+
+    <!-- Point the 4 GSTR menu items to the new dynamic client actions -->
+    <record id="texbyte_gstr.account_report_gstr1" model="ir.ui.menu">
+        <field name="action" ref="action_dynamic_gstr1"/>
+    </record>
+
+    <record id="texbyte_gstr.account_report_gstr2" model="ir.ui.menu">
+        <field name="action" ref="action_dynamic_gstr2"/>
+    </record>
+
+    <record id="texbyte_gstr.account_report_gstr3b" model="ir.ui.menu">
+        <field name="action" ref="action_dynamic_gstr3b"/>
+    </record>
+
+    <record id="texbyte_gstr.account_report_gstr9" model="ir.ui.menu">
+        <field name="action" ref="action_dynamic_gstr9"/>
+    </record>
+</odoo>

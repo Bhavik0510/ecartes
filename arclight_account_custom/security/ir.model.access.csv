@@ -5,3 +5,5 @@ access_arclight_hsn_summary,access.arclight.hsn.summary,model_arclight_account_c
 access_arclight_hsn_summary_line,access.arclight.hsn.summary.line,model_arclight_account_custom_report_hsn_summary_line,account.group_account_user,1,0,0,0
 access_arclight_hsn_summary_billing,access.arclight.hsn.summary.billing,model_arclight_account_custom_report_hsn_summary,account.group_account_invoice,1,1,1,0
 access_arclight_hsn_summary_line_billing,access.arclight.hsn.summary.line.billing,model_arclight_account_custom_report_hsn_summary_line,account.group_account_invoice,1,0,0,0
+access_gstr_dynamic_report_user,access.gstr.dynamic.report.user,model_gstr_dynamic_report,account.group_account_user,1,1,1,1
+access_gstr_dynamic_report_invoice,access.gstr.dynamic.report.invoice,model_gstr_dynamic_report,account.group_account_invoice,1,1,1,1

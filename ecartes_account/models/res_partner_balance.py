@@ -39,24 +39,21 @@ class ResPartnerBalance(models.Model):
             partner.partner_balance = total_receivable - total_payable
 
     def action_view_partner_balance(self):
-        """Open invoices/bills with outstanding balance for this partner."""
+        """Open all journal entries for this partner."""
         self.ensure_one()
         commercial = self.commercial_partner_id or self
         all_partners = self.env['res.partner'].search([
             '|', ('id', '=', commercial.id),
             ('id', 'child_of', commercial.id)
         ])
-        tree_view_id = self.env.ref('ecartes_account.view_partner_ledger_tree').id
         return {
-            'name': f'Ledger - {self.name}',
+            'name': f'Journal Entries - {self.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'views': [(tree_view_id, 'list'), (False, 'form')],
+            'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'in', all_partners.ids),
                 ('state', '=', 'posted'),
-                ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'entry')),
-                ('amount_residual', '!=', 0),
             ],
             'context': {
                 'default_partner_id': self.id,

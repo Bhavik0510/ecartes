@@ -39,6 +39,16 @@ class TestPartnerLedger(TransactionCase):
             'end_date': date(2025, 1, 31),
         })
 
+    def test_generate_preview_report(self):
+        """
+        Test if the Preview report action works as expected in wizard.
+        """
+        preview_action = self.wizard.btn_preview_action()
+        self.assertEqual(preview_action.get('type'), 'ir.actions.act_window')
+        self.assertEqual(preview_action.get('res_model'), 'partner.ledger.report')
+        self.assertEqual(preview_action.get('target'), 'new')
+        self.assertTrue(bool(self.wizard.report_html))
+
     def test_generate_pdf_report(self):
         """
         Test if the PDF report generation works as expected.
