@@ -238,6 +238,8 @@ class GstrDynamicReport(models.TransientModel):
                         r += [""] * (max_cols - len(r))
 
                 sheet_code = sheet.name.lower().strip()
+                if len(tables) > 0:
+                    sheet_code = f"{sheet_code}_{len(tables)}"
                 tables.append({
                     'sheet_code': sheet_code,
                     'title': current_title or self._get_friendly_sheet_name(report_type, sheet.name),
