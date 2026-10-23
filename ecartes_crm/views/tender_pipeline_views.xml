@@ -10,6 +10,7 @@
                 <field name="user_id"/>
                 <field name="team_id"/>
                 <field name="stage_id" domain="[('is_tender_stage', '=', True)]"/>
+                <field name="lost_reason"/>
                 <separator/>
                 <filter string="My Pipeline" name="assigned_to_me" domain="[('user_id', '=', uid)]" help="Tender that are assigned to me"/>
                 <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]" help="No Responsible"/>
@@ -25,6 +26,7 @@
                     <filter string="Responsible" name="responsible" context="{'group_by':'user_id'}"/>
                     <filter string="Team" name="saleschannel" context="{'group_by':'team_id'}"/>
                     <filter name="stage" string="Stage" context="{'group_by':'stage_id'}"/>
+                    <filter string="Lost Reason" name="lost_reason" context="{'group_by':'lost_reason'}"/>
                     <filter string="Company" name="company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
                     <separator orientation="vertical"/>
                     <filter string="Creation Date" context="{'group_by':'create_date:month'}" name="month"/>
@@ -153,6 +155,7 @@
                 <field name="company_currency" invisible="1"/>
                 <field name="tender_value" sum="Tender Value" optional="show" widget="monetary" options="{'currency_field': 'company_currency'}"/>
                 <field name="stage_id" optional="show" decoration-bf="1"/>
+                <field name="lost_reason" optional="hide"/>
                 <field name="active" invisible="1"/>
                 <field name="message_needaction" invisible="1"/>
             </list>
@@ -262,6 +265,8 @@
                             <field name="maf_required"/>
                             <field name="is_qualified_stage" invisible="1"/>
                             <field name="is_financial_stage" invisible="1"/>
+                            <field name="is_lost_stage" invisible="1"/>
+                            <field name="is_lost" invisible="1"/>
                         </group>
                     </group>
                     <group cols="4" string="Important Points">
@@ -286,10 +291,13 @@
                             <field name="winning_amount"/>
                         </group>
                     </group>
-                    <group cols="4" string="Reason for Loss" invisible="not lost_reason">
+                    <!-- <group cols="4" string="Reason for Loss" invisible="not lost_reason">
                         <field name="lost_reason" nolabel="1"/>
+                    </group> -->
+                    <group cols="4" string="Reason for Loss" invisible="not is_lost">
+                        <field name="lost_reason" nolabel="1" readonly="0" options="{'no_open': False}" placeholder="Select Reason for Loss..."/>
                     </group>
-                    <notebook>
+                    <!-- <notebook>
                         <page string="EMD">
                             <group>
                                 <group>
@@ -312,7 +320,7 @@
                                 </group>
                             </group>
                         </page>
-                    </notebook>
+                    </notebook> -->
                 </sheet>
                 <chatter/>
             </form>

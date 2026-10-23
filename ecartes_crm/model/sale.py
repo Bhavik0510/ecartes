@@ -8,6 +8,7 @@ class SaleOrder(models.Model):
 
     tender_pipeline_id = fields.Many2one(
         'tender.pipeline', string='Tender Pipeline', check_company=True,
-        readonly=True,
-        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+        # readonly=True,
+        # domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+        domain="['&', '|', ('company_id', '=', False), ('company_id', '=', company_id), '|', ('stage_id.is_won', '=', True), ('stage_id.name', 'ilike', 'won')]")
 

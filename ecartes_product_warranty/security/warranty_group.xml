@@ -21,4 +21,17 @@
         <field name="name">Show Warranty</field>
         <field name="category_id" ref="ecartes_product_warranty.ecartes_product_warranty_categ"/>
     </record>
+
+    <!-- Multi - Company Rules -->
+    <!-- <record id="product_warranty_comp_rule" model="ir.rule">
+        <field name="name">Product Warranty multi-company</field>
+        <field name="model_id" ref="model_product_warranty"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="warranty_claim_comp_rule" model="ir.rule">
+        <field name="name">Warranty Claim multi-company</field>
+        <field name="model_id" ref="model_warranty_claim"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record> -->
 </odoo>

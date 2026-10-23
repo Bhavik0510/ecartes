@@ -22,5 +22,24 @@
             <field name="name">Allow AMC Configuration</field>
             <field name="category_id" ref="ecartes_amc.ecartes_amc_categ"/>
         </record>
+
+        <!-- Multi - Company Rules -->
+        <!-- <record id="amc_comp_rule" model="ir.rule">
+            <field name="name">AMC multi-company</field>
+            <field name="model_id" ref="model_amc_amc"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="amc_line_comp_rule" model="ir.rule">
+            <field name="name">AMC Line multi-company</field>
+            <field name="model_id" ref="model_amc_line"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="amc_claim_comp_rule" model="ir.rule">
+            <field name="name">AMC Claim multi-company</field>
+            <field name="model_id" ref="model_amc_claim"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record> -->
     </data>
 </odoo>

@@ -9,6 +9,7 @@ class ProductWarranty(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'product_warranty'
     _rec_name = 'name'
+    # _order = 'create_date desc, id desc'
 
     name = fields.Char('Reference', default='New', copy=False, required=True, readonly=True)
 
@@ -16,10 +17,18 @@ class ProductWarranty(models.Model):
     warranty_type = fields.Selection(string="Warranty Type", selection=[('free', 'Free'), ('paid', 'Paid'), ],
                                      required=True, default="free", tracking=True)
 
+    # product_id = fields.Many2one(
+    #     'product.product', string='Product',
+    #     domain="[('is_under_warranty','=',True),('type', 'in', ['product', 'consu']), '|', ('company_id', '=', company_id), ('company_id', '=', False)]",
+    #     required=True, check_company=True, tracking=True)
     product_id = fields.Many2one(
         'product.product', string='Product',
         domain="[('is_under_warranty','=',True),('type', 'in', ['product', 'consu']), '|', ('company_id', '=', company_id), ('company_id', '=', False)]",
-        required=True, check_company=True, tracking=True)
+        required=False, check_company=True, tracking=True)
+    line_ids = fields.One2many(
+        comodel_name="product.warranty.line",
+        inverse_name="warranty_id",
+        string="Products")
 
     lot_ids = fields.Many2many(
         'stock.lot', string='Lot/Serial', tracking=True,
@@ -111,18 +120,144 @@ class ProductWarranty(models.Model):
             if vals.get('installation_date'):
                 vals.update({'is_set_install_date': True})
 
+            # If line_ids provided, sync product_id and lot_ids for compatibility
+            if vals.get('line_ids'):
+                first_product = False
+                all_lots = []
+                for cmd in vals['line_ids']:
+                    if isinstance(cmd, (tuple, list)) and len(cmd) == 3 and isinstance(cmd[2], dict):
+                        data = cmd[2]
+                        if not first_product and data.get('product_id'):
+                            first_product = data['product_id']
+                        if data.get('lot_ids'):
+                            for l_cmd in data['lot_ids']:
+                                if isinstance(l_cmd, (tuple, list)) and len(l_cmd) >= 2:
+                                    if l_cmd[0] == 6 and len(l_cmd) == 3:
+                                        all_lots.extend(l_cmd[2])
+                                    elif l_cmd[0] == 4 and len(l_cmd) >= 2:
+                                        all_lots.append(l_cmd[1])
+                                elif isinstance(l_cmd, int):
+                                    all_lots.append(l_cmd)
+                        elif data.get('lot_id'):
+                            all_lots.append(data['lot_id'])
+                if first_product and not vals.get('product_id'):
+                    vals['product_id'] = first_product
+                if all_lots and not vals.get('lot_ids'):
+                    vals['lot_ids'] = [(6, 0, list(set(all_lots)))]
+            # If product_id provided directly (legacy / manual) and no line_ids, build line_ids
+            elif vals.get('product_id') and not vals.get('line_ids'):
+                lines = []
+                lots = []
+                if vals.get('lot_ids'):
+                    for cmd in vals['lot_ids']:
+                        if isinstance(cmd, (tuple, list)) and len(cmd) >= 2:
+                            lots = cmd[2] if len(cmd) == 3 else cmd[1]
+                if lots:
+                    lines.append((0, 0, {
+                        'product_id': vals['product_id'],
+                        'lot_ids': [(6, 0, lots)],
+                        'product_qty': float(len(lots)),
+                    }))
+                else:
+                    lines.append((0, 0, {
+                        'product_id': vals['product_id'],
+                        'lot_ids': False,
+                        'product_qty': vals.get('product_qty', 1.0),
+                    }))
+                vals['line_ids'] = lines
+
         warranties = super(ProductWarranty, self).create(vals_list)
         for warranty in warranties:
-            if warranty.lot_ids:
+            if warranty.line_ids:
+                for line in warranty.line_ids:
+                    line_lots = line.lot_ids or (line.lot_id if line.lot_id else self.env['stock.lot'])
+                    for single_lot in line_lots:
+                        existing = self.env['product.warranty.line'].search([
+                            ('product_id', '=', line.product_id.id),
+                            '|',
+                            ('lot_ids', 'in', single_lot.id),
+                            ('lot_id', '=', single_lot.id),
+                            ('warranty_id', '!=', warranty.id),
+                        ], limit=1)
+                        if existing:
+                            raise UserError(_('You Cannot Create more than one Warranty with same serial number (%s).') % single_lot.name)
+            elif warranty.lot_ids:
                 pw = self.search([('product_id', '=', warranty.product_id.id), ('lot_ids', 'in', warranty.lot_ids.ids), ('id', '!=', warranty.id)])
                 if pw:
                     raise UserError('You Cannot Create more than one Warranty with same serial number.')
         return warranties
 
+    def read(self, fields=None, load='_classic_read'):
+        res = super(ProductWarranty, self).read(fields=fields, load=load)
+        for rec in self:
+            if rec.product_id and not rec.line_ids:
+                lines = []
+                if rec.lot_ids:
+                    lines.append((0, 0, {
+                        'product_id': rec.product_id.id,
+                        'lot_ids': [(6, 0, rec.lot_ids.ids)],
+                        'product_qty': rec.product_qty or float(len(rec.lot_ids)),
+                        'company_id': rec.company_id.id,
+                    }))
+                else:
+                    lines.append((0, 0, {
+                        'product_id': rec.product_id.id,
+                        'lot_ids': False,
+                        'product_qty': rec.product_qty or 1.0,
+                        'company_id': rec.company_id.id,
+                    }))
+                rec.sudo().write({'line_ids': lines})
+            elif rec.line_ids and rec.lot_ids:
+                for line in rec.line_ids:
+                    if not line.lot_ids:
+                        matching_lots = rec.lot_ids.filtered(lambda l: l.product_id == line.product_id)
+                        if matching_lots:
+                            line.sudo().write({'lot_ids': [(6, 0, matching_lots.ids)]})
+        return res
+
     def write(self, vals):
         if vals.get('installation_date'):
             vals.update({'is_set_install_date': True})
+        if vals.get('line_ids'):
+            first_product = False
+            all_lots = []
+            for cmd in vals['line_ids']:
+                if isinstance(cmd, (tuple, list)) and len(cmd) == 3 and isinstance(cmd[2], dict):
+                    data = cmd[2]
+                    if not first_product and data.get('product_id'):
+                        first_product = data['product_id']
+                    if data.get('lot_ids'):
+                        for l_cmd in data['lot_ids']:
+                            if isinstance(l_cmd, (tuple, list)) and len(l_cmd) >= 2:
+                                if l_cmd[0] == 6 and len(l_cmd) == 3:
+                                    all_lots.extend(l_cmd[2])
+                                elif l_cmd[0] == 4 and len(l_cmd) >= 2:
+                                    all_lots.append(l_cmd[1])
+                            elif isinstance(l_cmd, int):
+                                all_lots.append(l_cmd)
+                    elif data.get('lot_id'):
+                        all_lots.append(data['lot_id'])
+            if first_product and not vals.get('product_id'):
+                vals['product_id'] = first_product
+            if all_lots and not vals.get('lot_ids'):
+                vals['lot_ids'] = [(6, 0, list(set(all_lots)))]
         return super(ProductWarranty, self).write(vals)
+
+    @api.onchange('line_ids')
+    def _onchange_line_ids_sync(self):
+        all_lots = []
+        first_product = False
+        for line in self.line_ids:
+            if not first_product and line.product_id:
+                first_product = line.product_id
+            if line.lot_ids:
+                all_lots.extend(line.lot_ids.ids)
+            elif line.lot_id:
+                all_lots.append(line.lot_id.id)
+        if first_product and not self.product_id:
+            self.product_id = first_product
+        if all_lots:
+            self.lot_ids = [(6, 0, list(dict.fromkeys(all_lots)))]
 
     @api.onchange('warranty_term_id', 'installation_date')
     def onchnage_warranty_term(self):
@@ -369,22 +504,37 @@ class ProductWarranty(models.Model):
         for rec in self:
             line_lst1.append(rec.id) 
 
+        amc_lines = []
+        if self.line_ids:
+            for line in self.line_ids:
+                lots = line.lot_ids or (line.lot_id if line.lot_id else self.env['stock.lot'])
+                amc_lines.append((0, 0, {
+                    'product_id': line.product_id.id,
+                    'product_qty': line.product_qty,
+                    'lot_id': line.lot_id.id if line.lot_id else (line.lot_ids[0].id if line.lot_ids else False),
+                    'lot_ids': [(6, 0, lots.ids)] if lots else False,
+                }))
+        else:
+            lots = self.lot_ids or (self.lot_id if hasattr(self, 'lot_id') and self.lot_id else self.env['stock.lot'])
+            amc_lines.append((0, 0, {
+                'product_id': self.product_id.id,
+                'product_qty': self.product_qty,
+                'lot_id': lots[0].id if lots else False,
+                'lot_ids': [(6, 0, lots.ids)] if lots else False,
+            }))
+
         new_amc = self.env['amc.amc'].sudo().create({
             'amc_term_id': amc_term or 1,
             'amc_start_date':self.warranty_start_date,
             'amc_cost':self.warranty_type,
             'product_warrenty_ids': line_lst1,
+            'product_warrenty_id': self[0].id if self else False,
+            'warranty_ref': ', '.join(self.mapped('name')) if self else False,
             'partner_id': self.partner_id.id,
             'amc_amt': self.warranty_amt,
             'renewal_user_id':self.renewal_user_id.id,
             'sale_order_id': self._get_linked_sale_order_id(),
-            'line_ids': [
-                    (0, 0, {
-                        'product_id': self.product_id.id,
-                        'product_qty': self.product_qty,
-                        'lot_id': self.lot_ids[0].id if self.lot_ids else False,
-                    })
-                ],  
+            'line_ids': amc_lines,  
         })
         new_amc._onchange_invoice_term()
         amc = self.env['amc.amc'].sudo().search([('product_warrenty_ids', 'in', self.id)], limit=1)
@@ -418,11 +568,23 @@ class ProductWarranty(models.Model):
 
             line_lst = []
             for rec in self:
-                line_lst.append((0, 0, {
-                    'product_id': rec.product_id.id,
-                    'lot_id': rec.lot_ids[0].id if rec.lot_ids else False,
-                    'product_qty': rec.product_qty,
-                }))
+                if rec.line_ids:
+                    for line in rec.line_ids:
+                        lots = line.lot_ids or (line.lot_id if line.lot_id else self.env['stock.lot'])
+                        line_lst.append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'lot_id': line.lot_id.id if line.lot_id else (line.lot_ids[0].id if line.lot_ids else False),
+                            'lot_ids': [(6, 0, lots.ids)] if lots else False,
+                            'product_qty': line.product_qty,
+                        }))
+                else:
+                    lots = rec.lot_ids or (rec.lot_id if hasattr(rec, 'lot_id') and rec.lot_id else self.env['stock.lot'])
+                    line_lst.append((0, 0, {
+                        'product_id': rec.product_id.id,
+                        'lot_id': lots[0].id if lots else False,
+                        'lot_ids': [(6, 0, lots.ids)] if lots else False,
+                        'product_qty': rec.product_qty,
+                    }))
             
             line_lst1 = []
             for rec in self:
@@ -440,6 +602,8 @@ class ProductWarranty(models.Model):
                     'invoice_id': self.mapped('invoice_id').id,
                     'amc_term_id': amc_term,
                     'product_warrenty_ids': line_lst1,
+                    'product_warrenty_id': self[0].id if self else False,
+                    'warranty_ref': ', '.join(self.mapped('name')) if self else False,
                     'line_ids': line_lst,
                     'sale_order_id': self[0]._get_linked_sale_order_id(),
                 }

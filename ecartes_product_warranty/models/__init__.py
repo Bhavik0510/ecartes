@@ -6,5 +6,6 @@ from .import warranty_claim
 from .import warranty_terms
 from .import warranty_history
 from .import account_move
-from .import amc
+from . import amc
+from . import product_warranty_line
 

@@ -18,6 +18,7 @@
         <field name="arch" type="xml">
         	<xpath expr="//field[@name='team_id']" position="after">
         		<field name="is_tender_stage"/>
+        		<field name="is_lost_stage" optional="show"/>
         	</xpath>
         </field>
     </record>
@@ -33,6 +34,7 @@
                     <field name="is_tender_stage"/>
                     <field name="is_qualified_stage" invisible="not is_tender_stage"/>
                     <field name="is_financial_stage" invisible="not is_tender_stage"/>
+                    <field name="is_lost_stage" invisible="not is_tender_stage"/>
                 </group>
         	</xpath>
         </field>

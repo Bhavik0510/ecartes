@@ -6,7 +6,8 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
         	<xpath expr="//field[@name='partner_shipping_id']" position="after">
-                <field name="tender_pipeline_id"/>
+                <!-- <field name="tender_pipeline_id"/> -->
+                <field name="tender_pipeline_id" readonly="0" domain="['&amp;', '|', ('company_id', '=', False), ('company_id', '=', company_id), '|', ('stage_id.is_won', '=', True), ('stage_id.name', 'ilike', 'won')]"/>
             </xpath>
         </field>
     </record>

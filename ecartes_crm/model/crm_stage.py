@@ -9,3 +9,4 @@ class Stage(models.Model):
     is_tender_stage = fields.Boolean(string="Is Tender Stage?", default=False)
     is_qualified_stage = fields.Boolean(string="Is Qualified Stage?", default=False)
     is_financial_stage = fields.Boolean(string="Is Financial Stage?", default=False)
+    is_lost_stage = fields.Boolean(string="Is Lost Stage?", default=False)

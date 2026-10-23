@@ -13,6 +13,7 @@ class Amc(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Amc'
     _rec_name = 'name'
+    # _order = 'create_date desc, id desc'
 
     name = fields.Char('Reference', default='New', copy=False, required=True, readonly=True)
     description = fields.Char('Description', tracking=True)
@@ -53,6 +54,7 @@ class Amc(models.Model):
     sale_order_id = fields.Many2one('sale.order', 'Sale Order', copy=False, tracking=True)
     sale_order_ref = fields.Char('Sale Order Ref', help='Legacy/Tally SO reference', tracking=True)
     invoice_ref = fields.Char('Invoice Ref', help='Legacy/Tally invoice reference', tracking=True)
+    warranty_ref = fields.Char('Warranty Ref No', help='Warranty reference number', tracking=True)
     user_id = fields.Many2one('res.users', string="Sales Person", default=lambda self: self.env.user, check_company=True)
     renewal_user_id = fields.Many2one('res.users', string="Renewal By", default=lambda self: self.env.user,
                                       check_company=True)
@@ -261,18 +263,45 @@ class Amc(models.Model):
             _logger.info("=== AFTER AMC HISTORY CREATE ===")
 
         else:
-            self.state = '2beinvoice'
+            # === Previous code commented as requested ===
+            # self.state = '2beinvoice'
+
+            # Automatic invoice creation on confirm according to selected invoice_term
+            for amc in self:
+                if not amc.amc_visitor_plan_ids and amc.invoice_term:
+                    amc._onchange_invoice_term()
+
+                invoices = amc._create_invoices(amc_id=amc.id, amc_name=amc.name, invoice_amount=amc.amc_amt)
+                if invoices:
+                    amc.invoice_ids = [(6, 0, invoices)]
+                    amc.invoice_id = invoices[0]
+                    amc.state = 'invoiced'
+                else:
+                    amc.state = '2beinvoice'
 
         _logger.info("=== CONFIRM AMC END ===")   
 
 
     def create_amc_invoice(self):
+        # === Previous code commented as requested ===
+        # for amc in self:
+        #     invoices = amc._create_invoices(amc_id=amc.id, amc_name=amc.name, invoice_amount=self.amc_amt)
+        #
+        #     if invoices:
+        #         self.invoice_ids = [(6, 0, invoices)]
+        #         self.state = 'invoiced'
+        #
+        # return True
+
         for amc in self:
-            invoices = amc._create_invoices(amc_id=amc.id, amc_name=amc.name, invoice_amount=self.amc_amt)
+            if not amc.amc_visitor_plan_ids and amc.invoice_term:
+                amc._onchange_invoice_term()
+            invoices = amc._create_invoices(amc_id=amc.id, amc_name=amc.name, invoice_amount=amc.amc_amt)
 
             if invoices:
-                self.invoice_ids = [(6, 0, invoices)]
-                self.state = 'invoiced'
+                amc.invoice_ids = [(6, 0, invoices)]
+                amc.invoice_id = invoices[0]
+                amc.state = 'invoiced'
 
         return True
 
@@ -290,11 +319,46 @@ class Amc(models.Model):
         else:
             pass
 
-
         invoices = []
+        today = fields.Date.today()
+
+        plan_records = self.amc_visitor_plan_ids
+        if not plan_records:
+            date_invoice = self.amc_start_date or today
+            invoice_vals = {
+                'move_type': move_type,
+                'partner_id': partner_id or self.partner_id.id,
+                'invoice_date': date_invoice,
+                'is_amc_invoice': True,
+                'date': date_invoice,
+                'amc_id': amc_id,
+                'company_id': self.company_id.id,
+                'invoice_line_ids': [(0, 0, {
+                    'name': 'AMC %s' % amc_name,
+                    'quantity': 1,
+                    'price_unit': invoice_amount,
+                    'tax_ids': [(6, 0, [])],
+                })]
+            }
+            if self.sale_order_id:
+                invoice_vals['invoice_origin'] = self.sale_order_id.name
+            if payment_term_id:
+                invoice_vals['invoice_payment_term_id'] = payment_term_id
+            if currency_id:
+                invoice_vals['currency_id'] = currency_id
+
+            invoice = self.env['account.move'].with_context(default_move_type=move_type).create(invoice_vals)
+            inv_date = fields.Date.to_date(date_invoice) if date_invoice else False
+            if inv_date and inv_date <= today:
+                try:
+                    invoice.action_post()
+                except Exception as e:
+                    _logger.warning("Could not auto-post fallback invoice %s: %s", invoice.id, e)
+            invoices.append(invoice.id)
+            return invoices
+
         for record in self.amc_visitor_plan_ids:
             date_invoice = record.visit_date
-
 
             invoice_vals = {
                 'move_type': move_type,
@@ -303,6 +367,7 @@ class Amc(models.Model):
                 'is_amc_invoice': True,
                 'date': date_invoice,
                 'amc_id': amc_id,
+                'company_id': self.company_id.id,
                 'invoice_line_ids': [(0, 0, {
                     'name': 'AMC %s' % amc_name,
                     'quantity': 1,
@@ -310,15 +375,30 @@ class Amc(models.Model):
                     'tax_ids': [(6, 0, [])],
                 })]
             }
+            if self.sale_order_id:
+                invoice_vals['invoice_origin'] = self.sale_order_id.name
 
             if payment_term_id:
                 invoice_vals['invoice_payment_term_id'] = payment_term_id
 
-
             if currency_id:
                 invoice_vals['currency_id'] = currency_id
 
+            # === Previous code commented as requested ===
+            # invoice = self.env['account.move'].with_context(default_move_type=move_type).create(invoice_vals)
+            # invoices.append(invoice.id)
+
             invoice = self.env['account.move'].with_context(default_move_type=move_type).create(invoice_vals)
+
+            # Invoices whose date is in the future remain in 'draft' stage.
+            # Invoices whose date has arrived (today or past) are confirmed/posted.
+            inv_date = fields.Date.to_date(date_invoice) if date_invoice else False
+            if inv_date and inv_date <= today:
+                try:
+                    invoice.action_post()
+                except Exception as e:
+                    _logger.warning("Could not auto-post invoice %s on confirm: %s", invoice.id, e)
+
             invoices.append(invoice.id)
         return invoices
 

@@ -81,17 +81,17 @@ class TenderPipeline(models.Model):
     po_received = fields.Boolean(string="PO Received")
     financial_attachments = fields.One2many('ir.attachment', 'res_id', string="Financial Result(s)")
 
-    emd_status = fields.Selection([('not_selected', 'Not Selected'), 
-        ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default="not_selected",
-        string="EMD status")
-    emd_returned = fields.Boolean(string="EMD Returned")
-    emd_issue = fields.Boolean(string="EMD Issue")
+    # emd_status = fields.Selection([('not_selected', 'Not Selected'), 
+    #     ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default="not_selected",
+    #     string="EMD status")
+    # emd_returned = fields.Boolean(string="EMD Returned")
+    # emd_issue = fields.Boolean(string="EMD Issue")
 
-    pbg_status = fields.Selection([('not_selected', 'Not Selected'), 
-        ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default="not_selected",
-        string="PBG status")
-    pbg_returned = fields.Boolean(string="PBG Returned")
-    pbg_issue = fields.Boolean(string="PBG Issue")
+    # pbg_status = fields.Selection([('not_selected', 'Not Selected'), 
+    #     ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default="not_selected",
+    #     string="PBG status")
+    # pbg_returned = fields.Boolean(string="PBG Returned")
+    # pbg_issue = fields.Boolean(string="PBG Issue")
 
     active = fields.Boolean('Active', default=True, tracking=True)
 
@@ -105,7 +105,54 @@ class TenderPipeline(models.Model):
         domain="[('is_tender_stage', '=', True), '|', ('team_id', '=', False), ('team_id', '=', team_id)]")
     is_qualified_stage = fields.Boolean(related="stage_id.is_qualified_stage", string="Is Qualified Stage?")
     is_financial_stage = fields.Boolean(related="stage_id.is_financial_stage", string="Is Financial Stage?")
-    is_won_stage = fields.Boolean(related="stage_id.is_won", string="Is Won?")
+    # is_won_stage = fields.Boolean(related="stage_id.is_won", string="Is Won?")
+    is_won_stage = fields.Boolean(
+        string="Is Won?",
+        compute="_compute_is_won_stage",
+        store=True,
+    )
+    is_lost_stage = fields.Boolean(
+        string="Is Lost Stage?",
+        compute="_compute_is_lost_stage",
+        store=True,
+    )
+    is_lost = fields.Boolean(
+        string="Is Lost?",
+        compute="_compute_is_lost",
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('stage_id', 'stage_id.is_won', 'stage_id.name')
+    def _compute_is_won_stage(self):
+        for record in self:
+            record.is_won_stage = bool(
+                record.stage_id and (
+                    record.stage_id.is_won
+                    or 'won' in (record.stage_id.name or '').lower()
+                )
+            )
+
+    @api.depends('stage_id', 'stage_id.is_lost_stage', 'stage_id.name')
+    def _compute_is_lost_stage(self):
+        for record in self:
+            record.is_lost_stage = bool(
+                record.stage_id and (
+                    record.stage_id.is_lost_stage
+                    or 'lost' in (record.stage_id.name or '').lower()
+                )
+            )
+
+    @api.depends('active', 'lost_reason', 'stage_id', 'stage_id.is_lost_stage', 'stage_id.name')
+    def _compute_is_lost(self):
+        for record in self:
+            is_lost_by_stage = bool(
+                record.stage_id and (
+                    record.stage_id.is_lost_stage
+                    or 'lost' in (record.stage_id.name or '').lower()
+                )
+            )
+            record.is_lost = bool(not record.active or is_lost_by_stage or record.lost_reason)
     kanban_state = fields.Selection([
         ('grey', 'No next activity planned'),
         ('red', 'Next activity late'),
@@ -341,16 +388,32 @@ class TenderPipeline(models.Model):
             tenders.write({'stage_id': won_stage_id.id})
         return True
 
+    # def toggle_active(self):
+    #     activated = self.filtered(lambda tender: tender.active)
+    #     if activated:
+    #         activated.write({'lost_reason': False})
+    #     return True
     def toggle_active(self):
+        res = super(TenderPipeline, self).toggle_active()
         activated = self.filtered(lambda tender: tender.active)
         if activated:
             activated.write({'lost_reason': False})
-        return True
+        return res
 
+    # def action_set_lost(self, **additional_values):
+    #     res = self.action_archive()
+    #     if additional_values:
+    #         self.write(dict(additional_values))
+    #     return res
     def action_set_lost(self, **additional_values):
+        lost_stages = self._stage_find(domain=[('is_tender_stage', '=', True), '|', ('is_lost_stage', '=', True), ('name', 'ilike', 'lost')], limit=None)
+        stage_id = lost_stages[0] if lost_stages else None
+        vals = dict(additional_values)
+        if stage_id:
+            vals['stage_id'] = stage_id.id
         res = self.action_archive()
-        if additional_values:
-            self.write(dict(additional_values))
+        if vals:
+            self.write(vals)
         return res
 
     def _get_rainbowman_message(self):
