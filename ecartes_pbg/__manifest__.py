@@ -15,7 +15,7 @@
         'wizard/issue.xml',
         'wizard/reject_reason_view.xml',
         'data/mail_template.xml',
-        'data/pbg_validity_check_cron.xml',
+        # 'data/pbg_validity_check_cron.xml',
         'data/rule.xml',
         "views/pbg_details_view.xml",
         "report/report.xml",
